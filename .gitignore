@@ -1,0 +1,10 @@
+**/__pycache__/**
+build
+build.zip
+testin.py
+dist
+*.spec
+build_scripts
+.vscode
+.idea
+.venv
