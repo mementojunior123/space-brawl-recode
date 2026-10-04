@@ -1,0 +1,1 @@
+window.dispatchEvent(new CustomEvent("`{EVENT_TYPE}`", {detail : `{EVENT_ARGS}`}))
