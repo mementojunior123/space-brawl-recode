@@ -1,0 +1,213 @@
+---Balancing---
+-How do i balance primary fire vs alternate fire????
+-Early game feel?
+-Late game balance?
+-Difficulties?
+
+---General---
+-Add a hard mode where every upgrade has an upside
+-Make sections 10 short waves instead of 5 long waves?? make waves shorter?
+-Make DDA account for enemy type? Make DDA affect enemy type weight?
+-A tutorial!!!
+-Revamp the shop
+
+---Enemies---
+
+-Regular:
+    -Basic --> The normal enemy [done]
+    -Elite [...] --> Make resitant to primary fire?
+    -Gunner --> shoots more often [done]
+    -Runner --> slides down the side of the screen, but does not shoot [done]
+    -Divebomber:
+        When killed, attempts to throw itself at the player. 
+        When killed again, fires projectiles in all directions that hurt both players and enemies
+    -Guardian:
+        Has a shield that must be broken before it can take damage.
+        This shield reflects projectiles.
+    -Grenadier:
+        Throws grenades at you
+    -Slingshoter:
+        Moves around at the back before charging torwards the player. Goes back up slowly after doing so
+    -Camouflager:
+        Becomes visible and invisible periodically (when it hits a wall).
+        Can randomly double-back when it goes to the middle of the screen
+
+-Bosses:
+    -Basic [done]
+    -Elite [done]
+    -Spaceship [done]
+    -Elite spaceship [done]
+
+---Upgrades---
+-Different upgrade types:
+    -Minor (stat buff)
+    -Major (stat buff)
+    -Perk (passive that isn't just a stat buff)
+    -Ability (activated manually, max 1, recharges at the end of the wave)
+    -Specialization (Weapon upgrade / new weapon, max 1 weapon at a time)
+    -One time (stackable upgrades that apply once)
+
+-Each perk has a tier, from 1 to 10. This represents how strong it is relative to its type.
+-As the game progresses, available upgrade tiers get higher. This makes upgrades scale with time.
+    -You can only get upgrades near or at your current tier.
+    -Upgrade rarity is determined by its individual weight, its type and its tier.
+    -Certain upgrades can be obtained at any moment, irrespective of tier.
+-Border shape and border color --> Upgrade tier/type
+-Add messages in red for new weapons/abilities that replace other weapons/abilities
+-The upgrade type and tier has to also be displayed somewhere else
+
+-You can reroll the shop for new upgrades.
+    -You can do it once fof free.
+    -Every subsequent reroll increases the cost by 1 health. Ex : 1st reroll free, 2nd reroll 1 hp, 3rd reroll 2 hp...
+
+-Specilization carryover:
+    -When getting a new weapon, you will automatically get specilization of equivalent tier minus 1 level.
+
+Wave 1~2 : Mostly minor upgrades (like 2/3)
+Wave 3 : At least 1 perk/ability/major
+Wave 4 : Mostly minor upgrades (like 2/3)
+Wave 5 : At least 2 perk/ability/major
+Wave 6~7 : Mostly minor upgrades (like 1/2), but a bit stronger
+Wave 8 : At least 1 perk/ability/major
+Wave 9 : Mostly minor upgrades (like 1/2), but a bit stronger
+Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
+
+-Upgrade catalog:
+    -Minor/Major:
+        -Offensive:
+            Primary damage [done]
+            Primary firerate [done]
+            Universal firerate [done]
+            Alt damage [done]
+            Alt firerate [done]
+            Universal firerate [done]
+        -Defensive:
+            Max health bonus (rare, Major) [done]
+        -Utility:
+            Ability recharge rate [done]
+    -Perk:
+        Rarer cards (rare):
+            I --> Common cards appear less often
+            II --> Rare cards appear more often
+            III --> Rare cards appear even more often
+            IV --> Extremely rare cards appear more often
+        Card abundance (rare):
+            I --> +1 free reroll
+            II --> Re-roll cost is divided by 2 (rounded up)
+            III --> +1 free reroll
+            IV --> + 1 card slot in the shop
+        Passive regeneration:
+            I --> After 5 consecutive waves without taking damage, heal 1 health.
+            II --> Only 3 waves without taking damage is necessary.
+            III --> Only 2 waves without taking damage is necessary.
+            IV --> Only 1 wave without taking damage is necessary.
+        Shield:
+            I --> You have a shield that blocks projeciles. After taking x damage, it breaks and takes y time to reactivate.
+            II --> Lower cooldown and higher health.
+            III --> Lower cooldown and higher health.
+            IV --> Projectiles are now reflected instead of blocked
+        Ability leech:
+            I --> Every time an enemy is killed, progress ability cooldown by 1%.
+            II --> 2% instead of 1%
+            III --> 3% instead of 2%
+            IV --> 4% instead of 3%
+        Damage chain:
+            I --> Every hit increases damage by 1%. Missing a shot or not hitting anything for 10 seconds resets the chain.
+            II --> 2% instead of 1%
+            III --> 3% instead of 2%
+            IV --> 5% instead of 3%
+        Rotating shield:
+            ???
+    -Ability:
+        -Dash:
+            I (default) --> Quickly move in one direction [done]
+            II (T1) --> More I-frames
+            III (T2) --> Now has two uses before going on cooldown
+        -Slow-mo:
+            I (T2) --> Temporarly slow down time
+            II (T3) --> Make slow-down longer
+            III (T4) --> Player keeps regular speed
+            IV (T5) --> Time freeze
+        -Overcharge:
+            I (T2) --> Temporarly increase alternate fire firerate
+            II (T3) --> Makes the ability longer
+            III (T4) --> Now increases alternate damage while active
+            IV (T5) --> Now increases alternate damage and firerate even more while active
+        -Rifler burst:
+            I (T2) --> Temporarly increase primary fire firerate and make it hitscan
+            II (T3) --> Makes the ability longer
+            III (T4) --> Now increases primary damage while active
+            IV (T5) --> Now increases primary damage and firerate even more while active
+
+    -One time:
+        -Health
+            Heal health (conditional, no tier rarity scaling) [done]
+            Full heal (conditional, rare, no tier rarity scaling) [done]
+
+    -Specilization:
+        -Lazer Specialist [done]:
+            Base (default) --> Fire a single high damage lazer. [done]
+            I (T1) --> On hit, the lazer splits in four projectiles that deal half damage. [done]
+            II (T2) --> The lazer now splits one more time, conserving 50% of the damage each split. [done]
+            III (T3) --> The lazer no longer loses damage each split. [done]
+        -Shotgun Specialist [done]:
+            Base (T1) --> A shotgun that fires 5 pellets. [done]
+            I (T2) --> On hit, the shotgun shells split in three, dealing more damage. [done]
+            II (T3) --> The shotgun shells split one more time, dealing even more damage. [done]
+            III (T4) --> The shotgun shells now bounce of the edges of the screen twice before exiting the screen. [done]
+        -Rocket Specialist [done]:
+            Base (T2) --> A heat-seeking missile that deals 50% of its damage as AOE damage on hit. [done]
+            I (T3) --> The rocket now has an increased explosive range and deals more AOE damage. [done]
+        -Boomerang
+            Base (T1) --> High damage, high cooldown slow projectile. If you catch it after it bounces, shorter cooldown by 25%
+            I (T1) -->
+
+
+---Enemy tradeoffs---
+-Generic stat buffs:
+    -Enemy spawns:
+        Longer waves
+        Harder enemy types
+        Faster enemy spawn
+
+    -Enemy health
+    -Enemy speed
+    -Enemy primary fire resitance
+    -Enemy alternate fire resistance
+    -Enemy firerate
+    -Less i-frames
+
+Enemy specific buff:
+    -Elite
+        Even more resistances
+    -Gunner
+        Dodges more often
+    -Runner
+        Switches to the other side of the screen
+        Moves even faster
+    -Divebomber:
+        Throws itself at the player faster
+        New projecti
+        When killed, attempts to throw itself at the player. 
+        When killed again, fires projectiles in all directions that hurt both players and enemies
+    -Guardian:
+        Reflected projectiles move faster
+        Shield is wider
+        Has a shield that must be broken before it can take damage.
+        This shield reflects projectiles.
+    -Grenadier:
+        Shoots more often
+        Bigger AOE
+        +1 damage
+    -Slingshoter:
+        Charges faster
+        Moves backwards faster
+        More aggressive
+    -Camouflager:
+        Visible for less long
+        No particle effects on hit
+        Cannot be hit while visible/invisible
+
+Major buffs:
+    -Aggressive enemies
+    -Damage + 1
