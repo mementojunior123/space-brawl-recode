@@ -14,21 +14,23 @@
 ---Enemies---
 
 -Regular:
-    -Basic --> The normal enemy [jam]
-    -Elite [...] --> Make resitant to primary fire?
-    -Gunner --> shoots more often [jam]
-    -Runner --> slides down the side of the screen, but does not shoot [jam]
-    -Divebomber:
+    -Basic (T1) --> The normal enemy [jam]
+    -Elite (T2):
+        Has more health, shoots more often and moves faster than a basic enemy.
+        Resistant to primary fire.
+    -Gunner (T2) --> shoots more often [jam]
+    -Runner (T2) --> slides down the side of the screen, but does not shoot [jam]
+    -Divebomber (T3):
         When killed, attempts to throw itself at the player. 
         When killed again, fires projectiles in all directions that hurt both players and enemies
-    -Guardian:
+    -Guardian (T3):
         Has a shield that must be broken before it can take damage.
         This shield reflects projectiles.
-    -Grenadier:
+    -Grenadier (T3):
         Throws grenades at you
-    -Slingshoter:
+    -Slingshoter (T3):
         Moves around at the back before charging torwards the player. Goes back up slowly after doing so
-    -Camouflager:
+    -Camouflager (T3):
         Becomes visible and invisible periodically (when it hits a wall).
         Can randomly double-back when it goes to the middle of the screen
 
@@ -118,6 +120,14 @@ Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
             IV --> 5% instead of 3%
         Rotating shield:
             ???
+        Borrowed time:
+            I --> When you take lethal damage, you live for 10 seconds longer. If the wave ends during this time, you are restored to one health. <
+                  If you take damage while this ability is active, you die.
+            II --> The duration is extended to 20 seconds.
+            ...
+        Undying:
+            I --> When you take lethal damage, you have a chance to negate it entirely.
+            ...
     -Ability:
         -Dash:
             I (default) --> Quickly move in one direction [jam]
@@ -138,7 +148,10 @@ Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
             II (T3) --> Makes the ability longer
             III (T4) --> Now increases primary damage while active
             IV (T5) --> Now increases primary damage and firerate even more while active
-
+        -Airstrike:
+            I (T3) --> An airstrike spawn, doing a ton of crowd control. Long cooldown.
+            II (T4) --> Stronger airstrike
+            ...
     -One time:
         -Health
             Heal health (conditional, no tier rarity scaling) [jam]
@@ -159,8 +172,8 @@ Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
             Base (T2) --> A heat-seeking missile that deals 50% of its damage as AOE damage on hit. [jam]
             I (T3) --> The rocket now has an increased explosive range and deals more AOE damage. [jam]
         -Boomerang
-            Base (T1) --> High damage, high cooldown slow projectile. If you catch it after it bounces, shorter cooldown by 25%
-            I (T1) -->
+            Base (T1) --> High damage, high cooldown slow projectile. If you catch it after it bounces, recharge cooldown by x%
+            I (T2?) -->
 
 
 ---Enemy tradeoffs---
@@ -187,9 +200,7 @@ Enemy specific buff:
         Moves even faster
     -Divebomber:
         Throws itself at the player faster
-        New projecti
-        When killed, attempts to throw itself at the player. 
-        When killed again, fires projectiles in all directions that hurt both players and enemies
+        More/faster projectiles
     -Guardian:
         Reflected projectiles move faster
         Shield is wider
