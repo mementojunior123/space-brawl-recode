@@ -33,8 +33,8 @@ TEMPLATES = [
     {"type" : "image_gradient", "source" : "source_name", "target_index" : 0, "time" : 0, "easing_style" : interpolation.linear, 'dynamic_anchor' : 'rect_attr/none',
     'colorkey' : 'color or none'},
     {"type" : "tween_property", "property" : "", "goal" : 0, "time" : 0, "easing_style" : interpolation.linear},
-    #{"type" : "set_alpha", "target" : 0}, set_alpha and alpha_gradient are currently unspported with no plan of being brought back
-    #{"type" : "alpha_gradient", "target" : 0, "time" : 0, "easing_style" : interpolation.linear},
+    {"type" : "set_alpha", "target" : 0, "copy_surf" : False},
+    {"type" : "alpha_gradient", "target" : 0, "time" : 0, "easing_style" : interpolation.linear, "copy_surf" : False},
              ]
 
 # To add an animation : Animation.add_animation(animation_name, animation_data)

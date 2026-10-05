@@ -4,7 +4,7 @@ from framework.utils.helpers import Task, ColorType
 from framework.utils.my_timer import Timer
 import framework.utils.interpolation as interpolation
 import framework.utils.tween_module as TweenModule
-from typing import Any, Callable, Union, overload, Literal
+from typing import Any, Callable, Union, overload, Literal, cast
 
 from framework.utils.helpers import AnchorStr, AnchorNameList, ANCHOR_REL_POS_DICT
 from framework.utils.helpers import RectSideAnchorStr, RectSideAnchorNameList, is_rect_pos, is_rect_side
@@ -222,6 +222,8 @@ class AnimationInstruction:
             "rotate_to_over_time" : RotateToOverTimeInstruction,
             "image_gradient" : ImageGradientInstruction,
             "tween_property" : TweenPropertyInstruction,
+            'set_alpha' : SetAlphaInstruction,
+            'alpha_gradient' : AlphaGradientInstruction
         }
         instruction_type : str = data['type']
         if instruction_type in anim_conversion_dict:
@@ -625,6 +627,53 @@ class TweenPropertyInstruction(AnimationInstruction):
         if tween.has_finished:
             self.has_ended = True
 
+class SetAlphaInstruction(AnimationInstruction):
+    def __init__(self, data):
+        super().__init__(data)
+        self.target_alpha : int = data['target']
+        self.copy_surf = data.get('copy_surf', False)
+    
+    def execute(self, track: AnimationTrack, current_index : int|None = None):
+        self.has_started = True
+        if self.copy_surf:
+            track.target.image = track.target.image.copy()
+        track.target.image.set_alpha(self.target_alpha)
+        self.has_ended = True
+        return
+
+class AlphaGradientInstruction(AnimationInstruction):
+    def __init__(self, data):
+        super().__init__(data)
+        self.target_alpha : float = data['target']
+        self.time : float = data['time']
+        self.easing_style : Callable[[float], float]
+        easing_style : str|Callable[[float], float] = data['easing_style']
+        if isinstance(easing_style, str): 
+            self.easing_style = getattr(interpolation, easing_style)
+        else:
+            self.easing_style = easing_style
+        self.copy_surf = data.get('copy_surf', False)
+    
+    def execute(self, track: AnimationTrack, current_index : int|None = None):
+        if not self.has_started:
+            self.has_started = True
+            track.tasks.append(self)
+            self.timer = Timer(self.time, track.time_source, track.timer_factor)
+            start_alpha : int|None = track.target.image.get_alpha()
+            if start_alpha is None: start_alpha = 255
+            self.start_value = start_alpha
+            if self.copy_surf:
+                track.target.image = track.target.image.copy()
+            return
+        
+        
+        alpha : float = self.timer.get_time() / self.timer.duration
+        if alpha > 1: 
+            alpha = 1
+            self.has_ended = True
+        new_alpha : int = int(interpolation.lerp(cast(float, self.start_value), self.target_alpha, self.easing_style(alpha)))
+   
+        track.target.image.set_alpha(new_alpha)
 # TODO : Add dataclasses
 
 class Animation:

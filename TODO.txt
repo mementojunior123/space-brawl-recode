@@ -26,3 +26,4 @@
 -More improvements to type annotations in Sprite and CoroutineScript (05/10/2026 15:46)
 -Made particles functional [important] (05/10/2026 17:43) --> Allow mixing of sprites and particles?
 -Fixed a bug in game.alert_player (05/10/2026 18:46)
+-Animation's set_alpha and alpha_gradient instructions are now supported (05/10/2026 19:26)
