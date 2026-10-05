@@ -64,14 +64,15 @@ class UiDrawable:
 
     @staticmethod
     def get_draw_rect_from_transformed(transformed_rect : TransformedRect):
-        min_x = min(val.x for val in transformed_rect.values())
-        max_x = max(val.x for val in transformed_rect.values())
-        min_y = min(val.y for val in transformed_rect.values())
-        max_y = max(val.y for val in transformed_rect.values())
+        trv = transformed_rect.values()
+        min_x = min(val.x for val in trv)
+        max_x = max(val.x for val in trv)
+        min_y = min(val.y for val in trv)
+        max_y = max(val.y for val in trv)
         return pygame.Rect((round(min_x), round(min_y)), (round(max_x - min_x), round(max_y - min_y)))
 
     def __init__(self, info : BaseDrawableInfo):
-        self.position : AnyUiPosition = info.position
+        self._position : AnyUiPosition = info.position
         self.name : str|None = info.name
         self.tag : int = info.tag
         self.visible : bool = info.start_visible
@@ -89,8 +90,20 @@ class UiDrawable:
         self._scale : pygame.Vector2 = pygame.Vector2((info.scale, info.scale) if isinstance(info.scale, (float, int)) else info.scale)
         self._opacity : float = info.opacity
         self._zombie : bool = False
+        self._prev_draw_pos : pygame.Rect|None = None
+        self._prev_draw_args : list = []
         if info.parent:
             info.parent.add(self)
+
+    @property
+    def position(self) -> AnyUiPosition:
+        return self._position
+
+    @position.setter
+    def position(self, value : AnyUiPosition):
+        self._position = value
+        value._callbacks = [lambda _ : self._trigger_parent_frame_update(True)]
+        self._trigger_parent_frame_update(True)
 
     @property
     def relevant_custom_events(self) -> set[int]:
@@ -161,7 +174,7 @@ class UiDrawable:
         parent.add(self)
 
     def change_anchor(self, new_anchor : AnchorStr|pygame.typing.Point):
-        self.position = UiPosition(self.position.calculate_anchor(self.size, new_anchor, self._angle), new_anchor)
+        self.position = UiPosition(self._position.calculate_anchor(self.size, new_anchor, self._angle), new_anchor)
 
     def get_layout_parent(self) -> "BaseLayout|None":
         current_ancestor : UiSpriteGroup|None = self.parent
@@ -267,6 +280,8 @@ class UiDrawable:
     def _trigger_parent_frame_update(self, do_update_layout : bool = True):
         if frame_parent := self.get_frame_parent():
             frame_parent.on_child_update(do_update_layout)
+        if do_update_layout:
+            self._prev_draw_pos = None
 
     def calculate_overriden_draw_pos(self, local_override : TransformedRect|None = None, frame : "UiFrame|None" = None) -> pygame.Rect|None:
         tranfs_rect : TransformedRect|None = local_override if frame is None else self.get_world_rotoscaled_rect(frame, local_override)
@@ -416,7 +431,7 @@ class UiSpriteGroup(UiDrawable):
     def get_world_draw_rect(self, frame : "UiFrame", use_parent_layout : bool = False) -> pygame.Rect|None: ...
     def get_world_draw_rect(self, frame : "UiFrame|None" = None, use_parent_layout : bool = False) -> pygame.Rect|None:
         if not self.elements:
-            return pygame.Rect(self.position.x, self.position.y, 0, 0)
+            return pygame.Rect(self._position.x, self._position.y, 0, 0)
         if self.get_frame_ancestors(frame) is None:
             return None
         children_rect : list[pygame.Rect] = []

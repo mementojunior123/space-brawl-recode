@@ -57,7 +57,7 @@ class UiSprite(UiDrawable):
     def get_local_rotoscaled_rect(self, use_parent_layout : bool = False) -> TransformedRect:
         if use_parent_layout and isinstance((layout_parent := self.get_frame_parent()), BaseLayout) and self in layout_parent.curr_layout:
             return layout_parent.curr_layout[self]
-        return {anchor : self.position.calculate_anchor(self.size.elementwise() * self._scale, anchor, self._angle) 
+        return {anchor : self._position.calculate_anchor(self.size.elementwise() * self._scale, anchor, self._angle) 
                 for anchor in ('topleft', 'topright', 'bottomright', 'bottomleft')}
 
     def get_world_rotoscaled_rect(self, frame : "UiFrame|None" = None, override_local_rect : TransformedRect|None = None,
@@ -91,6 +91,8 @@ class UiSprite(UiDrawable):
             target_surf = self._base_surf
         if scale is None:
             scale = pygame.Vector2(1, 1)
+        if scale == pygame.Vector2(1, 1) and angle == 0 and opacity == 1:
+            return target_surf
         for cache_line in self._cache.get(target_surf, []):
             if UiSprite._does_cache_match(cache_line, scale, angle, opacity):
                 cache_line.priority = self._next_cache_no()
@@ -175,26 +177,26 @@ class UiSprite(UiDrawable):
         return
         
     def calculate_overriden_draw_source(self, local_override : TransformedRect|None = None, frame : "UiFrame|None" = None) -> pygame.Surface|None:
-        tranfs_rect : TransformedRect|None = local_override if frame is None else self.get_world_rotoscaled_rect(frame, local_override)
-        if tranfs_rect is None:
-            return None
         target_scale : pygame.Vector2 = self.get_true_scale(local_override)
         target_rotation : float = self.get_true_angle(local_override)
-        if True:
-            target_opacity : float = self.get_true_opacity()
-            source : pygame.Surface
-            if (cached_result := self._get_cached(target_scale, target_rotation, target_opacity)):
-                source = cached_result
-            else:
-                source = self._cache_surf(self._base_surf, target_scale, target_rotation, target_opacity).result
-            return source
+        target_opacity : float = self.get_true_opacity()
+        if target_scale == pygame.Vector2(1, 1) and target_rotation == 0 and target_opacity == 1: # reduddant code?
+            return self._base_surf
+        source : pygame.Surface
+        if (cached_result := self._get_cached(target_scale, target_rotation, target_opacity)):
+            source = cached_result
+        else:
+            source = self._cache_surf(self._base_surf, target_scale, target_rotation, target_opacity).result
+        return source
 
     def draw(self, display : pygame.Surface, frame : "UiFrame|None" = None, 
              override_pos_local: TransformedRect|None = None, override_pos_global : pygame.Rect|None = None):
         if not self.visible:
             return
+        if self._prev_draw_pos and self._prev_draw_args != [display, frame, override_pos_local, override_pos_global]:
+            self._prev_draw_pos = None # TODO : Check if the cache invalidation logic is correct
         source : pygame.Surface = self._surf
-        draw_rect : pygame.Rect|None = self.calculate_draw_rect(override_pos_global, override_pos_local, frame)
+        draw_rect : pygame.Rect|None = self._prev_draw_pos or self.calculate_draw_rect(override_pos_global, override_pos_local, frame)
         if draw_rect is None:
             return
         if not override_pos_global and override_pos_local:
@@ -205,6 +207,8 @@ class UiSprite(UiDrawable):
         else:
             self._render()
         display.blit(source, draw_rect)
+        self._prev_draw_pos = draw_rect
+        self._prev_draw_args = [display, frame, override_pos_local, override_pos_global]
 
 
 def local_imports():

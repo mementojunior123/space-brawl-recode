@@ -1,17 +1,19 @@
 import pygame
 
-from typing import Literal, TypeAlias
+from typing import Literal, TypeAlias, Callable
 from framework.utils.helpers import AnchorStr, AnchorNameList, ANCHOR_REL_POS_DICT
 
 MAIN_DISPLAY_SIZE : tuple[int, int] = (960, 540)
 
 class UiPosition:
     def __init__(self, position : pygame.typing.Point, 
-                 anchor : pygame.typing.Point|AnchorStr):
+                 anchor : pygame.typing.Point|AnchorStr,
+                 callbacks : list[Callable[["AnyUiPosition"], None]]|None = None):
         if isinstance(anchor, str):
             anchor = ANCHOR_REL_POS_DICT[anchor]
         self._anchor : pygame.Vector2 = pygame.Vector2(anchor)
         self._position : pygame.Vector2 = pygame.Vector2(position)
+        self._callbacks = callbacks or []
     
     @staticmethod
     def from_normal_coords(position : pygame.typing.Point, anchor : pygame.typing.Point|AnchorStr, 
@@ -26,6 +28,7 @@ class UiPosition:
     @x.setter
     def x(self, val : int|float):
         self._position.x = val
+        self.on_change()
     
     @property
     def y(self) -> int|float:
@@ -34,6 +37,7 @@ class UiPosition:
     @y.setter
     def y(self, val : int|float):
         self._position.y = val
+        self.on_change()
     
     @property
     def value(self):
@@ -42,6 +46,7 @@ class UiPosition:
     @value.setter
     def value(self, new_val : pygame.Vector2):
         self._position = new_val
+        self.on_change()
     
     def calculate_anchor(self, size : pygame.typing.Point, anchor : pygame.typing.Point|AnchorStr, rotation : float = 0) -> pygame.Vector2:
         if isinstance(anchor, str):
@@ -50,6 +55,10 @@ class UiPosition:
         pos_offset = pygame.Vector2(anchor_offset.x * size[0], anchor_offset.y * size[1])
         if rotation != 0: pos_offset.rotate_ip(rotation)
         return self.value + pos_offset
+
+    def on_change(self):
+        for callback in self._callbacks:
+            callback(self)
 
 
 AnyUiPosition : TypeAlias = UiPosition

@@ -69,10 +69,12 @@ class UiFrame(UiSpriteGroup):
         if self.temp_local_tranfs_rect is None:
             point_v2 : pygame.Vector2 = pygame.Vector2(point)
 
-            point_v2.rotate_ip(-self._angle)
-            point_v2 *= self._scale.elementwise()
+            if self._angle != 0:
+                point_v2.rotate_ip(-self._angle)
+            if self._scale != pygame.Vector2(1, 1):
+                point_v2 *= self._scale.elementwise()
 
-            local_topleft = self.position.calculate_anchor(self.size * self._scale.elementwise(), 'topleft', -self._angle)
+            local_topleft = self._position.calculate_anchor(self.size * self._scale.elementwise(), 'topleft', -self._angle)
             point_v2 += local_topleft
             return point_v2
         else:
@@ -93,7 +95,7 @@ class UiFrame(UiSpriteGroup):
     def get_local_rotoscaled_rect(self, use_parent_layout : bool = False) -> TransformedRect:
         if use_parent_layout and isinstance((layout_parent := self.get_frame_parent()), BaseLayout) and self in layout_parent.curr_layout:
             return layout_parent.curr_layout[self]
-        return {anchor : self.position.calculate_anchor(self.size * self._scale.elementwise(), anchor, -self._angle) 
+        return {anchor : self._position.calculate_anchor(self.size * self._scale.elementwise(), anchor, -self._angle) 
                         for anchor in ('topleft', 'topright', 'bottomright', 'bottomleft')}
 
     def get_world_rotoscaled_rect(self, frame : "UiFrame|None" = None, override_local_rect : TransformedRect|None = None, 
