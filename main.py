@@ -56,7 +56,6 @@ import framework.utils.tween_module as TweenModule
 
 
 import src.game_states as game_states
-from src.sprites.test_player import TestPlayer
 
 core.storage.load(is_web=core.is_web())
 core.settings.load(is_web=core.is_web())

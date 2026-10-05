@@ -1,1 +1,20 @@
+---Now---
+-Projectile class
+-Player class with only primary fire and no upgrades/abilities
+-Basic enemy
+-Basic boss
+-Basic game loop with no shop
+---Soon---
+-Upgrade system start
+-Tutorial
+---Later---
+-Full upgrade tree implementation
+-Full enemy implementation
+---Long-term---
+-Settings
+-Mobile support
+-Hard mode
 
+---Sync---
+-Add missing type annotation in bg_manager
+-Error logging in asset_manager

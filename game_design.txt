@@ -14,10 +14,10 @@
 ---Enemies---
 
 -Regular:
-    -Basic --> The normal enemy [done]
+    -Basic --> The normal enemy [jam]
     -Elite [...] --> Make resitant to primary fire?
-    -Gunner --> shoots more often [done]
-    -Runner --> slides down the side of the screen, but does not shoot [done]
+    -Gunner --> shoots more often [jam]
+    -Runner --> slides down the side of the screen, but does not shoot [jam]
     -Divebomber:
         When killed, attempts to throw itself at the player. 
         When killed again, fires projectiles in all directions that hurt both players and enemies
@@ -33,10 +33,10 @@
         Can randomly double-back when it goes to the middle of the screen
 
 -Bosses:
-    -Basic [done]
-    -Elite [done]
-    -Spaceship [done]
-    -Elite spaceship [done]
+    -Basic [jam]
+    -Elite [jam]
+    -Spaceship [jam]
+    -Elite spaceship [jam]
 
 ---Upgrades---
 -Different upgrade types:
@@ -75,16 +75,16 @@ Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
 -Upgrade catalog:
     -Minor/Major:
         -Offensive:
-            Primary damage [done]
-            Primary firerate [done]
-            Universal firerate [done]
-            Alt damage [done]
-            Alt firerate [done]
-            Universal firerate [done]
+            Primary damage [jam]
+            Primary firerate [jam]
+            Universal firerate [jam]
+            Alt damage [jam]
+            Alt firerate [jam]
+            Universal firerate [jam]
         -Defensive:
-            Max health bonus (rare, Major) [done]
+            Max health bonus (rare, Major) [jam]
         -Utility:
-            Ability recharge rate [done]
+            Ability recharge rate [jam]
     -Perk:
         Rarer cards (rare):
             I --> Common cards appear less often
@@ -120,7 +120,7 @@ Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
             ???
     -Ability:
         -Dash:
-            I (default) --> Quickly move in one direction [done]
+            I (default) --> Quickly move in one direction [jam]
             II (T1) --> More I-frames
             III (T2) --> Now has two uses before going on cooldown
         -Slow-mo:
@@ -141,23 +141,23 @@ Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
 
     -One time:
         -Health
-            Heal health (conditional, no tier rarity scaling) [done]
-            Full heal (conditional, rare, no tier rarity scaling) [done]
+            Heal health (conditional, no tier rarity scaling) [jam]
+            Full heal (conditional, rare, no tier rarity scaling) [jam]
 
     -Specilization:
-        -Lazer Specialist [done]:
-            Base (default) --> Fire a single high damage lazer. [done]
-            I (T1) --> On hit, the lazer splits in four projectiles that deal half damage. [done]
-            II (T2) --> The lazer now splits one more time, conserving 50% of the damage each split. [done]
-            III (T3) --> The lazer no longer loses damage each split. [done]
-        -Shotgun Specialist [done]:
-            Base (T1) --> A shotgun that fires 5 pellets. [done]
-            I (T2) --> On hit, the shotgun shells split in three, dealing more damage. [done]
-            II (T3) --> The shotgun shells split one more time, dealing even more damage. [done]
-            III (T4) --> The shotgun shells now bounce of the edges of the screen twice before exiting the screen. [done]
-        -Rocket Specialist [done]:
-            Base (T2) --> A heat-seeking missile that deals 50% of its damage as AOE damage on hit. [done]
-            I (T3) --> The rocket now has an increased explosive range and deals more AOE damage. [done]
+        -Lazer Specialist [jam]:
+            Base (default) --> Fire a single high damage lazer. [jam]
+            I (T1) --> On hit, the lazer splits in four projectiles that deal half damage. [jam]
+            II (T2) --> The lazer now splits one more time, conserving 50% of the damage each split. [jam]
+            III (T3) --> The lazer no longer loses damage each split. [jam]
+        -Shotgun Specialist [jam]:
+            Base (T1) --> A shotgun that fires 5 pellets. [jam]
+            I (T2) --> On hit, the shotgun shells split in three, dealing more damage. [jam]
+            II (T3) --> The shotgun shells split one more time, dealing even more damage. [jam]
+            III (T4) --> The shotgun shells now bounce of the edges of the screen twice before exiting the screen. [jam]
+        -Rocket Specialist [jam]:
+            Base (T2) --> A heat-seeking missile that deals 50% of its damage as AOE damage on hit. [jam]
+            I (T3) --> The rocket now has an increased explosive range and deals more AOE damage. [jam]
         -Boomerang
             Base (T1) --> High damage, high cooldown slow projectile. If you catch it after it bounces, shorter cooldown by 25%
             I (T1) -->
