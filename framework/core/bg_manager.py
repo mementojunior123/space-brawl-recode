@@ -213,7 +213,7 @@ class BgManager:
         channel.set_volume(volume * self.global_volume)
         self.current[channel] = TrackInfo(volume, sound_type)
 
-    def play(self, track_name : str, volume, loops = -1, maxtime = 0, fade_ms = 0, sound_type : str|None = 'Music') -> AnyChannel|None:
+    def play(self, track_name : str, volume : float, loops = -1, maxtime = 0, fade_ms = 0, sound_type : str|None = 'Music') -> AnyChannel|None:
         """Used for playing music."""
         if core_object.is_web() and self.USE_WEB_ENGINE:
             self._play_web(track_name, volume, loops, maxtime, fade_ms, sound_type)
@@ -233,7 +233,7 @@ class BgManager:
         self.current[channel] = TrackInfo(volume, sound_type)
         return channel
     
-    def play_sfx(self, sfx_name : str, volume, loops = 0, maxtime = 0, fade_ms = 0, sound_type : str|None = 'SFX') -> AnyChannel|None:
+    def play_sfx(self, sfx_name : str, volume : float, loops = 0, maxtime = 0, fade_ms = 0, sound_type : str|None = 'SFX') -> AnyChannel|None:
         """Used for playing short sound effects."""
         if core_object.is_web() and self.USE_WEB_ENGINE:
             self._play_web(sfx_name, volume, loops, maxtime, fade_ms, sound_type)
