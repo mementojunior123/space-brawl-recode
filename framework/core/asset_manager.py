@@ -37,7 +37,6 @@ class AssetManager:
         except (FileNotFoundError, pygame.error, TypeError):
             return False
         new_surf : pygame.Surface
-
         if alpha_config == "alpha":
             new_surf = unconverted_image.convert_alpha()
         elif alpha_config == "alpha_to_colorkey":
@@ -54,8 +53,8 @@ class AssetManager:
 
         if trim_edges:
             new_surf : pygame.Surface = remove_image_empty(new_surf)
-        if base_scale != 1:
-            new_surf = pygame.transform.scale(new_surf, base_scale)
+        if base_scale != (1, 1):
+            new_surf = pygame.transform.scale_by(new_surf, base_scale)
 
         self.surfaces[name] = (new_surf, copy_on_request)
         return True
