@@ -12,8 +12,20 @@ from typing import overload, Any, Literal
 from dataclasses import dataclass
 
 class ColumnLayout(BaseLayout):
-    def __init__(self, base_drawable_info: BaseDrawableInfo, elements: list[UiDrawable], ui_frame_info: BaseUiFrameInfo):
+    def __init__(self, base_drawable_info: BaseDrawableInfo, elements: list[UiDrawable], ui_frame_info: BaseUiFrameInfo,
+                 spacing : float = 0):
         super().__init__(base_drawable_info, elements, ui_frame_info)
+        self._spacing : float = spacing
+
+    @property
+    def spacing(self) -> float:
+        return self._spacing
+
+    @spacing.setter
+    def spacing(self, value : float):
+        if (self._spacing != value):
+            self._spacing = value
+            self.update_layout()
 
     def update_layout(self):
         super().update_layout()
@@ -32,7 +44,7 @@ class ColumnLayout(BaseLayout):
             target_top : float = 0
         else:
             target_left : float = 0
-            target_top : float = element_position_data.bottom
+            target_top : float = element_position_data.bottom + self._spacing
         old_tranfs_rect = element.get_local_rotoscaled_rect()
         topleft, topright, bottomleft, bottomright = (old_tranfs_rect['topleft'], old_tranfs_rect['topright'], 
                                                       old_tranfs_rect['bottomleft'], old_tranfs_rect['bottomright'])

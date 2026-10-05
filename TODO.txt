@@ -18,3 +18,4 @@
 ---Sync---
 -Add missing type annotation in bg_manager
 -Error logging in asset_manager
+-RowLayout.spacing and ColumnLayout.spacing
