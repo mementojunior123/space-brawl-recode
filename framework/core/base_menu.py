@@ -72,9 +72,9 @@ class BaseMenu:
         mid_height : float = text_sprite.size.y // 2
         self.add_temp(text_sprite, 5)
         TInfo = TweenModule.TweenInfo
-        goal1 = {'position.value.y' : 50 + mid_height}
+        goal1 = {'position.y' : 50 + mid_height}
         info1 = TInfo(interpolation.quad_ease_out, 0.3 / alert_speed)
-        goal2 = {'position.value.y' : text_sprite.position.value.y}
+        goal2 = {'position.y' : text_sprite.position.y}
         info2 = TInfo(interpolation.quad_ease_in, 0.4 / alert_speed)
         
         on_screen_time = 1 / alert_speed

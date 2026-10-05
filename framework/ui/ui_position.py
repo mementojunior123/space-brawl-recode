@@ -54,12 +54,11 @@ class UiPosition:
         anchor_offset = pygame.Vector2(anchor) - self._anchor
         pos_offset = pygame.Vector2(anchor_offset.x * size[0], anchor_offset.y * size[1])
         if rotation != 0: pos_offset.rotate_ip(rotation)
-        return self.value + pos_offset
+        return self._position + pos_offset
 
     def on_change(self):
         for callback in self._callbacks:
             callback(self)
-
 
 AnyUiPosition : TypeAlias = UiPosition
 

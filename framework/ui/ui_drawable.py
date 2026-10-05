@@ -94,6 +94,7 @@ class UiDrawable:
         self._prev_draw_args : list = []
         if info.parent:
             info.parent.add(self)
+        self._position._callbacks = [lambda _ : self._trigger_parent_frame_update(True)]
 
     @property
     def position(self) -> AnyUiPosition:
