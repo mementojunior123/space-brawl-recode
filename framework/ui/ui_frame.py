@@ -9,7 +9,6 @@ from dataclasses import dataclass
 
 @dataclass
 class BaseUiFrameInfo:
-    """Note : size arg is ignored if a base surf is passed in"""
     size : pygame.typing.IntPoint
     do_clip : bool = False
 

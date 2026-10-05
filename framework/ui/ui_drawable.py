@@ -76,7 +76,7 @@ class UiDrawable:
         self.tag : int = info.tag
         self.visible : bool = info.start_visible
         self.unpack : bool = False
-        self._parent : "UiSpriteGroup|None" = info.parent
+        self._parent : "UiSpriteGroup|None" = None
         self.zindex : int = info.zindex
         self.data : Any = info.data
 
@@ -89,6 +89,8 @@ class UiDrawable:
         self._scale : pygame.Vector2 = pygame.Vector2((info.scale, info.scale) if isinstance(info.scale, (float, int)) else info.scale)
         self._opacity : float = info.opacity
         self._zombie : bool = False
+        if info.parent:
+            info.parent.add(self)
 
     @property
     def relevant_custom_events(self) -> set[int]:
