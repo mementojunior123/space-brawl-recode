@@ -280,7 +280,8 @@ class Sprite:
     def is_collding_rect(self, other : 'Sprite'):
         return self.rect.colliderect(other.rect)
 
-    def _handle_collision_group_argument[T : 'Sprite'](self, collision_groups_arg : 'CollisionGroupArg[T]') -> list[list[T]]:
+    @staticmethod
+    def _handle_collision_group_argument[T : 'Sprite'](collision_groups_arg : 'CollisionGroupArg[T]') -> list[list[T]]:
         if not collision_groups_arg:
             return []
         collision_groups : list[list[T]|Type[T]]
