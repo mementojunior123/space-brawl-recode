@@ -60,7 +60,33 @@ test_anim = [
     {"type" : "tween_property", "property" : "position", "goal" : [100, 100], "time" : 3, "easing_style" : interpolation.linear},
     ]
 
-Animation.add_animation('test', test_anim)
+enemy_hit_particle_alpha_gradient = [
+    {"type" : "wait", "time" : 0.15},
+    {"type" : "alpha_gradient", "target" : 0, "time" : 0.5, "easing_style" : interpolation.linear},
+]
+
+enemy_killed_particle_alpha_gradient = [
+    {"type" : "wait", "time" : 0.2},
+    {"type" : "alpha_gradient", "target" : 0, "time" : 0.8, "easing_style" : interpolation.linear},
+]
+
+dash_particle_alpha_gradient = [
+    {"type" : "wait", "time" : 0.0},
+    {"type" : "alpha_gradient", "target" : 0, "time" : 0.5, "easing_style" : interpolation.linear},
+]
+
+explosion_particle_alpha_gradient = [
+    {"type" : "wait", "time" : 0.4},
+    {"type" : "alpha_gradient", "target" : 0, "time" : 1.5, "easing_style" : interpolation.linear},
+]
+
+anim_dict : dict[str, list[dict]] = {"test" : test_anim, 'enemy_hit_particle_alpha_gradient' : enemy_hit_particle_alpha_gradient,
+                 'enemy_killed_particle_alpha_gradient' : enemy_killed_particle_alpha_gradient,
+                 "dash_particle_alpha_gradient" : dash_particle_alpha_gradient,
+                 "explosion_particle_alpha_gradient" : explosion_particle_alpha_gradient}
+
+for name, data in anim_dict.items():
+    Animation.add_animation(name, data)
 
 def _sprite_hint():
     global Sprite

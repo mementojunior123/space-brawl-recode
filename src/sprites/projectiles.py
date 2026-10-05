@@ -1,5 +1,5 @@
 import pygame
-from framework.game.sprite import Sprite
+from framework.game.sprite import Sprite, CollisionGroupArg, CollisionGroup
 from framework.core.core import core_object
 from framework.utils.pivot_2d import Pivot2D
 from framework.utils.helpers import sign, load_alpha_to_colorkey, ColorType, remove_image_empty
@@ -90,9 +90,7 @@ class BaseProjectile(Sprite):
     def check_destruction(self):
         if not self.destructible:
             return
-        result : Sprite
-        for result in self.get_all_colliding(BaseProjectile):
-            projectile : BaseProjectile = cast(BaseProjectile, result)
+        for projectile in self.get_all_colliding(BaseProjectile):
             if projectile == self:
                 continue
             if projectile.team == Teams.PACIFIST:
@@ -194,7 +192,7 @@ class HomingProjectile(BaseProjectile, sprite_count = 50):
         super().__init__()
         self.homing_range : float
         self.homing_rate : float
-        self.homing_targets : list[list[Sprite]|type[Sprite]]
+        self.homing_targets : CollisionGroupArg[Sprite]
         self.dynamic_mask = True
         self.angle_offset : float
         self.explosive_range : float
@@ -205,12 +203,12 @@ class HomingProjectile(BaseProjectile, sprite_count = 50):
               angle_offset : float, custom_image : pygame.Surface, team : Teams = Teams.PACIFIST, 
               projectile_type : str = "", pivot_offset : pygame.Vector2|None = None,
               zindex : int = 0, homing_range : float = 1000, homing_rate : float = 3, 
-              homing_targets : list[list[Sprite]|type[Sprite]]|None = None, damage : float = 1, 
+              homing_targets : CollisionGroupArg[Sprite]|None = None, damage : float = 1, 
               can_destroy : bool = False, destructible : bool = False, die_after_destroying : bool = True,
               explosive_range : float = 0, explosion_damage : float = 0):
-        if homing_targets is None: homing_targets = []
-        if not isinstance(homing_targets, list):
-            homing_targets = [homing_targets]
+        
+        if homing_targets is None: 
+            homing_targets = []
         element = cls.inactive_elements[0]
 
         element.image = custom_image
@@ -300,15 +298,9 @@ class HomingProjectile(BaseProjectile, sprite_count = 50):
     
     def pick_homing_target(self) -> Sprite|None:
         if not self.homing_targets: return None
-        groups : list[list[Sprite]|Sprite] = [grp.active_elements if isclass(grp) else grp for grp in self.homing_targets]
         targets : list[Sprite] = []
-        for grp in groups:
-            if isinstance(grp, list):
-                targets.extend(grp)
-            else:
-                targets.append(grp)
-        if not targets:
-            return None
+        for grp in Sprite._handle_collision_group_argument(self.homing_targets):
+            targets.extend(grp)
         targets.sort(key=lambda sprite : (self.position - sprite.position).magnitude())
         if (self.position - targets[0].position).magnitude() > self.homing_range:
             return None

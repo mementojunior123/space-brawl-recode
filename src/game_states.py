@@ -12,7 +12,7 @@ from framework.utils.my_timer import Timer, TimeSource
 from framework.game.sprite import Sprite
 from framework.utils.helpers import average, random_float
 from framework.ui import BrightnessOverlay
-from framework.utils.base_particle_effects import ParticleEffect
+from framework.utils.base_particle_effects import ParticleEffect, Particle
 
 class GameState:
     def __init__(self, game_object : 'Game'):
@@ -67,6 +67,7 @@ class TestGameState(NormalGameState):
         Background.spawn(540)
         Background.spawn(0)
         Player.spawn('midbottom', pygame.Vector2(480, 530))
+        BasicEnemy.spawn('midbottom', pygame.Vector2(480, -20))
 
     def main_logic(self, delta : float):
         super().main_logic(delta)
@@ -111,9 +112,10 @@ def runtime_imports():
     import src.sprites.projectiles
     src.sprites.projectiles.runtime_imports()
 
-    global BaseEnemy
-    from src.sprites.enemy import BaseEnemy
+    global BaseEnemy, BasicEnemy
+    from src.sprites.enemy import BaseEnemy, BasicEnemy
     import src.sprites.enemy
+    src.sprites.enemy.runtime_imports()
 
     global Player
     from src.sprites.player import Player

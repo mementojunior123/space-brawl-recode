@@ -1,14 +1,16 @@
 ---Now---
--Player class with only primary fire and no upgrades/abilities
--Basic enemy
--Basic boss
 -Basic game loop with no shop
----Soon---
 -Upgrade system start
--Tutorial
+---Soon---
+-Ability system start
+-Perk system start
+-Basic boss start
+-Shop start
 ---Later---
+-Complete upgrade selection
 -Full upgrade tree implementation
 -Full enemy implementation
+-Tutorial
 ---Long-term---
 -Settings
 -Mobile support

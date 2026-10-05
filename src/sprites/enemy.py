@@ -81,7 +81,7 @@ class BaseEnemy(Sprite):
 
 
     def check_collisions(self):
-        colliding_projectiles : list[BaseProjectile] = [elem for elem in cast(list[BaseProjectile], self.get_all_colliding(BaseProjectile)) 
+        colliding_projectiles : list[BaseProjectile] = [elem for elem in self.get_all_colliding(BaseProjectile)
                                                         if elem.team in (Teams.ALLIED, Teams.FFA)]
         if colliding_projectiles:
             for elem in colliding_projectiles:
@@ -113,6 +113,107 @@ class BaseNormalEnemy(BaseEnemy):
         raise NotImplementedError("Cannot instanciate base-class BaseEnemy; sub-class must implement this method")
 
 
+class BasicEnemy(BaseNormalEnemy, sprite_count = 30):
+    BASE_SPEED : float = 4.0
+    APPROCH_RATE : int = 100
+    KILL_SCORE : int = 5
+    def __init__(self):
+        super().__init__()
+        self.control_script : BasicEnemyControlScript
+        self.speed : float
+        self.mask : pygame.Mask #type: ignore
+    
+    @classmethod
+    def spawn(cls, position_anchor : str, position : int|pygame.Vector2, target_anchor : str = "top", target_pos : pygame.Vector2|int = 20):
+        element = cls.inactive_elements[0]
+
+        element.image = BaseEnemy.default_image
+        element.mask = pygame.mask.from_surface(element.image)
+        element.rect = element.image.get_rect()
+
+        element.position = pygame.Vector2(0, 0)
+        element.move_rect(position_anchor, position)
+        element.zindex = 0
+        element.current_camera = core_object.game.main_camera
+
+        element.invincible = False
+
+        element.control_script = BasicEnemyControlScript()
+        element.control_script.initialize(core_object.game.game_timer.get_time, element, target_anchor, target_pos)
+        element.speed = BasicEnemy.BASE_SPEED
+
+        element.type = 'basic'
+        element.health = 3
+
+        cls.unpool(element)
+        return element
+    
+    def update(self, delta: float):
+        self.control_script.process_frame(delta)
+        self.check_collisions()
+    
+    def fire_homing_projectile(self) -> HomingProjectile:
+        return HomingProjectile.spawn(self.position + pygame.Vector2(0, 30), pygame.Vector2(0, 5), None, None, 0,
+        BaseProjectile.rocket_image, homing_range=300, homing_rate=1,
+        homing_targets=Player, team=Teams.ENEMY)
+    
+    def fire_normal_projectile(self) -> NormalProjectile:
+        return NormalProjectile.spawn(self.position + pygame.Vector2(0, 30), pygame.Vector2(0, 5), None, None, 0,
+        recolor_image(BaseProjectile.normal_image3, "Red"),  team=Teams.ENEMY)
+    
+    def clean_instance(self):
+        super().clean_instance()
+        del self.control_script
+        del self.speed
+
+class BasicEnemyControlScript(CoroutineScript[float, str|None]):
+    def initialize(self, time_source : TimeSource, unit : BasicEnemy, target_anchor : str = "top", target_pos : pygame.Vector2|int = 20):
+        return super().initialize(time_source, unit, target_anchor, target_pos)
+    
+    @staticmethod
+    def corou(time_source : TimeSource, unit : BasicEnemy, target_anchor : str = "top", target_pos : pygame.Vector2|int = 20):
+        screen_size = core_object.main_display.get_size()
+        screen_sizex, screen_sizey = screen_size
+        centerx, centery = screen_sizex // 2, screen_sizey // 2
+
+        start_position : pygame.Vector2 = unit.position.copy()
+        unit.move_rect(target_anchor, target_pos)
+        target_position : pygame.Vector2 = unit.position.copy()
+        unit.position = start_position
+        
+        
+        transition_timer : Timer = Timer(0.8, time_source)
+        delta = yield
+        unit.invincible = True
+        if delta is None: delta = core_object.dt
+        while not transition_timer.isover():
+            alpha : float = interpolation.smoothstep(transition_timer.get_time() / transition_timer.duration)
+            if alpha > 1: alpha = 1
+            unit.position = start_position.lerp(target_position, alpha)
+            delta = yield
+        unit.position = target_position
+        unit.invincible = False
+
+        move_timer : Timer = Timer(-1, time_source)
+        shot_timer : Timer = Timer(1, time_source)
+        direction : int = 1 if unit.position.x < centerx else -1
+        base_speed = unit.speed
+        while True:
+            speed_percent = interpolation.quad_ease_out(pygame.math.clamp(move_timer.get_time() / 0.3, 0, 1))
+            actual_speed = pygame.math.lerp(0, base_speed, speed_percent)
+            unit.position += pygame.Vector2(direction * actual_speed * delta, 0)
+            if unit.rect.right > screen_sizex: 
+                unit.move_rect("right", screen_sizex)
+                direction = -1
+                unit.position += pygame.Vector2(0, BasicEnemy.APPROCH_RATE)
+            if unit.rect.left < 0: 
+                unit.move_rect("left", 0)
+                direction = 1
+                unit.position += pygame.Vector2(0, BasicEnemy.APPROCH_RATE)
+            if shot_timer.isover():
+                unit.fire_normal_projectile()
+                shot_timer.set_duration(random.uniform(3, 5))
+            delta = yield
 class EnemyTypes(Enum):
     BASIC = 'basic'
 
@@ -124,3 +225,7 @@ class BossTypes(Enum):
 
 BossType : TypeAlias = Literal['basic_boss']
 BossTypeList : list[BossType] = ['basic_boss']
+
+def runtime_imports():
+    global Player
+    from src.sprites.player import Player
