@@ -18,6 +18,6 @@
 ---Sync---
 -Add missing type annotation in bg_manager
 -Error logging in asset_manager
--RowLayout.spacing and ColumnLayout.spacing
+-RowLayout.spacing and ColumnLayout.spacing (05/10/2026)
 -Remove a comment in UiFrame and made UiSprite use the proper methods when initialising with a parent (05/10/2026 11:00)
--Mutiple optimisations
+-Mutiple optimisations in framework/ui (05/10/2026 12:17)
