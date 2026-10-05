@@ -19,3 +19,4 @@
 -Add missing type annotation in bg_manager
 -Error logging in asset_manager
 -RowLayout.spacing and ColumnLayout.spacing
+-Remove a comment in UiFrame and made UiSprite use the proper methods when initialising with a parent (05/10/2026 11:00)
