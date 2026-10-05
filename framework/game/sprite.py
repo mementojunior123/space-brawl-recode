@@ -1,12 +1,10 @@
 import pygame
 from framework.utils.base_animation import AnimationTrack, Animation
-from typing import Any, Self, Type, TypeAlias, Iterable
+from typing import Any, Self, Type, TypeAlias, Iterable, TypeVar, Sequence, cast
 from framework.utils.helpers import is_sorted
 from framework.utils.pivot_2d import Pivot2D
 from framework.game.sprite_renderer import SpriteCamera
 from inspect import isclass
-
-CollisionGroup : TypeAlias = list['Sprite']|Type['Sprite']
 
 class Sprite:
     '''Base class for all game objects.'''
@@ -219,7 +217,7 @@ class Sprite:
         cls.pool(self)
     
     @staticmethod
-    def clear_zombies(elements : list['Sprite']):
+    def clear_zombies(elements : Sequence['Sprite']):
         to_kill : list[Sprite] = []
         for element in elements:
             if element._zombie:
@@ -232,7 +230,7 @@ class Sprite:
     def update_all(cls : Type[Self], delta : float):
         for element in cls.active_elements:
             element.update(delta)
-        cls.clear_zombies(cls.active_elements) #type: ignore (wdym covariance???)
+        cls.clear_zombies(cls.active_elements)
     
     @staticmethod
     def update_all_sprites(delta : float):
@@ -282,48 +280,56 @@ class Sprite:
     def is_collding_rect(self, other : 'Sprite'):
         return self.rect.colliderect(other.rect)
 
-    def _handle_collision_group_argument(self, collision_groups_arg : CollisionGroup|list[CollisionGroup]) -> list[list['Sprite']]:
+    def _handle_collision_group_argument[T : 'Sprite'](self, collision_groups_arg : 'CollisionGroupArg[T]') -> list[list[T]]:
         if not collision_groups_arg:
             return []
-        collision_groups : list[CollisionGroup]
+        collision_groups : list[list[T]|Type[T]]
         if not isinstance(collision_groups_arg, list):
             collision_groups = [collision_groups_arg]
-        elif isinstance(collision_groups_arg[0], Sprite):
-            collision_groups = [collision_groups_arg] #type: ignore
         else:
-            collision_groups = collision_groups_arg #type: ignore
-        result : list[list[Sprite]] = []
+            if not collision_groups_arg:
+                return [[]]
+            if isinstance(collision_groups_arg[0], Sprite):
+                collision_groups = [cast(list[T], collision_groups_arg)]
+            else:
+                collision_groups = cast(list[list[T]|Type[T]], collision_groups_arg)        
+        result : list[list[T]] = []
         for collision_group in collision_groups:
+            actual_group : list[T]
+            if isinstance(collision_group, list):
+                actual_group = collision_group
+            else:
+                actual_group = collision_group.active_elements
             actual_group = collision_group.active_elements if isclass(collision_group) else collision_group
             result.append(actual_group)
         return result
 
-    def get_colliding(self, collision_groups : CollisionGroup|list[CollisionGroup]):
+    def get_colliding[T : 'Sprite'](self, collision_groups : 'CollisionGroupArg[T]') -> T|None:
         '''Returns the first sprite colliding this sprite within collision_group or None if there arent any. Uses mask collision.'''
         for collision_group in self._handle_collision_group_argument(collision_groups):
             for element in collision_group:
                 if self.is_colliding(element) and not element._zombie: return element     
         return None
     
-    def get_rect_colliding(self, collision_groups : list[CollisionGroup]|CollisionGroup):
+    def get_rect_colliding[T : 'Sprite'](self, collision_groups : 'CollisionGroupArg[T]') -> T|None:
         '''Returns the first sprite colliding this sprite within collision_group or None if there arent any. Uses a bounding box check.'''
         for collision_group in self._handle_collision_group_argument(collision_groups):
             for element in collision_group:
                 if self.is_collding_rect(element) and not element._zombie: return element
         return None
     
-    def get_all_colliding(self, collision_groups : list[CollisionGroup]|CollisionGroup) -> list['Sprite']:
+    def get_all_colliding[T : 'Sprite'](self, collision_groups : 'CollisionGroupArg[T]') -> list[T]:
         '''Returns all entities colliding this sprite within collision_group. Uses mask collision.'''
-        return_val : list['Sprite'] = []
+        return_val : list['T'] = []
         for collision_group in self._handle_collision_group_argument(collision_groups):
             for element in collision_group:
                 if self.is_colliding(element) and not element._zombie:
                     return_val.append(element)
         return return_val
 
-    def get_all_rect_colliding(self, collision_groups : list[CollisionGroup]|CollisionGroup) -> list['Sprite']:
+    def get_all_rect_colliding[T : 'Sprite'](self, collision_groups : 'CollisionGroupArg[T]') -> list[T]:
         '''Returns all entities colliding this sprite within collision_group. Uses a bounding box check.'''
-        return_val : list['Sprite'] = []
+        return_val : list['T'] = []
         for collision_group in self._handle_collision_group_argument(collision_groups):
             for element in collision_group:
                 if self.is_collding_rect(element) and not element._zombie: 
@@ -382,4 +388,7 @@ class Sprite:
     def _core_hint(cls):
         global core_object
         from framework.core.core import core_object
-            
+
+type CollisionGroup[T : Sprite] = list[T]|Type[T]
+type CollisionGroupArg[T : Sprite] = list[list[T]|Type[T]]|list[T]|Type[T]
+x : CollisionGroup|list[CollisionGroup] = []
