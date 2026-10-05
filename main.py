@@ -91,6 +91,7 @@ async def main():
                         element.draw(window)
                 else:
                     Sprite.draw_all_sprites(window)
+                    Particle.draw_all(window)
                     core.main_ui.render(window)
 
             core.update()

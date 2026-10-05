@@ -40,6 +40,7 @@ class NormalGameState(GameState):
     def main_logic(self, delta : float):
         Sprite.update_all_sprites(delta)
         Sprite.update_all_registered_classes(delta)
+        Particle.update_all(delta)
 
     def pause(self):
         if not self.game.active: return

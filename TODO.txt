@@ -1,5 +1,4 @@
 ---Now---
--Projectile class
 -Player class with only primary fire and no upgrades/abilities
 -Basic enemy
 -Basic boss
@@ -23,3 +22,4 @@
 -Mutiple optimisations in framework/ui (05/10/2026 12:17)
 -Improvements to type annotations in Sprite (05/10/2026 13:52)
 -More improvements to type annotations in Sprite and CoroutineScript (05/10/2026 15:46)
+-Made particles functional [important] (05/10/2026 17:43) --> Allow mixing of sprites and particles?
