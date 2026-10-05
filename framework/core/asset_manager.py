@@ -19,6 +19,12 @@ class AssetManager:
 
     def sync_bg_manager(self):
         self.core.bg_manager.SOUNDS = {name : (self.sounds[name][0], self.sounds[name][1]) for name in self.sounds}
+
+    def log_error(self, message : str):
+        if hasattr(self, 'core'):
+            self.core.log(message)
+        else:
+            print(message)
         
     def load_surface(self, path : _PathLike, name : str,
                      alpha_config : Literal['none', 'colorkey', 'alpha', 'alpha_to_colorkey'], 
@@ -35,6 +41,7 @@ class AssetManager:
         try:
             unconverted_image = pygame.image.load(path)
         except (FileNotFoundError, pygame.error, TypeError):
+            self.log_error(f'Tried to load surface {str(path)} with name {name}, but it failed!')
             return False
         new_surf : pygame.Surface
         if alpha_config == "alpha":
@@ -63,6 +70,7 @@ class AssetManager:
         try:
             font : pygame.Font = pygame.Font(path, font_size)
         except (FileNotFoundError, pygame.error, TypeError):
+            self.log_error(f'Tried to load font {str(path)} with name {name}, but it failed!')
             return False
         self.fonts[name] = (font, font_size)
         return True
@@ -71,6 +79,7 @@ class AssetManager:
         try:
             sound : pygame.Sound = pygame.Sound(path)
         except (FileNotFoundError, pygame.error, TypeError):
+            self.log_error(f'Tried to load sound {str(path)} with name {name}, but it failed!')
             return False
         sound.set_volume(base_vol)
         path_str : str = str(path)
