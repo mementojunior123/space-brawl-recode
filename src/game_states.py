@@ -61,6 +61,111 @@ class NormalGameState(GameState):
 
 SCORE_EVENT : int = pygame.event.custom_type()
 
+class ActiveWaveGameState(NormalGameState):
+    def __init__(self, game_object : 'Game', prev : 'ShopGameState|None' = None):
+        self.game : Game = game_object
+        self.player : Player
+        self.score : int
+        self.score_sprite : TextSprite
+        self.curr_wave : int
+        if prev is None:
+            Background.spawn(540)
+            Background.spawn(0)
+            self.player = Player.spawn('midbottom', pygame.Vector2(480, 530))
+            self.score = 0
+            self.score_sprite = TextSprite(BaseDrawableInfo(UiPosition((15, 10), 'topleft'), name='score_sprite'), 
+                                    TextSpriteInfo('Score : 0', TextStyle(self.game.font_50, 'White', False, 'White', 2)))
+            self.curr_wave = 1
+        else:
+            self.player = prev.player
+            self.score = prev.prev_state.score
+            self.score_sprite = prev.prev_state.score_sprite
+            self.curr_wave = prev.prev_state.curr_wave + 1
+            prev.prev_state.deactivate()
+
+        self.control_script : WaveControlScript = WaveControlScript()
+        self.control_script.initialize(core_object.game_tsource or Timer.base_time_source)
+
+        self.game.alert_player(f'Wave {self.curr_wave} start')
+
+    def main_logic(self, delta : float):
+        super().main_logic(delta)
+        result = self.control_script.process_frame(delta)
+        if result == 'Done':
+            self.transition_to_shop()
+
+    def transition_to_shop(self):
+        core_object.game.state = ShopGameState(self.game, self)
+ 
+    def on_score_event(self, event : pygame.Event):
+        self.score += event.score
+        self.score_sprite.text = f"Score : {self.score}"
+
+    def make_connections(self):
+        core_object.event_manager.bind(SCORE_EVENT, self.on_score_event)
+
+    def remove_connections(self):
+        core_object.event_manager.unbind(SCORE_EVENT, self.on_score_event)
+
+    def cleanup(self):
+        self.deactivate()
+        ...
+
+    def deactivate(self):
+        self.remove_connections()
+
+class WaveControlScript(CoroutineScript[float, str|None]):
+    def initialize(self, time_source : TimeSource, wave_data : dict|None = None):
+        return super().initialize(time_source, wave_data)
+
+    @staticmethod
+    def corou(time_source : TimeSource, wave_data : dict|None = None):
+        test_timer : Timer = Timer(2, time_source)
+        test_timer.start_time -= 2
+        delta = yield
+
+        spawned : int = 0
+        while spawned < 5:
+            if test_timer.isover():
+                BasicEnemy.spawn('midbottom', pygame.Vector2(random.randint(0 + 50, 960 - 50), -20))
+                test_timer.restart()
+                spawned += 1
+            delta = yield
+        return 'Done'
+    
+class ShopGameState(NormalGameState):
+    def __init__(self, game_object : 'Game', prev : 'ActiveWaveGameState'):
+        self.game : Game = game_object
+        self.player : Player = prev.player
+        self.prev_state : ActiveWaveGameState = prev
+
+        self.test_timer : Timer = Timer(5, core_object.game_tsource)
+
+        self.game.alert_player("The shop has not been implemented yet...")
+
+    def main_logic(self, delta : float):
+        super().main_logic(delta)
+        if self.test_timer.isover():
+            self.transition_to_wave()
+
+    def transition_to_wave(self):
+        core_object.game.state = ActiveWaveGameState(self.game, self)
+        self.deactivate()
+ 
+    def make_connections(self):
+        pass
+
+    def remove_connections(self):
+        pass
+
+    def cleanup(self):
+        self.deactivate()
+        ...
+    
+    def deactivate(self):
+        self.remove_connections()
+
+
 class TestGameState(NormalGameState):
     def __init__(self, game_object : 'Game'):
         self.game = game_object
@@ -126,7 +231,9 @@ class GameStates:
     NormalGameState = NormalGameState
     TestGameState = TestGameState
     PausedGameState = PausedGameState
+    ActiveWaveGameState = ActiveWaveGameState
+    ShopGameState = ShopGameState
 
 
 def initialise_game(game_object : 'Game', event : pygame.Event):
-    game_object.state = TestGameState(game_object)
+    game_object.state = ActiveWaveGameState(game_object)

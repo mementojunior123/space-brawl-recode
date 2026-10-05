@@ -1,20 +1,22 @@
 ---Now---
--Basic game loop with no shop
 -Upgrade system start
 ---Soon---
 -Ability system start
 -Perk system start
 -Basic boss start
 -Shop start
+-Some enemies
 ---Later---
 -Complete upgrade selection
--Full upgrade tree implementation
 -Full enemy implementation
 -Tutorial
+-Some bosses
 ---Long-term---
 -Settings
 -Mobile support
 -Hard mode
+-Full boss implementation
+-Full upgrade trere
 
 ---Sync---
 -Add missing type annotation in bg_manager

@@ -1,5 +1,5 @@
 import pygame
-from typing import Generator, TypeAlias, Literal, TypedDict, cast
+from typing import Generator, TypeAlias, Literal, TypedDict, cast, Iterable
 from framework.game.sprite import Sprite
 from framework.utils.helpers import load_alpha_to_colorkey, recolor_image, sign
 from framework.utils.my_timer import Timer, TimeSource
@@ -45,6 +45,24 @@ class PlayerHealthbar(RowLayout):
         self.update_heart_amount()
         self.update_hearts()
 
+    @property
+    def heart_count(self) -> int:
+        return self._heart_count
+
+    @heart_count.setter
+    def heart_count(self, value : int):
+        self._heart_count = value
+        self.update_heart_amount()
+
+    @property
+    def health(self) -> int:
+        return self._health
+
+    @health.setter
+    def health(self, value : int):
+        self._health = value
+        self.update_hearts()
+    
     def make_new_heart(self) -> UiSprite:
         return UiSprite(BaseDrawableInfo(UiPosition((0, 0), 'topright')), Player.full_heart)
 
@@ -56,9 +74,10 @@ class PlayerHealthbar(RowLayout):
         elif curr_elem_count > self._heart_count:
             for _ in range(curr_elem_count - self._heart_count):
                 if self.elements: self.elements.pop()
+        self.update_hearts()
 
     def update_hearts(self):
-        for i, heart_sprite in enumerate(cast(list[UiSprite], self.elements), start=1):
+        for i, heart_sprite in enumerate(cast(Iterable[UiSprite], reversed(self.elements)), start=1):
             if i <= self._health:
                 heart_sprite.base_surf = Player.full_heart
             else:
@@ -201,6 +220,7 @@ class Player(Sprite, sprite_count=1):
         self.current_hp -= min(round(damage), 1)
         self.invuln_timer.restart()
         core_object.bg_manager.play_sfx('hit_sfx', 1.0)
+        self.healthbar.health = self.current_hp
         return True
 
     def check_input(self):

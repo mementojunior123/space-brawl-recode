@@ -214,6 +214,7 @@ class BasicEnemyControlScript(CoroutineScript[float, str|None]):
                 unit.fire_normal_projectile()
                 shot_timer.set_duration(random.uniform(3, 5))
             delta = yield
+            
 class EnemyTypes(Enum):
     BASIC = 'basic'
 
