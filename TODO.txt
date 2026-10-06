@@ -16,7 +16,7 @@
 -Mobile support
 -Hard mode
 -Full boss implementation
--Full upgrade trere
+-Full upgrade tree
 
 ---Sync---
 -Add missing type annotation in bg_manager
