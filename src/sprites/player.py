@@ -13,6 +13,8 @@ import src.particle_effects
 from src.sprites.projectiles import BaseProjectile, NormalProjectile, Teams
 from src.sprites.enemy import BaseNormalEnemy, BaseEnemy
 
+from src.upgrades import PlayerUpgrades
+
 for i in range(8):
     core_object.asset_manager.load_surface(f"assets/graphics/player/player-{i}.png", f'player_cycle{i}', 'alpha_to_colorkey', 2, (0, 255, 0))
 
@@ -96,7 +98,7 @@ class Player(Sprite, sprite_count=1):
     ACCEL_SPEED : float = 3.0
     FRICTION : float = 0.3
     MIN_VELOCITY : float = 0.1
-    MAX_VELOCITY : float = 15
+    MAX_VELOCITY : float = 30
     BASE_SHOT_FIRERATE : float = 3
     BASE_HEALTH : int = 3
 
@@ -115,6 +117,11 @@ class Player(Sprite, sprite_count=1):
         self.invuln_timer : Timer
         self.animation_script : PlayerAnimationScript
         self.shot_cooldown_timer : Timer
+
+        self.upgrades : PlayerUpgrades
+
+        self.ability_cooldown_timer : Timer
+        self.alt_fire_cooldown_timer : Timer
 
         self.mask : pygame.Mask #type: ignore
 
@@ -146,6 +153,16 @@ class Player(Sprite, sprite_count=1):
         element.shot_cooldown_timer = Timer(1 / Player.BASE_SHOT_FIRERATE, core_object.game_tsource)
         element.shot_cooldown_timer.start_time -= 1 / Player.BASE_SHOT_FIRERATE
 
+        element.ability_cooldown_timer = Timer(-1, core_object.game_tsource)
+        element.alt_fire_cooldown_timer = Timer(-1, core_object.game_tsource)
+
+        element.upgrades = PlayerUpgrades(element)
+
+        element.ability_cooldown_timer.set_duration(element.upgrades.curr_ability.base_cooldown)
+        element.ability_cooldown_timer.start_time -= element.upgrades.curr_ability.base_cooldown
+        element.alt_fire_cooldown_timer.set_duration(element.upgrades.curr_alt_fire.base_cooldown)
+        element.alt_fire_cooldown_timer.start_time -= element.ability_cooldown_timer.start_time
+
         core_object.main_ui.add(element.healthbar)
 
         cls.unpool(element)
@@ -155,6 +172,7 @@ class Player(Sprite, sprite_count=1):
         self.update_movement(delta)
         self.check_collision()
         self.check_input()
+        self.upgrades.update(delta)
         self.animation_script.process_frame()
 
     def update_movement(self, delta : float):
@@ -224,13 +242,25 @@ class Player(Sprite, sprite_count=1):
         return True
 
     def check_input(self):
-        if pygame.key.get_pressed()[pygame.K_SPACE]:
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_SPACE]:
             self.attempt_primary_fire(ignore_cooldown=False)
+        if pressed[pygame.K_LSHIFT] or pressed[pygame.K_RSHIFT]:
+            self.attempt_ability_use(ignore_cooldown=False)
+        
 
     def attempt_primary_fire(self, ignore_cooldown : bool = False) -> BaseProjectile|None:
         if not self.shot_cooldown_timer.isover() and not ignore_cooldown:
             return None
         return self.shoot()
+
+    def attempt_ability_use(self, ignore_cooldown : bool = False) -> bool:
+        if not self.ability_cooldown_timer.isover() and not ignore_cooldown:
+            return False
+        if self.upgrades.curr_ability.activate():
+            self.ability_cooldown_timer.restart() # set it to the updated amount
+            return True
+        return False
 
     def shoot(self) -> BaseProjectile:
         self.shot_cooldown_timer.set_duration(1 / Player.BASE_SHOT_FIRERATE)
@@ -256,6 +286,11 @@ class Player(Sprite, sprite_count=1):
 
         del self.invuln_timer
         del self.animation_script
+        del self.shot_cooldown_timer
+        del self.upgrades
+
+        del self.ability_cooldown_timer
+        del self.alt_fire_cooldown_timer
         
 class PlayerAnimationScript(CoroutineScript[None, None]):
     def initialize(self, time_source : TimeSource, player : Player, cycle_time : float):
