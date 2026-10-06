@@ -103,6 +103,7 @@ class Player(Sprite, sprite_count=1):
     BASE_HEALTH : int = 3
 
     PRIMARY_FIRE_BIND = pygame.K_SPACE
+    ABILITY_BIND = pygame.K_LSHIFT
 
     def __init__(self) -> None:
         super().__init__()
@@ -243,9 +244,9 @@ class Player(Sprite, sprite_count=1):
 
     def check_input(self):
         pressed = pygame.key.get_pressed()
-        if pressed[pygame.K_SPACE]:
+        if pressed[Player.PRIMARY_FIRE_BIND]:
             self.attempt_primary_fire(ignore_cooldown=False)
-        if pressed[pygame.K_LSHIFT] or pressed[pygame.K_RSHIFT]:
+        if pressed[Player.ABILITY_BIND] or pressed[pygame.K_RSHIFT]:
             self.attempt_ability_use(ignore_cooldown=False)
         
 
