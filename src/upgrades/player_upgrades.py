@@ -20,21 +20,24 @@ class PlayerUpgrades:
     def __init__(self, player : 'Player'):
         self.player : Player = player
         self.upgrades : list[Upgrade] = [
-            Upgrade(UpgradeType.ABILITY, 'Dash', 1, 1, ['overrides_ability']),
-            Upgrade(UpgradeType.SECONDARY_FIRE, 'Lazer', 0, 1, ['overrides_weapon'])
+            Upgrade(UpgradeType.ABILITY, 'Dash', 1, 1, tags= ['overrides_ability']),
+            Upgrade(UpgradeType.SECONDARY_FIRE, 'Lazer', 0, 1, tags= ['overrides_weapon'])
         ]
         self.curr_ability : Ability = cast(Ability, Ability.get_ability_from_upgrade(self.player, self.upgrades[0]))
         self.curr_alt_fire : SecondaryFire = cast(SecondaryFire, SecondaryFire.get_secondary_fire_from_upgrade(self.upgrades[1]))
         self.curr_perks : list[Perk] = []
 
     @property
-    def normal_firerate(self):
+    def normal_firerate(self) -> float:
         return Player.BASE_SHOT_FIRERATE # How are we going to apply the modifiers?
 
     @property
-    def max_hp(self):
+    def max_hp(self) -> int:
         return Player.BASE_HEALTH
 
+    @property
+    def fixed_accel(self) -> pygame.Vector2|None:
+        return None
     ...
 
     def apply_upgrade(self, upgrade : Upgrade):

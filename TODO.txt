@@ -1,8 +1,9 @@
 ---Now---
 -Upgrade system start
----Soon---
 -Ability system start
 -Perk system start
+-Alt fire system start
+---Soon---
 -Basic boss start
 -Shop start
 -Some enemies

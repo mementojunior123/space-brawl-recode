@@ -10,7 +10,7 @@ from framework.ui import RowLayout, BaseDrawableInfo, BaseUiFrameInfo, UiSprite,
 from framework.utils.base_particle_effects import ParticleEffect
 import src.particle_effects
 
-from .upgrade import AbilityName, Upgrade, UpgradeType
+from .upgrade import AbilityName, Upgrade, UpgradeType, PlayerStatsModifiers
 
 class Ability:
     BASE_COOLDWON : float = -1
@@ -32,6 +32,7 @@ class Ability:
         self.rank : int = rank
         self.base_cooldown : float = base_cooldown
         self.original_upgrade : Upgrade|None = original_upgrade
+        self.modifiers : PlayerStatsModifiers = PlayerStatsModifiers()
 
     def activate(self) -> bool: # Does activate need to return anything?
         return True
