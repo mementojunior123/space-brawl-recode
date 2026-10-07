@@ -194,7 +194,9 @@ class Player(Sprite, sprite_count=1):
 
     def calculate_acceleration(self) -> pygame.Vector2:
         pressed_keys = pygame.key.get_pressed()
-        accel_total : pygame.Vector2 = pygame.Vector2(0, 0)
+        accel_total : pygame.Vector2 = self.upgrades.accel_bonus
+        if self.upgrades.fixed_accel:
+            return accel_total
         if pressed_keys[pygame.K_a] or pressed_keys[pygame.K_LEFT]:
             accel_total += pygame.Vector2(-Player.ACCEL_SPEED, 0)
         if pressed_keys[pygame.K_d] or pressed_keys[pygame.K_RIGHT]:
@@ -228,12 +230,14 @@ class Player(Sprite, sprite_count=1):
                     core_object.bg_manager.play_sfx('enemy_killed_sfx', 1.0)
                     enemy.give_score(enemy.KILL_SCORE)
                     enemy.kill_instance()
+        if self.upgrades.projectile_intangible:
+            return
         for proj in colliding_projectiles:
             self.take_damage(proj.damage)
             proj.kill_instance()
 
     def take_damage(self, damage : float) -> bool:
-        if (not self.invuln_timer.isover()):
+        if (not self.invuln_timer.isover() or self.upgrades.invincible):
             return False
         core_object.log(f"Player took damage : {damage}")
         self.current_hp -= min(round(damage), 1)
@@ -255,11 +259,11 @@ class Player(Sprite, sprite_count=1):
             return None
         return self.shoot()
 
-    def attempt_ability_use(self, ignore_cooldown : bool = False) -> bool:
+    def attempt_ability_use(self, ignore_cooldown : bool = False) -> bool: # remember to reset cooldown on buy/wave start
         if not self.ability_cooldown_timer.isover() and not ignore_cooldown:
             return False
         if self.upgrades.curr_ability.activate():
-            self.ability_cooldown_timer.restart() # set it to the updated amount
+            # set it to the updated amount
             return True
         return False
 

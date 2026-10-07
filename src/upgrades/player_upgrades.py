@@ -10,7 +10,7 @@ from framework.ui import RowLayout, BaseDrawableInfo, BaseUiFrameInfo, UiSprite,
 from framework.utils.base_particle_effects import ParticleEffect
 import src.particle_effects
 
-from .upgrade import AbilityName, Upgrade, UpgradeType
+from .upgrade import AbilityName, Upgrade, UpgradeType, PlayerStatsModifiers
 
 from .ability import Ability, DashAbility
 from .perk import Perk
@@ -28,6 +28,10 @@ class PlayerUpgrades:
         self.curr_perks : list[Perk] = []
 
     @property
+    def modifier_list(self) -> list[PlayerStatsModifiers]:
+        return self.get_modifier_list()
+
+    @property
     def normal_firerate(self) -> float:
         return Player.BASE_SHOT_FIRERATE # How are we going to apply the modifiers?
 
@@ -36,9 +40,20 @@ class PlayerUpgrades:
         return Player.BASE_HEALTH
 
     @property
-    def fixed_accel(self) -> pygame.Vector2|None:
-        return None
-    ...
+    def fixed_accel(self) -> bool:
+        return cast(bool, PlayerStatsModifiers.aggregate_field(self.modifier_list, 'lock_accel'))
+
+    @property
+    def accel_bonus(self) -> pygame.Vector2:
+        return cast(pygame.Vector2, PlayerStatsModifiers.aggregate_field(self.modifier_list, 'accel_bonus'))
+
+    @property
+    def invincible(self) -> bool:
+        return cast(bool, PlayerStatsModifiers.aggregate_field(self.modifier_list, 'invincible'))
+
+    @property
+    def projectile_intangible(self) -> bool:
+        return cast(bool, PlayerStatsModifiers.aggregate_field(self.modifier_list, 'projectile_intangible'))
 
     def apply_upgrade(self, upgrade : Upgrade):
         match upgrade.upgrade_type:
@@ -52,6 +67,12 @@ class PlayerUpgrades:
                 pass
             case UpgradeType.MINOR:
                 self.upgrades.append(upgrade)
+
+    def get_modifier_list(self) -> list[PlayerStatsModifiers]:
+        mod_list : list[PlayerStatsModifiers] = [upgrade.modifiers for upgrade in self.upgrades]
+        mod_list.extend([perk.modifiers for perk in self.curr_perks])
+        mod_list.extend([self.curr_ability.modifiers, self.curr_alt_fire.modifiers])
+        return mod_list
 
     def update(self, delta : float):
         self.curr_ability.update(delta)

@@ -1,17 +1,98 @@
 import pygame
-from typing import Literal, TypedDict, NotRequired, Required, cast
+from typing import Literal, TypedDict, NotRequired, Required, cast, Callable, Any
 from enum import Enum
 from dataclasses import dataclass, field
 from framework.utils.helpers import AnchorStr, ColorType, to_roman, RectSideAnchorStr
 from framework.ui import TextStyle
+from framework.core.core import core_object
+
+type ModifierAggregationFunction = Callable[[str, list[PlayerStatsModifiers], list[Any]], Any]
+
+class AggregatorMethods:
+    @staticmethod
+    def sum_aggregator(field_name : str, modifiers : list['PlayerStatsModifiers'], 
+                       values : list[Any]) -> Any:
+        return sum(values)
+
+    @staticmethod
+    def manual_sum_aggregator(field_name : str, modifiers : list['PlayerStatsModifiers'], 
+                              values : list[Any]) -> Any:
+        if not values:
+            return None
+        result = values[0]
+        skip_first : bool = True
+        for value in values:
+            if skip_first:
+                skip_first = False
+            else:
+                result = result + value
+        return result
+
+    @staticmethod
+    def manual_product_aggregator(field_name : str, modifiers : list['PlayerStatsModifiers'], 
+                                  values : list[Any]) -> Any:
+        if not values:
+            return None
+        result = values[0]
+        skip_first : bool = True
+        for value in values:
+            if skip_first:
+                skip_first = False
+            else:
+                result = result * value
+        return result
+
+    @staticmethod
+    def any_aggregator(field_name : str, modifiers : list['PlayerStatsModifiers'],
+                       values : list[Any] )-> Any:
+        return any(values)
+
+    @staticmethod
+    def all_aggregator(field_name : str, modifiers : list['PlayerStatsModifiers'],
+                        values : list[Any] )-> Any:
+        return all(values)
+
+    @staticmethod
+    def min_aggregator(field_name : str, modifiers : list['PlayerStatsModifiers'],
+                        values : list[Any] )-> Any:
+        return min(values)
+
+    @staticmethod
+    def max_aggregator(field_name : str, modifiers : list['PlayerStatsModifiers'],
+                        values : list[Any] )-> Any:
+        return max(values)
+
+    @staticmethod
+    def warn_missing(field_name : str, *args, **kwargs):
+        core_object.log(f'Missing field aggregation method for {field_name}!')
+        return None
+
+type PlayerStatsModifiersKey = Literal['max_hp', 'normal_firerate_mult', 'alt_firerate_mult',
+                                       'global_firerate_mult', 'accel_bonus', 'lock_accel', 'invincible',
+                                       'projectile_intangible']
+
+MODIFIER_AGGREGATOR_DICT : dict[PlayerStatsModifiersKey, ModifierAggregationFunction] = {
+    'max_hp' : AggregatorMethods.sum_aggregator,
+    'normal_firerate_mult' : AggregatorMethods.manual_product_aggregator,
+    'alt_firerate_mult' : AggregatorMethods.manual_product_aggregator,
+    'global_firerate_mult' : AggregatorMethods.manual_product_aggregator,
+    'accel_bonus' : AggregatorMethods.manual_sum_aggregator,
+    'lock_accel' : AggregatorMethods.any_aggregator,
+    'invincible' : AggregatorMethods.any_aggregator,
+    'projectile_intangible' : AggregatorMethods.any_aggregator
+}
+
 
 @dataclass
 class PlayerStatsModifiers:
     max_hp : int = 0
-    normal_firerate : float = 1
-    alt_firerate : float = 1
-    global_firerate : float = 1
-    fixed_accel : pygame.Vector2|None = None
+    normal_firerate_mult : float = 1
+    alt_firerate_mult : float = 1
+    global_firerate_mult : float = 1
+    accel_bonus : pygame.Vector2 = field(default_factory=lambda : pygame.Vector2(0, 0))
+    lock_accel : bool = False
+    invincible : bool = False
+    projectile_intangible : bool = False
     ...
 
     def to_dict(self) -> 'PlayerStatsModifiersDict':
@@ -21,12 +102,31 @@ class PlayerStatsModifiers:
     def from_dict(cls, d : 'PlayerStatsModifiersDict') -> 'PlayerStatsModifiers':
         return cls(**d)
 
+    @staticmethod
+    def aggregate_field(modifiers : list['PlayerStatsModifiers'], field_name : PlayerStatsModifiersKey) -> Any:
+        aggregation_method = MODIFIER_AGGREGATOR_DICT.get(field_name, AggregatorMethods.warn_missing)
+        return aggregation_method(field_name, modifiers, [getattr(mod, field_name) for mod in modifiers])
+
+    @staticmethod
+    def aggregate(modifiers : list['PlayerStatsModifiers']) -> 'PlayerStatsModifiers':
+        if not modifiers:
+            return PlayerStatsModifiers()
+        new_mod_dict : dict = {}
+        for field_name in cast(dict[PlayerStatsModifiersKey, Any], DEFAULT_MODIFIERS.__dict__):
+            new_mod_dict[field_name] = PlayerStatsModifiers.aggregate_field(modifiers, field_name)
+        return PlayerStatsModifiers.from_dict(cast(PlayerStatsModifiersDict, new_mod_dict))
+
+DEFAULT_MODIFIERS : PlayerStatsModifiers = PlayerStatsModifiers()
+    
 class PlayerStatsModifiersDict(TypedDict):
     max_hp : int
-    normal_firerate : float
-    alt_firerate : float
-    global_firerate : float
-    fixed_accel : pygame.Vector2|None
+    normal_firerate_mult : float
+    alt_firerate_mult : float
+    global_firerate_mult : float
+    accel_bonus : pygame.Vector2
+    lock_accel : bool
+    invincible : bool
+    projectile_intangible : bool
     ...
     
 
