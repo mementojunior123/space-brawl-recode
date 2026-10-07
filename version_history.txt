@@ -1,2 +1,5 @@
 Version R01 (05-10-2026, 19:32):
     -The first somewhat playable version of the recode
+
+Version R02 (06-10-2026, 23:04):
+    -Worked on the upgrade system and implemented the dash ability
