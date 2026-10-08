@@ -170,12 +170,12 @@ class Player(Sprite, sprite_count=1):
 
         element.alt_fire_cooldown_bar = ProgressBar(
             BaseDrawableInfo(UiPosition(element.rect.midbottom + pygame.Vector2(0, 3), 'midtop'), name='alt_fire_cooldown'), 
-            (4, 50), (0, 0, 0, 0), (255, 255, 255, 255), 'up', 0, True
+            (6, 50), (0, 0, 0, 0), (255, 255, 255, 255), 'up', 0, True
         )
 
         element.ability_cooldown_bar = ProgressBar(
             BaseDrawableInfo(UiPosition(element.rect.midright + pygame.Vector2(10, 0), 'midleft'), name='ability_cooldown'), 
-            (50, 4), (0, 0, 0, 0), (255, 255, 255, 255), 'right', 0, True
+            (50, 5), (0, 0, 0, 0), (255, 255, 255, 255), 'right', 0, True
         )
 
         core_object.main_ui.add_multiple([element.healthbar, element.alt_fire_cooldown_bar, element.ability_cooldown_bar])
