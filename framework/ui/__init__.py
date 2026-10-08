@@ -8,6 +8,7 @@ from .base_ui_elements import BaseUiElements
 from .textstyle import TextStyle, TextStyleProxy
 from .sprites.textbox import Textbox
 from .sprites.input_textbox import InputTextbox, InputTextboxInfo
+from .sprites.progress_bar import ProgressBar
 from .layouts.base_layout import BaseLayout
 from .layouts.row_layout import RowLayout
 from .layouts.column_layout import ColumnLayout
@@ -16,7 +17,7 @@ local_imports2()
 local_imports3()
 local_imports4()
 __all__ = ("UiDrawable", "UiSpriteGroup", "UiSprite", "UiFrame",
-           "BrightnessOverlay", "TextSprite",
+           "BrightnessOverlay", "TextSprite", "ProgressBar",
            "Textbox", "InputTextbox", "InputTextboxInfo",
            "BaseUiElements", "TextStyle", "TextStyleProxy",
            "BaseDrawableInfo", "BaseUiFrameInfo", "TextSpriteInfo",
