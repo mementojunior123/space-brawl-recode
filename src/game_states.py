@@ -71,7 +71,7 @@ class ActiveWaveGameState(NormalGameState):
         if prev is None:
             Background.spawn(540)
             Background.spawn(0)
-            self.player = Player.spawn('midbottom', pygame.Vector2(480, 530))
+            self.player = Player.spawn('midbottom', pygame.Vector2(480, 520))
             self.score = 0
             self.score_sprite = TextSprite(BaseDrawableInfo(UiPosition((15, 10), 'topleft'), name='score_sprite'), 
                                     TextSpriteInfo('Score : 0', TextStyle(self.game.font_50, 'White', False, 'White', 2)))

@@ -6,7 +6,7 @@ from framework.utils.my_timer import Timer, TimeSource
 from framework.core.core import core_object
 from framework.game.coroutine_scripts import CoroutineScript
 from framework.utils.helpers import AnchorStr
-from framework.ui import RowLayout, BaseDrawableInfo, BaseUiFrameInfo, UiSprite, UiPosition
+from framework.ui import RowLayout, BaseDrawableInfo, BaseUiFrameInfo, UiSprite, UiPosition, ProgressBar
 from framework.utils.base_particle_effects import ParticleEffect
 import src.particle_effects
 
@@ -104,6 +104,7 @@ class Player(Sprite, sprite_count=1):
 
     PRIMARY_FIRE_BIND = pygame.K_SPACE
     ABILITY_BIND = pygame.K_LSHIFT
+    ALT_FIRE_BIND = pygame.K_f
 
     def __init__(self) -> None:
         super().__init__()
@@ -123,6 +124,9 @@ class Player(Sprite, sprite_count=1):
 
         self.ability_cooldown_timer : Timer
         self.alt_fire_cooldown_timer : Timer
+
+        self.ability_cooldown_bar : ProgressBar
+        self.alt_fire_cooldown_bar : ProgressBar
 
         self.mask : pygame.Mask #type: ignore
 
@@ -164,7 +168,17 @@ class Player(Sprite, sprite_count=1):
         element.alt_fire_cooldown_timer.set_duration(alt_fire_cooldown := element.upgrades.alt_fire_cooldown)
         element.alt_fire_cooldown_timer.start_time -= alt_fire_cooldown
 
-        core_object.main_ui.add(element.healthbar)
+        element.alt_fire_cooldown_bar = ProgressBar(
+            BaseDrawableInfo(UiPosition(element.rect.midbottom + pygame.Vector2(0, 3), 'midtop'), name='alt_fire_cooldown'), 
+            (4, 50), (0, 0, 0, 0), (255, 255, 255, 255), 'up', 0, True
+        )
+
+        element.ability_cooldown_bar = ProgressBar(
+            BaseDrawableInfo(UiPosition(element.rect.midright + pygame.Vector2(10, 0), 'midleft'), name='ability_cooldown'), 
+            (50, 4), (0, 0, 0, 0), (255, 255, 255, 255), 'right', 0, True
+        )
+
+        core_object.main_ui.add_multiple([element.healthbar, element.alt_fire_cooldown_bar, element.ability_cooldown_bar])
 
         cls.unpool(element)
         return element
@@ -175,6 +189,17 @@ class Player(Sprite, sprite_count=1):
         self.check_input()
         self.upgrades.update(delta)
         self.animation_script.process_frame()
+        self.update_cooldown_bars()
+
+    def update_cooldown_bars(self):
+        ability_cooldown_bar_progress : float = pygame.math.clamp(
+            (1 - self.ability_cooldown_timer.get_time() / self.ability_cooldown_timer.duration), 0, 1)
+        alt_fire_cooldown_bar_progress : float = pygame.math.clamp(
+            (1 - self.alt_fire_cooldown_timer.get_time() / self.alt_fire_cooldown_timer.duration), 0, 1)
+        self.ability_cooldown_bar.progress = ability_cooldown_bar_progress
+        self.alt_fire_cooldown_bar.progress = alt_fire_cooldown_bar_progress
+        self.ability_cooldown_bar.position = UiPosition(self.rect.midbottom + pygame.Vector2(0, 3), 'midtop')
+        self.alt_fire_cooldown_bar.position = UiPosition(self.rect.midright + pygame.Vector2(10, 0), 'midleft')
 
     def update_movement(self, delta : float):
         accel = self.calculate_acceleration()
@@ -252,7 +277,8 @@ class Player(Sprite, sprite_count=1):
             self.attempt_primary_fire(ignore_cooldown=False)
         if pressed[Player.ABILITY_BIND] or pressed[pygame.K_RSHIFT]:
             self.attempt_ability_use(ignore_cooldown=False)
-        
+        if pressed[Player.ALT_FIRE_BIND]:
+            self.attempt_alt_fire(ignore_cooldown=False)
 
     def attempt_primary_fire(self, ignore_cooldown : bool = False) -> BaseProjectile|None:
         if not self.shot_cooldown_timer.isover() and not ignore_cooldown:
@@ -267,12 +293,17 @@ class Player(Sprite, sprite_count=1):
             return True
         return False
 
+    def attempt_alt_fire(self, ignore_cooldown : bool = False) -> BaseProjectile|None:
+        if not self.alt_fire_cooldown_timer.isover() and not ignore_cooldown:
+            return None
+        return self.upgrades.curr_alt_fire.attempt_fire()
+
     def shoot(self) -> BaseProjectile:
         self.shot_cooldown_timer.set_duration(self.upgrades.normal_fire_cooldown)
         core_object.bg_manager.play_sfx('normal_shot_sfx', 1.0)
         return NormalProjectile.spawn(self.position + pygame.Vector2(0, -30), pygame.Vector2(0, -10), None, None, 0,
             Player.normal_projectile_image, team=Teams.ALLIED,
-            damage = 1, can_destroy=True)
+            damage = self.upgrades.normal_damage, can_destroy=True)
 
     def draw(self, display : pygame.Surface):
         if not self.visible:

@@ -202,3 +202,6 @@ class BaseInteractibleUpgrade:
 
     def cleanup(self):
         pass
+
+    def update(self, delta : float):
+        pass

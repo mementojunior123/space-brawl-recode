@@ -25,7 +25,7 @@ class PlayerUpgrades:
             Upgrade(UpgradeType.SECONDARY_FIRE, 'Lazer', 0, 1, tags= ['overrides_weapon'])
         ]
         self.curr_ability : Ability = cast(Ability, Ability.get_ability_from_upgrade(self.player, self.upgrades[0]))
-        self.curr_alt_fire : SecondaryFire = cast(SecondaryFire, SecondaryFire.get_secondary_fire_from_upgrade(self.upgrades[1]))
+        self.curr_alt_fire : SecondaryFire = cast(SecondaryFire, SecondaryFire.get_secondary_fire_from_upgrade(self.player, self.upgrades[1]))
         self.curr_perks : list[Perk] = []
 
     @property
@@ -53,7 +53,7 @@ class PlayerUpgrades:
         return 1 * self.query_field('normal_damage_mult', float) * self.query_field('global_damage_mult', float)
 
     @property
-    def alt_damage(self) -> float:
+    def alt_fire_damage(self) -> float:
         return self.curr_alt_fire.base_damage * self.query_field('alt_damage_mult', float) * self.query_field('global_damage_mult', float)
 
     @property

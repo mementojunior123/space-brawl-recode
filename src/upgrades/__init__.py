@@ -4,12 +4,13 @@ from .upgrade import AbilityName, AbilityNameList, PerkNameList, PerkName, Secon
 
 from .ability import Ability, DashAbility, runtime_imports1
 from .perk import Perk
-from .secondary_fire import SecondaryFire
+from .secondary_fire import SecondaryFire, runtime_imports3
 from .player_upgrades import PlayerUpgrades, runtime_imports2
 
 def runtime_imports():
     runtime_imports1()
     runtime_imports2()
+    runtime_imports3()
 
 
 __all__ = ("UpgradeType", "Upgrade", "ShopTextOptions", "UpgradeName", "UpgradeNameList",
