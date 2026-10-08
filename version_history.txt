@@ -3,3 +3,6 @@ Version R01 (05-10-2026, 19:32):
 
 Version R02 (06-10-2026, 23:04):
     -Worked on the upgrade system and implemented the dash ability
+
+Version R03 (07-10-2026 23:53):
+    -Made a lot of progress on the upgrade system. Implemented the lazer ability
