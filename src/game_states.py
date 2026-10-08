@@ -103,9 +103,11 @@ class ActiveWaveGameState(NormalGameState):
 
     def make_connections(self):
         core_object.event_manager.bind(SCORE_EVENT, self.on_score_event)
+        core_object.event_manager.bind(core_object.event_manager.ANY_EVENT, Player.receive_any_event)
 
     def remove_connections(self):
         core_object.event_manager.unbind(SCORE_EVENT, self.on_score_event)
+        core_object.event_manager.unbind(core_object.event_manager.ANY_EVENT, Player.receive_any_event)
 
     def cleanup(self):
         self.deactivate()
@@ -160,6 +162,7 @@ class ShopGameState(NormalGameState):
 
     def cleanup(self):
         self.deactivate()
+        self.prev_state.deactivate()
         ...
     
     def deactivate(self):
@@ -225,6 +228,11 @@ def runtime_imports():
     global Player
     from src.sprites.player import Player
     import src.sprites.player
+
+    global Upgrade, PlayerUpgrades
+    from src.upgrades import Upgrade, PlayerUpgrades
+    import src.upgrades
+    src.upgrades.runtime_imports()
 
 
 class GameStates:

@@ -10,9 +10,9 @@ from framework.ui import RowLayout, BaseDrawableInfo, BaseUiFrameInfo, UiSprite,
 from framework.utils.base_particle_effects import ParticleEffect
 import src.particle_effects
 
-from .upgrade import AbilityName, Upgrade, UpgradeType, PlayerStatsModifiers
+from .upgrade import AbilityName, Upgrade, UpgradeType, PlayerStatsModifiers, BaseInteractibleUpgrade
 
-class Perk:
+class Perk(BaseInteractibleUpgrade):
     @staticmethod
     def get_perk_from_upgrade(upgrade : Upgrade) -> "Perk|None":
         ...

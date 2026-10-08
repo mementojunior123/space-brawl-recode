@@ -67,32 +67,42 @@ class AggregatorMethods:
         core_object.log(f'Missing field aggregation method for {field_name}!')
         return None
 
-type PlayerStatsModifiersKey = Literal['max_hp', 'normal_firerate_mult', 'alt_firerate_mult',
+type PlayerStatsModifiersKey = Literal['max_hp_bonus', 'normal_firerate_mult', 'alt_firerate_mult',
                                        'global_firerate_mult', 'accel_bonus', 'lock_accel', 'invincible',
-                                       'projectile_intangible']
+                                       'projectile_intangible',
+                                       'normal_damage_mult', 'alt_damage_mult', 'global_damage_mult',
+                                       'ability_recharge_rate']
 
 MODIFIER_AGGREGATOR_DICT : dict[PlayerStatsModifiersKey, ModifierAggregationFunction] = {
-    'max_hp' : AggregatorMethods.sum_aggregator,
+    'max_hp_bonus' : AggregatorMethods.sum_aggregator,
     'normal_firerate_mult' : AggregatorMethods.manual_product_aggregator,
     'alt_firerate_mult' : AggregatorMethods.manual_product_aggregator,
     'global_firerate_mult' : AggregatorMethods.manual_product_aggregator,
     'accel_bonus' : AggregatorMethods.manual_sum_aggregator,
     'lock_accel' : AggregatorMethods.any_aggregator,
     'invincible' : AggregatorMethods.any_aggregator,
-    'projectile_intangible' : AggregatorMethods.any_aggregator
+    'projectile_intangible' : AggregatorMethods.any_aggregator,
+    'normal_damage_mult' : AggregatorMethods.manual_product_aggregator,
+    'alt_damage_mult' : AggregatorMethods.manual_product_aggregator,
+    'global_damage_mult' : AggregatorMethods.manual_product_aggregator,
+    'ability_recharge_rate' : AggregatorMethods.manual_product_aggregator
 }
 
 
 @dataclass
 class PlayerStatsModifiers:
-    max_hp : int = 0
+    max_hp_bonus : int = 0
     normal_firerate_mult : float = 1
     alt_firerate_mult : float = 1
     global_firerate_mult : float = 1
+    normal_damage_mult : float = 1
+    alt_damage_mult : float = 1
+    global_damage_mult : float = 1
     accel_bonus : pygame.Vector2 = field(default_factory=lambda : pygame.Vector2(0, 0))
     lock_accel : bool = False
     invincible : bool = False
     projectile_intangible : bool = False
+    ability_recharge_rate : float = 1
     ...
 
     def to_dict(self) -> 'PlayerStatsModifiersDict':
@@ -119,14 +129,18 @@ class PlayerStatsModifiers:
 DEFAULT_MODIFIERS : PlayerStatsModifiers = PlayerStatsModifiers()
     
 class PlayerStatsModifiersDict(TypedDict):
-    max_hp : int
+    max_hp_bonus : int
     normal_firerate_mult : float
     alt_firerate_mult : float
     global_firerate_mult : float
+    normal_damage_mult : float
+    alt_damage_mult : float
+    global_damage_mult : float
     accel_bonus : pygame.Vector2
     lock_accel : bool
     invincible : bool
     projectile_intangible : bool
+    ability_recharge_rate : float
     ...
     
 
@@ -176,3 +190,15 @@ class Upgrade:
 
 def runtime_imports():
     pass
+
+
+class BaseInteractibleUpgrade:
+    def __init__(self) -> None:
+        self.relevant_events : dict[int, bool] = {} # bool : do_defer (add to queue instead of calling the callback)
+        self.event_queue : list[pygame.Event] = []
+
+    def on_event(self, event : pygame.Event):
+        pass
+
+    def cleanup(self):
+        pass

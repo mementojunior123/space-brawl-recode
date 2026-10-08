@@ -1,5 +1,5 @@
 import pygame
-from typing import Generator, TypeAlias, Literal, TypedDict, cast, Iterable
+from typing import Generator, TypeAlias, Literal, TypedDict, cast, Iterable, reveal_type
 from framework.game.sprite import Sprite
 from framework.utils.helpers import load_alpha_to_colorkey, recolor_image, sign
 from framework.utils.my_timer import Timer, TimeSource
@@ -10,7 +10,8 @@ from framework.ui import RowLayout, BaseDrawableInfo, BaseUiFrameInfo, UiSprite,
 from framework.utils.base_particle_effects import ParticleEffect
 import src.particle_effects
 
-from .upgrade import AbilityName, Upgrade, UpgradeType, PlayerStatsModifiers
+from .upgrade import AbilityName, Upgrade, UpgradeType, PlayerStatsModifiers, PlayerStatsModifiersKey
+from .upgrade import BaseInteractibleUpgrade
 
 from .ability import Ability, DashAbility
 from .perk import Perk
@@ -33,27 +34,47 @@ class PlayerUpgrades:
 
     @property
     def normal_firerate(self) -> float:
-        return Player.BASE_SHOT_FIRERATE # How are we going to apply the modifiers?
+        return Player.BASE_SHOT_FIRERATE * self.query_field('global_firerate_mult', float) * self.query_field('normal_firerate_mult', float)
+
+    @property
+    def normal_fire_cooldown(self) -> float:
+        return 1 / self.normal_firerate
+
+    @property
+    def alt_fire_cooldown(self) -> float:
+        return self.curr_alt_fire.base_cooldown / (self.query_field('global_firerate_mult', float) * self.query_field('alt_firerate_mult', float))
+
+    @property
+    def ability_cooldown(self) -> float:
+        return self.curr_ability.base_cooldown / self.query_field('ability_recharge_rate', float)
+
+    @property
+    def normal_damage(self) -> float:
+        return 1 * self.query_field('normal_damage_mult', float) * self.query_field('global_damage_mult', float)
+
+    @property
+    def alt_damage(self) -> float:
+        return self.curr_alt_fire.base_damage * self.query_field('alt_damage_mult', float) * self.query_field('global_damage_mult', float)
 
     @property
     def max_hp(self) -> int:
-        return Player.BASE_HEALTH
+        return Player.BASE_HEALTH + self.query_field('max_hp_bonus', int)
 
     @property
     def fixed_accel(self) -> bool:
-        return cast(bool, PlayerStatsModifiers.aggregate_field(self.modifier_list, 'lock_accel'))
+        return self.query_field('lock_accel', bool) # done
 
     @property
     def accel_bonus(self) -> pygame.Vector2:
-        return cast(pygame.Vector2, PlayerStatsModifiers.aggregate_field(self.modifier_list, 'accel_bonus'))
+        return self.query_field('accel_bonus', pygame.Vector2) # done
 
     @property
     def invincible(self) -> bool:
-        return cast(bool, PlayerStatsModifiers.aggregate_field(self.modifier_list, 'invincible'))
+        return self.query_field('invincible', bool) # done
 
     @property
     def projectile_intangible(self) -> bool:
-        return cast(bool, PlayerStatsModifiers.aggregate_field(self.modifier_list, 'projectile_intangible'))
+        return self.query_field('projectile_intangible', bool) # done
 
     def apply_upgrade(self, upgrade : Upgrade):
         match upgrade.upgrade_type:
@@ -74,11 +95,29 @@ class PlayerUpgrades:
         mod_list.extend([self.curr_ability.modifiers, self.curr_alt_fire.modifiers])
         return mod_list
 
+    def query_field[T](self, field : PlayerStatsModifiersKey, _ : type[T]) -> T:
+        return PlayerStatsModifiers.aggregate_field(self.modifier_list, field)
+
     def update(self, delta : float):
         self.curr_ability.update(delta)
         self.curr_alt_fire.update(delta)
         for perk in self.curr_perks:
             perk.update(delta)
+
+    def on_event(self, event : pygame.Event):
+        interactible_upgrade : BaseInteractibleUpgrade
+        for interactible_upgrade in self.curr_perks:
+            if event in interactible_upgrade.relevant_events:
+                if interactible_upgrade.relevant_events[event.type]:
+                    interactible_upgrade.event_queue.append(event)
+                else:
+                    interactible_upgrade.on_event(event)
+        for interactible_upgrade in (self.curr_ability, self.curr_alt_fire):
+            if event in interactible_upgrade.relevant_events:
+                if interactible_upgrade.relevant_events[event.type]:
+                    interactible_upgrade.event_queue.append(event)
+                else:
+                    interactible_upgrade.on_event(event)
 
 def runtime_imports2():
     global Player

@@ -151,18 +151,18 @@ class Player(Sprite, sprite_count=1):
         element.animation_script = PlayerAnimationScript()
         element.animation_script.initialize(core_object.game_tsource or Timer.base_time_source, element, 0.25)
         
-        element.shot_cooldown_timer = Timer(1 / Player.BASE_SHOT_FIRERATE, core_object.game_tsource)
-        element.shot_cooldown_timer.start_time -= 1 / Player.BASE_SHOT_FIRERATE
-
+        element.shot_cooldown_timer = Timer(-1, core_object.game_tsource)
         element.ability_cooldown_timer = Timer(-1, core_object.game_tsource)
         element.alt_fire_cooldown_timer = Timer(-1, core_object.game_tsource)
 
         element.upgrades = PlayerUpgrades(element)
 
-        element.ability_cooldown_timer.set_duration(element.upgrades.curr_ability.base_cooldown)
-        element.ability_cooldown_timer.start_time -= element.upgrades.curr_ability.base_cooldown
-        element.alt_fire_cooldown_timer.set_duration(element.upgrades.curr_alt_fire.base_cooldown)
-        element.alt_fire_cooldown_timer.start_time -= element.ability_cooldown_timer.start_time
+        element.shot_cooldown_timer.set_duration(shot_cooldwon := element.upgrades.normal_fire_cooldown)
+        element.shot_cooldown_timer.start_time -= shot_cooldwon
+        element.ability_cooldown_timer.set_duration(ability_cooldown := element.upgrades.ability_cooldown)
+        element.ability_cooldown_timer.start_time -= ability_cooldown
+        element.alt_fire_cooldown_timer.set_duration(alt_fire_cooldown := element.upgrades.alt_fire_cooldown)
+        element.alt_fire_cooldown_timer.start_time -= alt_fire_cooldown
 
         core_object.main_ui.add(element.healthbar)
 
@@ -268,7 +268,7 @@ class Player(Sprite, sprite_count=1):
         return False
 
     def shoot(self) -> BaseProjectile:
-        self.shot_cooldown_timer.set_duration(1 / Player.BASE_SHOT_FIRERATE)
+        self.shot_cooldown_timer.set_duration(self.upgrades.normal_fire_cooldown)
         core_object.bg_manager.play_sfx('normal_shot_sfx', 1.0)
         return NormalProjectile.spawn(self.position + pygame.Vector2(0, -30), pygame.Vector2(0, -10), None, None, 0,
             Player.normal_projectile_image, team=Teams.ALLIED,
@@ -278,6 +278,19 @@ class Player(Sprite, sprite_count=1):
         if not self.visible:
             return
         super().draw(display)
+
+    @classmethod
+    def make_connections(cls):
+        core_object.event_manager.bind(core_object.event_manager.ANY_EVENT, cls.receive_any_event)
+
+    @classmethod
+    def remove_connections(cls):
+        core_object.event_manager.unbind(core_object.event_manager.ANY_EVENT, cls.receive_any_event)
+
+    @classmethod
+    def receive_any_event(cls, event : pygame.Event):
+        for player in cls.active_elements:
+            player.upgrades.on_event(event)
 
     def clean_instance(self):
         super().clean_instance()

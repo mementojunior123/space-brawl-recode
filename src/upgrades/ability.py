@@ -10,9 +10,9 @@ from framework.ui import RowLayout, BaseDrawableInfo, BaseUiFrameInfo, UiSprite,
 from framework.utils.base_particle_effects import ParticleEffect, ParticleEffectTrack
 import src.particle_effects
 
-from .upgrade import AbilityName, Upgrade, UpgradeType, PlayerStatsModifiers
+from .upgrade import AbilityName, Upgrade, UpgradeType, PlayerStatsModifiers, BaseInteractibleUpgrade
 
-class Ability:
+class Ability(BaseInteractibleUpgrade):
     BASE_COOLDWON : float = -1
     @staticmethod
     def get_ability_from_upgrade(player : 'Player', upgrade : Upgrade) -> 'Ability|None':
@@ -35,7 +35,7 @@ class Ability:
         self.modifiers : PlayerStatsModifiers = PlayerStatsModifiers()
 
     def activate(self) -> bool: # Does activate need to return anything?
-        self.player.ability_cooldown_timer.set_duration(self.base_cooldown)
+        self.player.ability_cooldown_timer.set_duration(self.player.upgrades.ability_cooldown)
         return True
 
     def update(self, delta : float):

@@ -10,11 +10,11 @@ from framework.ui import RowLayout, BaseDrawableInfo, BaseUiFrameInfo, UiSprite,
 from framework.utils.base_particle_effects import ParticleEffect
 import src.particle_effects
 
-from .upgrade import AbilityName, Upgrade, UpgradeType, PlayerStatsModifiers
+from .upgrade import AbilityName, Upgrade, UpgradeType, PlayerStatsModifiers, BaseInteractibleUpgrade
 
 from src.sprites.projectiles import BaseProjectile
 
-class SecondaryFire:
+class SecondaryFire(BaseInteractibleUpgrade):
     @staticmethod
     def get_secondary_fire_from_upgrade(upgrade : Upgrade) -> "SecondaryFire|None":
         return SecondaryFire()
@@ -22,6 +22,7 @@ class SecondaryFire:
     def __init__(self, *args, **kwargs) -> None:
         self.base_cooldown : float = 1
         self.modifiers : PlayerStatsModifiers = PlayerStatsModifiers()
+        self.base_damage : float = 1
 
     def attempt_fire(self) -> BaseProjectile|None:
         ...

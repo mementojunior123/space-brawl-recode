@@ -2,6 +2,7 @@
 -Shop start
 -Perk system start
 -Alt fire system start
+-Visuals for cooldowns
 ---Soon---
 -Basic boss start
 -Some enemies
