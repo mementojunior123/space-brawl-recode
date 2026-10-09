@@ -6,3 +6,6 @@ Version R02 (06-10-2026, 23:04):
 
 Version R03 (07-10-2026 23:53):
     -Made a lot of progress on the upgrade system. Implemented the lazer ability
+
+Version R04 (08-10-2026, 23:13):
+    -Made even more progress on the upgrade system. Implemented the damage chain perk
