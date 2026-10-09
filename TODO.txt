@@ -28,3 +28,4 @@
 -Fixed a bug in game.alert_player (05/10/2026 18:46)
 -Animation's set_alpha and alpha_gradient instructions are now supported (05/10/2026 19:26)
 -Added a ProgressBar UiSprite (07/10/2026 23:44)
+-Fixed a bug in particle effects that caused them to occasionally not spawn (08/10/2026, 20:12)

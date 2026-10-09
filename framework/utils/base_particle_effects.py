@@ -309,6 +309,8 @@ class ParticleEffect:
         self.tracks.append(new_track)
         for _ in range(self.data['init_spawn_count']):
             self.emit(new_track)
+        if self not in ParticleEffect.elements:
+            ParticleEffect.elements.append(self)
         return new_track
 
     def update(self):

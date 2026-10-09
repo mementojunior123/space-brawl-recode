@@ -130,7 +130,8 @@ class Game:
 
         #Cleanup ingame object
         Sprite.kill_all_sprites()
-        framework.utils.base_particle_effects.ParticleEffect.elements.clear()
+        for effect in framework.utils.base_particle_effects.ParticleEffect.elements[:]:
+            effect.destroy()
         core_object.main_ui.clear_all()
 
         #Clear game varaibles
