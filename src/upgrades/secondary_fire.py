@@ -23,7 +23,7 @@ class SecondaryFire(BaseInteractibleUpgrade):
             return None
         alt_fire_name : SecondaryFireName = cast(SecondaryFireName, upgrade.name)
         match alt_fire_name:
-            case 'Lazer':
+            case 'LazerShot':
                 return LazerSecondaryFire(player, upgrade.rank, upgrade)
             case _:
                 return None
@@ -31,6 +31,7 @@ class SecondaryFire(BaseInteractibleUpgrade):
     def __init__(self, player : 'Player', name : SecondaryFireName, rank : int, base_cooldown : float,
                  base_damage : float,
                  original_upgrade : Upgrade|None = None,) -> None:
+        super().__init__()
         self.player : Player = player
         self.name : SecondaryFireName = name
         self.rank : int = rank
@@ -46,12 +47,15 @@ class SecondaryFire(BaseInteractibleUpgrade):
     def update(self, delta : float):
         ...
 
+    def refresh_cooldown(self):
+        self.player.alt_fire_cooldown_timer.set_duration(self.player.upgrades.alt_fire_cooldown)
+
 class LazerSecondaryFire(SecondaryFire):
     BASE_COOLDOWN = 1 / 0.9
     BASE_DAMAGE = 4
 
     def __init__(self, player : 'Player', rank : int, original_upgrade: Upgrade | None = None) -> None:
-        super().__init__(player, 'Lazer', rank, LazerSecondaryFire.BASE_COOLDOWN, LazerSecondaryFire.BASE_DAMAGE, original_upgrade)
+        super().__init__(player, 'LazerShot', rank, LazerSecondaryFire.BASE_COOLDOWN, LazerSecondaryFire.BASE_DAMAGE, original_upgrade)
 
     def attempt_fire(self) -> BaseProjectile | None:
         super().attempt_fire()
@@ -61,7 +65,8 @@ class LazerSecondaryFire(SecondaryFire):
         return ScatterProjectile.spawn(self.player.position + pygame.Vector2(0, -30), pygame.Vector2(0, -16), None, None, 0,
                                        recolor_image(BaseProjectile.normal_image3, "Purple"), team=Teams.ALLIED,
                                        damage=self.player.upgrades.alt_fire_damage, can_destroy=True, bounce_count=0, scatter_count=scatter_count,
-                                       scatter_proj_num=proj_count, scatter_reflect=True, damage_decay=damage_decay)
+                                       scatter_proj_num=proj_count, scatter_reflect=True, damage_decay=damage_decay,
+                                        track_hits=True, track_misses=True)
 
 def runtime_imports3():
     global Player

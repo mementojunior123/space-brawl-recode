@@ -1,7 +1,8 @@
 ---Now---
 -Shop start
--Perk system start
+-Some normal enemies
 ---Soon---
+-Basic wave implementation
 -Basic boss start
 -Some enemies
 ---Later---

@@ -154,11 +154,11 @@ class UpgradeType(Enum):
 
 type AbilityName = Literal['Dash']
 AbilityNameList : list[AbilityName] = ['Dash']
-type PerkName = str
-PerkNameList : list[PerkName] = []
-type SecondaryFireName = Literal['Lazer']
-SecondaryFireNameList : list[SecondaryFireName] = ['Lazer']
-type UpgradeName = AbilityName|PerkName|SecondaryFireName|str
+type PerkName = Literal['DamageChain']
+PerkNameList : list[PerkName] = ['DamageChain']
+type SecondaryFireName = Literal['LazerShot']
+SecondaryFireNameList : list[SecondaryFireName] = ['LazerShot']
+type UpgradeName = AbilityName|PerkName|SecondaryFireName
 
 UpgradeNameList : list[UpgradeName] = []
 UpgradeNameList.extend(AbilityNameList)
@@ -181,16 +181,30 @@ class Upgrade:
     rarity_tier : int
     modifiers : PlayerStatsModifiers = field(default_factory=lambda : PlayerStatsModifiers())
     tags : list[str] = field(default_factory=lambda : [])
+    stackable : bool = True
 
     def get_shop_description(self, already_present_upgrades : list['Upgrade']) -> list[tuple[str, ShopTextOptions]]:
-        return[(f"{self.name} {to_roman(self.rank)} (type : {UpgradeType}), T{self.rarity_tier}", {'pos' : 30, 'anchor' : 'top'})]
+        match self.name:
+            case _:
+                return [(f"{self.name} {to_roman(self.rank)} (type : {UpgradeType}), T{self.rarity_tier}", {'pos' : 30, 'anchor' : 'top'})]
 
     def get_shop_border_info(self) -> tuple[ColorType, int]:
         return ("Blue", 15)
 
+    @staticmethod
+    def from_name_and_rank(name : UpgradeName, rank : int) -> 'Upgrade|None':
+        match name:
+            case 'Dash':
+                return Upgrade(UpgradeType.ABILITY, name, rank, 1, stackable=False)
+            case 'DamageChain':
+                return Upgrade(UpgradeType.PERK, name, rank, 1, stackable=False)
+            case 'LazerShot':
+                return Upgrade(UpgradeType.SECONDARY_FIRE, name, rank, 1, stackable=False)
+            case _:
+                return None
+
 def runtime_imports():
     pass
-
 
 class BaseInteractibleUpgrade:
     def __init__(self) -> None:
@@ -204,4 +218,7 @@ class BaseInteractibleUpgrade:
         pass
 
     def update(self, delta : float):
+        pass
+
+    def refresh_cooldown(self):
         pass

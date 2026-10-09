@@ -5,7 +5,7 @@ from framework.utils.helpers import AnchorStr, ANCHOR_REL_POS_DICT
 from ..ui_drawable import UiDrawable, UiSpriteGroup, BaseDrawableInfo, TransformedRect
 from ..ui_sprite import UiSprite
 from ..ui_frame import UiFrame
-from math import floor
+from math import floor, ceil
 
 from typing import Literal
 
@@ -100,13 +100,13 @@ class ProgressBar(UiSprite):
         target_rect : pygame.Rect
         match self._fill_direction:
             case 'down':
-                target_rect = pygame.Rect(0, 0, size_x, size_y * self.progress)
+                target_rect = pygame.Rect(0, 0, size_x, round(size_y * self.progress))
             case 'right':
-                target_rect = pygame.Rect(0, 0, size_x * self._progress, size_y)
+                target_rect = pygame.Rect(0, 0, round(size_x * self._progress), size_y)
             case 'left':
-                target_rect = pygame.Rect(round(size_x * (1 - self.progress)), 0, size_x * self.progress, size_y)
+                target_rect = pygame.Rect(ceil(size_x * (1 - self.progress)), 0, floor(size_x * self.progress), size_y)
             case 'up':
-                target_rect = pygame.Rect(0, round(size_y * (1 - self.progress)), size_x, size_y * self.progress)
+                target_rect = pygame.Rect(0, ceil(size_y * (1 - self.progress)), size_x, floor(size_y * self.progress))
             case _:
                 target_rect = pygame.Rect(0, 0, 0, 0)
         pygame.draw.rect(self._base_surf, self._fill_color, target_rect)

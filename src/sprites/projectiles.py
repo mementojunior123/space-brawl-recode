@@ -39,6 +39,9 @@ class BaseProjectile(Sprite):
 
     bounding_box : pygame.Rect = pygame.Rect(0, 0, *core_object.main_display.get_size())
 
+    PROJECTILE_HIT : int = pygame.event.custom_type()
+    PROJECTILE_MISSED : int = pygame.event.custom_type()
+
     def __init__(self) -> None:
         super().__init__()
         self.velocity : pygame.Vector2
@@ -54,6 +57,8 @@ class BaseProjectile(Sprite):
         self.destructible : bool
         self.die_after_destroying : bool
         self.mask : pygame.Mask #type: ignore
+        self.track_misses : bool
+        self.track_hits : bool
 
     @classmethod
     def spawn(cls, *args, **kwargs):
@@ -121,6 +126,8 @@ class BaseProjectile(Sprite):
         del self.destructible
         del self.die_after_destroying
         del self.can_destroy
+        del self.track_misses
+        del self.track_hits
 
 class NormalProjectile(BaseProjectile, sprite_count = 200):
     
@@ -132,7 +139,7 @@ class NormalProjectile(BaseProjectile, sprite_count = 200):
               custom_image : pygame.Surface, team : Teams = Teams.PACIFIST, 
               projectile_type : str = "", pivot_offset : pygame.Vector2|None = None,
               zindex : int = 0, damage : float = 1, can_destroy : bool = False, destructible : bool = False, 
-              die_after_destroying : bool = True):
+              die_after_destroying : bool = True, track_misses : bool = False, track_hits : bool = False):
         element = cls.inactive_elements[0]
 
         element.image = custom_image
@@ -158,6 +165,9 @@ class NormalProjectile(BaseProjectile, sprite_count = 200):
         element.destructible = destructible
         element.die_after_destroying = die_after_destroying
 
+        element.track_misses = track_misses
+        element.track_hits = track_hits
+
         cls.unpool(element)
         return element
     
@@ -173,6 +183,8 @@ class NormalProjectile(BaseProjectile, sprite_count = 200):
         self.velocity *=  ((1 - self.drag) ** delta) ** 0.5
         if not self.rect.colliderect((0, 0, *core_object.main_display.get_size())):
             if self.was_onscreen_once:
+                if self.track_misses and self.team == Teams.ALLIED:
+                    pygame.event.post(pygame.Event(BaseProjectile.PROJECTILE_MISSED, {}))
                 self.kill_instance_safe()
         else:
             self.was_onscreen_once = True
@@ -204,7 +216,8 @@ class HomingProjectile(BaseProjectile, sprite_count = 50):
               projectile_type : str = "", pivot_offset : pygame.Vector2|None = None,
               zindex : int = 0, homing_range : float = 1000, homing_rate : float = 3, 
               homing_targets : CollisionGroupArg[Sprite]|None = None, damage : float = 1, 
-              can_destroy : bool = False, destructible : bool = False, die_after_destroying : bool = True,
+              can_destroy : bool = False, destructible : bool = False, die_after_destroying : bool = True, 
+              track_misses : bool = False, track_hits : bool = False,
               explosive_range : float = 0, explosion_damage : float = 0):
         
         if homing_targets is None: 
@@ -242,6 +255,9 @@ class HomingProjectile(BaseProjectile, sprite_count = 50):
 
         element.explosive_range = explosive_range
         element.explosive_damage = explosion_damage
+
+        element.track_hits = track_hits
+        element.track_misses = track_misses
 
         cls.unpool(element)
         return element
@@ -290,6 +306,8 @@ class HomingProjectile(BaseProjectile, sprite_count = 50):
         self.velocity *=  ((1 - self.drag) ** delta) ** 0.5
         if not self.rect.colliderect((0, 0, *core_object.main_display.get_size())):
             if self.was_onscreen_once:
+                if self.track_misses and self.team == Teams.ALLIED:
+                    pygame.event.post(pygame.Event(BaseProjectile.PROJECTILE_MISSED, {}))
                 self.kill_instance_safe()
         else:
             self.was_onscreen_once = True
@@ -356,7 +374,7 @@ class ScatterProjectile(BaseProjectile, sprite_count = 50):
               custom_image : pygame.Surface, team : Teams = Teams.PACIFIST, 
               projectile_type : str = "", pivot_offset : pygame.Vector2|None = None,
               zindex : int = 0, damage : float = 1, can_destroy : bool = False, destructible : bool = False, 
-              die_after_destroying : bool = True, 
+              die_after_destroying : bool = True, track_misses : bool = False, track_hits : bool = False, 
               bounce_count : int = 2, scatter_count : int = 1, scatter_proj_num : int = 3,
               ignore : list["Sprite"]|None = None, scatter_reflect : bool = False, damage_decay : float = 1.0,
               angle_offset : float = 0.0):
@@ -394,6 +412,9 @@ class ScatterProjectile(BaseProjectile, sprite_count = 50):
         element.damage_decay = damage_decay
         element.angle_offset = angle_offset
 
+        element.track_hits = track_hits
+        element.track_misses = track_misses
+
         cls.unpool(element)
         return element
     
@@ -420,6 +441,8 @@ class ScatterProjectile(BaseProjectile, sprite_count = 50):
                 self.bounce(wall)
         if not self.rect.colliderect((0, 0, *core_object.main_display.get_size())):
             if self.was_onscreen_once:
+                if self.track_misses and self.team == Teams.ALLIED:
+                    pygame.event.post(pygame.Event(BaseProjectile.PROJECTILE_MISSED, {}))
                 self.kill_instance_safe()
         else:
             self.was_onscreen_once = True
@@ -443,7 +466,7 @@ class ScatterProjectile(BaseProjectile, sprite_count = 50):
             new_velocity.scale_to_length(velocity_magnitude)
             ScatterProjectile.spawn(new_position, new_velocity, self.acceleration, self.drag, pygame.Vector2(0, -1).angle_to(new_velocity),
                                     self.image, self.team, self.type, self.pivot.pivot_offset, self.zindex, self.damage * self.damage_decay,
-                                    self.can_destroy, self.destructible, self.die_after_destroying, self.og_bounce_count,
+                                    self.can_destroy, self.destructible, self.die_after_destroying, False, self.track_hits, self.og_bounce_count,
                                     self.scatter_count - 1, self.scatter_proj_num, self.ignore, self.scatter_reflect, self.damage_decay, -self.angle)
     
     @staticmethod

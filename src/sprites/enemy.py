@@ -67,6 +67,8 @@ class BaseEnemy(Sprite):
 
     def when_hit(self, projectile : BaseProjectile):
         self.take_damage(projectile.damage)
+        if projectile.track_hits and projectile.team == Teams.ALLIED:
+            pygame.event.post(pygame.Event(BaseProjectile.PROJECTILE_HIT, {}))
         overlap_point : tuple[int, int]|None = self.mask.overlap(projectile.mask, (projectile.rect.x - self.rect.x, projectile.rect.y - self.rect.y))
         point_of_contact : pygame.Vector2 = (pygame.Vector2(self.rect.topleft) + overlap_point) if overlap_point else self.position
         if self.health <= BaseEnemy.health_epsilon:

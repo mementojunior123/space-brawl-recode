@@ -27,6 +27,7 @@ class Ability(BaseInteractibleUpgrade):
         
     def __init__(self, player : 'Player', name : AbilityName, rank : int, base_cooldown : float,
                  original_upgrade : Upgrade|None = None) -> None:
+        super().__init__()
         self.player : Player = player
         self.name : AbilityName = name
         self.rank : int = rank
@@ -40,6 +41,9 @@ class Ability(BaseInteractibleUpgrade):
 
     def update(self, delta : float):
         pass
+
+    def refresh_cooldown(self):
+        self.player.ability_cooldown_timer.set_duration(self.player.upgrades.ability_cooldown)
 
 class DashAbility(Ability):
     BASE_COOLDOWN : float = 3
@@ -55,13 +59,14 @@ class DashAbility(Ability):
         self.dash_track : ParticleEffectTrack|None = None
 
     def activate(self) -> bool:
-        super().activate()
         active_keys = pygame.key.get_pressed()
         direction : int = -1 * (active_keys[pygame.K_a] or active_keys[pygame.K_LEFT]) + 1 * (active_keys[pygame.K_d] or active_keys[pygame.K_RIGHT])
         if direction == 0:
             if self.player.velocity.x == 0:
                 return False
             direction = round(sign(self.player.velocity.x))
+
+        super().activate() # This code should only run if the activation is sucessful
 
         self.player.ability_cooldown_timer.pause()
         self.dash_timer.set_duration(self.BASE_DURATION)

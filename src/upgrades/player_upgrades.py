@@ -17,16 +17,24 @@ from .ability import Ability, DashAbility
 from .perk import Perk
 from .secondary_fire import SecondaryFire
 
+from src.sprites.projectiles import BaseProjectile
+from src.sprites.enemy import BaseEnemy
+
 class PlayerUpgrades:
     def __init__(self, player : 'Player'):
+        default_alt_fire : Upgrade = cast(Upgrade, Upgrade.from_name_and_rank('LazerShot', 1))
+        default_ability : Upgrade = cast(Upgrade, Upgrade.from_name_and_rank('Dash', 1))
+
         self.player : Player = player
-        self.upgrades : list[Upgrade] = [
-            Upgrade(UpgradeType.ABILITY, 'Dash', 1, 1, tags= ['overrides_ability']),
-            Upgrade(UpgradeType.SECONDARY_FIRE, 'Lazer', 0, 1, tags= ['overrides_weapon'])
-        ]
-        self.curr_ability : Ability = cast(Ability, Ability.get_ability_from_upgrade(self.player, self.upgrades[0]))
-        self.curr_alt_fire : SecondaryFire = cast(SecondaryFire, SecondaryFire.get_secondary_fire_from_upgrade(self.player, self.upgrades[1]))
+        self.upgrades : list[Upgrade] = []
+        self.curr_ability : Ability = cast(Ability, Ability.get_ability_from_upgrade(self.player, default_ability))
+        self.curr_alt_fire : SecondaryFire = cast(SecondaryFire, SecondaryFire.get_secondary_fire_from_upgrade(self.player, default_alt_fire))
         self.curr_perks : list[Perk] = []
+
+        self.apply_upgrade(default_alt_fire)
+        self.apply_upgrade(default_ability)
+        self.apply_upgrade(Upgrade.from_name_and_rank('DamageChain', 1))
+        print(list(self.curr_perks))
 
     @property
     def modifier_list(self) -> list[PlayerStatsModifiers]:
@@ -76,18 +84,53 @@ class PlayerUpgrades:
     def projectile_intangible(self) -> bool:
         return self.query_field('projectile_intangible', bool) # done
 
-    def apply_upgrade(self, upgrade : Upgrade):
+    def apply_upgrade(self, upgrade : Upgrade|None) -> bool:
+        if upgrade is None:
+            return False
         match upgrade.upgrade_type:
             case UpgradeType.ABILITY:
-                pass
+                new_ability : Ability|None = Ability.get_ability_from_upgrade(self.player, upgrade)
+                if new_ability is None:
+                    core_object.log(f"Could not create ability '{upgrade.name}'!")
+                    return False
+                
+                self.curr_ability.cleanup()
+                self.curr_ability = new_ability
+
             case UpgradeType.SECONDARY_FIRE:
-                pass
+                new_alt_fire : SecondaryFire|None = SecondaryFire.get_secondary_fire_from_upgrade(self.player, upgrade)
+                if new_alt_fire is None:
+                    core_object.log(f"Could not create alternate fire '{upgrade.name}'!")
+                    return False
+                
+                self.curr_alt_fire.cleanup()
+                self.curr_alt_fire = new_alt_fire
+
             case UpgradeType.PERK:
-                pass
+                new_perk : Perk|None = Perk.get_perk_from_upgrade(self.player, upgrade)
+                if new_perk is None:
+                    core_object.log(f"Could not create perk '{upgrade.name}'!")
+                    return False
+                    
+                if not upgrade.stackable:
+                    overriden_interactible_perks : list[Perk] = list(filter(lambda p : p.name == upgrade.name and p is not upgrade, self.curr_perks))
+                    for p in overriden_interactible_perks:
+                        self.curr_perks.remove(p)
+                        p.cleanup() 
+                self.curr_perks.append(new_perk)
             case UpgradeType.MAJOR:
                 pass
             case UpgradeType.MINOR:
-                self.upgrades.append(upgrade)
+                pass
+        self.upgrades.append(upgrade)
+        if not upgrade.stackable:
+            overriden_perk_upgrades : list[Upgrade] = list(filter(lambda p : p.name == upgrade.name, self.upgrades))
+            for to_del_upgrade in overriden_perk_upgrades:
+                if to_del_upgrade == upgrade:
+                    continue
+                self.upgrades.remove(to_del_upgrade)
+
+        return True
 
     def get_modifier_list(self) -> list[PlayerStatsModifiers]:
         mod_list : list[PlayerStatsModifiers] = [upgrade.modifiers for upgrade in self.upgrades]
@@ -107,13 +150,13 @@ class PlayerUpgrades:
     def on_event(self, event : pygame.Event):
         interactible_upgrade : BaseInteractibleUpgrade
         for interactible_upgrade in self.curr_perks:
-            if event in interactible_upgrade.relevant_events:
+            if event.type in interactible_upgrade.relevant_events:
                 if interactible_upgrade.relevant_events[event.type]:
                     interactible_upgrade.event_queue.append(event)
                 else:
                     interactible_upgrade.on_event(event)
         for interactible_upgrade in (self.curr_ability, self.curr_alt_fire):
-            if event in interactible_upgrade.relevant_events:
+            if event.type in interactible_upgrade.relevant_events:
                 if interactible_upgrade.relevant_events[event.type]:
                     interactible_upgrade.event_queue.append(event)
                 else:

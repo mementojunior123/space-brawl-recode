@@ -1,5 +1,5 @@
 import pygame
-from typing import Any, Generator
+from typing import Any, Generator, cast
 from math import floor, sin, pi
 from random import shuffle, choice
 import random
@@ -74,8 +74,11 @@ class ActiveWaveGameState(NormalGameState):
             self.player = Player.spawn('midbottom', pygame.Vector2(480, 520))
             self.score = 0
             self.score_sprite = TextSprite(BaseDrawableInfo(UiPosition((15, 10), 'topleft'), name='score_sprite'), 
-                                    TextSpriteInfo('Score : 0', TextStyle(self.game.font_50, 'White', False, 'White', 2)))
+                                    TextSpriteInfo('Score : 0', TextStyle(self.game.font_50, 'White', False, 'Black', 2)))
+            core_object.main_ui.add(self.score_sprite)
+            self.score_sprite.position.y += 30 # TODO : Remove after debug
             self.curr_wave = 1
+            core_object.bg_manager.play('main_theme', 1) # TODO : Make sure music is handled properly in the future
         else:
             self.player = prev.player
             self.score = prev.prev_state.score
@@ -87,15 +90,23 @@ class ActiveWaveGameState(NormalGameState):
         self.control_script.initialize(core_object.game_tsource or Timer.base_time_source)
 
         self.game.alert_player(f'Wave {self.curr_wave} start')
+        self.make_connections()
 
     def main_logic(self, delta : float):
         super().main_logic(delta)
+        if self.player.current_hp <= 0:
+            self.transition_to_gameover("Game over!")
         result = self.control_script.process_frame(delta)
         if result == 'Done':
             self.transition_to_shop()
+        
 
     def transition_to_shop(self):
         core_object.game.state = ShopGameState(self.game, self)
+
+    def transition_to_gameover(self, message : str):
+        self.deactivate()
+        core_object.game.state = GameOverGameState(self.game, message, self)
  
     def on_score_event(self, event : pygame.Event):
         self.score += event.score
@@ -133,6 +144,8 @@ class WaveControlScript(CoroutineScript[float, str|None]):
                 test_timer.restart()
                 spawned += 1
             delta = yield
+        while len(BaseEnemy.active_elements) > 0:
+            delta = yield
         return 'Done'
     
 class ShopGameState(NormalGameState):
@@ -141,7 +154,7 @@ class ShopGameState(NormalGameState):
         self.player : Player = prev.player
         self.prev_state : ActiveWaveGameState = prev
 
-        self.test_timer : Timer = Timer(5, core_object.game_tsource)
+        self.test_timer : Timer = Timer(2, core_object.game_tsource)
 
         self.game.alert_player("The shop has not been implemented yet...")
 
@@ -167,6 +180,50 @@ class ShopGameState(NormalGameState):
     
     def deactivate(self):
         self.remove_connections()
+
+class GameOverGameState(GameState):
+    def __init__(self, game_object : "Game", text = "Game over!", prev_state : GameState|None = None): # TODO : Revamp this code at some point
+        self.game : Game = game_object
+        self.lost : bool = text == "Game over!"
+        self.control_script : GameOverControlScript = GameOverControlScript()
+        prev_player : Any = getattr(self.prev, 'player', None)
+        if not isinstance(prev_player, Player):
+            prev_player = Player.active_elements[0]    
+        self.control_script.initialize(self.game.game_timer.get_time, self, prev_player)
+        self.game.alert_player(text)
+        core_object.bg_manager.stop_all_music()
+        self.prev = prev_state
+
+    def main_logic(self, delta : float):
+        Particle.update_all(delta)
+        self.control_script.process_frame(delta)
+        if self.control_script.is_over:
+            self.game.fire_gameover_event()
+
+    def cleanup(self):
+        if self.prev: self.prev.cleanup()
+
+class GameOverControlScript(CoroutineScript[float, str|None]):
+    def initialize(self, time_source : TimeSource, state : GameOverGameState, player : 'Player'):
+        return super().initialize(time_source, state, player)
+    
+    @staticmethod
+    def corou(time_source : TimeSource, state : GameOverGameState, player : 'Player'):
+        timer : Timer = Timer(1, time_source)
+        delta : float = yield
+        if delta is None: delta = core_object.dt
+        while not timer.isover():
+            delta = yield
+        if not state.lost:
+            return "Done"
+        timer.set_duration(2)
+        core_object.bg_manager.play_sfx('enemy_killed_sfx', 1.0)
+        player_death_effect : ParticleEffect = cast(ParticleEffect, ParticleEffect.load_effect('boss_killed'))
+        player_death_effect.play(player.position, timer.get_time)
+        player.kill_instance()
+        while not timer.isover():
+            delta = yield
+        return "Done"
 
 
 class TestGameState(NormalGameState):
@@ -208,6 +265,9 @@ def runtime_imports():
     global core_object
     from framework.core.core import core_object
 
+    core_object.asset_manager.load_sound("assets/audio/music/theme2_trimmed_good.ogg", 'main_theme', 0.2)
+    core_object.asset_manager.load_sound("assets/audio/music/theme1.ogg", 'boss_theme', 0.2)
+
     #runtime imports for game classes
     global src
 
@@ -241,6 +301,7 @@ class GameStates:
     PausedGameState = PausedGameState
     ActiveWaveGameState = ActiveWaveGameState
     ShopGameState = ShopGameState
+    GameOverGameState = GameOverGameState
 
 
 def initialise_game(game_object : 'Game', event : pygame.Event):

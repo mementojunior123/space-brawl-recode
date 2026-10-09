@@ -114,10 +114,10 @@ Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
             III --> 3% instead of 2%
             IV --> 4% instead of 3%
         Damage chain:
-            I --> Every hit increases damage by 1%. Missing a shot or not hitting anything for 10 seconds resets the chain.
-            II --> 2% instead of 1%
-            III --> 3% instead of 2%
-            IV --> 5% instead of 3%
+            I --> Every hit increases damage by 2.5%. Missing a shot resets the chain (or just a penalty?), and it decays over time.
+            II --> 5% instead of 2.5%
+            III --> Slower decay
+            IV --> 10% instead of 5%
         Rotating shield:
             ???
         Borrowed time:

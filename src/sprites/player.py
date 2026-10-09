@@ -123,7 +123,7 @@ class Player(Sprite, sprite_count=1):
         self.upgrades : PlayerUpgrades
 
         self.ability_cooldown_timer : Timer
-        self.alt_fire_cooldown_timer : Timer
+        self.alt_fire_cooldown_timer : Timer # TODO : Remember to refresh cooldowns on wave start
 
         self.ability_cooldown_bar : ProgressBar
         self.alt_fire_cooldown_bar : ProgressBar
@@ -261,8 +261,11 @@ class Player(Sprite, sprite_count=1):
             self.take_damage(proj.damage)
             proj.kill_instance()
 
-    def take_damage(self, damage : float) -> bool:
-        if (not self.invuln_timer.isover() or self.upgrades.invincible):
+    def take_damage(self, damage : float, force_in_shop : bool = False) -> bool:
+        if (not self.invuln_timer.isover() 
+            or self.upgrades.invincible
+            or isinstance(core_object.game.state, core_object.game.STATES.GameOverGameState)
+            or (isinstance(core_object.game.state, core_object.game.STATES.ShopGameState) and not force_in_shop)):
             return False
         core_object.log(f"Player took damage : {damage}")
         self.current_hp -= min(round(damage), 1)
@@ -303,7 +306,8 @@ class Player(Sprite, sprite_count=1):
         core_object.bg_manager.play_sfx('normal_shot_sfx', 1.0)
         return NormalProjectile.spawn(self.position + pygame.Vector2(0, -30), pygame.Vector2(0, -10), None, None, 0,
             Player.normal_projectile_image, team=Teams.ALLIED,
-            damage = self.upgrades.normal_damage, can_destroy=True)
+            damage = self.upgrades.normal_damage, can_destroy=True,
+            track_hits=True, track_misses=True)
 
     def draw(self, display : pygame.Surface):
         if not self.visible:

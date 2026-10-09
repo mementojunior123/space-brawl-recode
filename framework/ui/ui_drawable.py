@@ -450,6 +450,11 @@ class UiSpriteGroup(UiDrawable):
         return {'topleft' : pygame.Vector2(world_draw_rect.topleft), 'topright' : pygame.Vector2(world_draw_rect.topright),
                 'bottomleft' : pygame.Vector2(world_draw_rect.bottomleft), 'bottomright' : pygame.Vector2(world_draw_rect.bottomright)}
         
+    def _trigger_parent_frame_update(self, do_update_layout: bool = True):
+        super()._trigger_parent_frame_update(do_update_layout)
+        if do_update_layout:
+            for element in self.elements:
+                element._prev_draw_pos = None
     
     def draw(self, display : pygame.Surface, frame : "UiFrame|None" = None, 
              override_pos_local: TransformedRect|None = None, override_pos_global : pygame.Rect|None = None):
