@@ -2,6 +2,7 @@
 -Shop start
 -Some normal enemies
 -Basic wave implementation
+-Some sounds
 ---Soon---
 -Some bosses
 -Full enemy implementation
