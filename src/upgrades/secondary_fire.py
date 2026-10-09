@@ -30,13 +30,13 @@ class SecondaryFire(BaseInteractibleUpgrade):
 
     def __init__(self, player : 'Player', name : SecondaryFireName, rank : int, base_cooldown : float,
                  base_damage : float,
-                 original_upgrade : Upgrade|None = None,) -> None:
+                 original_upgrade : Upgrade) -> None:
         super().__init__()
         self.player : Player = player
         self.name : SecondaryFireName = name
         self.rank : int = rank
         self.base_cooldown : float = base_cooldown
-        self.original_upgrade : Upgrade|None = original_upgrade
+        self.original_upgrade : Upgrade = original_upgrade
         self.modifiers : PlayerStatsModifiers = PlayerStatsModifiers()
         self.base_damage : float = base_damage
 
@@ -50,11 +50,13 @@ class SecondaryFire(BaseInteractibleUpgrade):
     def refresh_cooldown(self):
         self.player.alt_fire_cooldown_timer.set_duration(self.player.upgrades.alt_fire_cooldown)
 
+core_object.asset_manager.load_sound("assets/audio/sfx/lazer.ogg", 'lazer_shot_sfx', 0.4)
+
 class LazerSecondaryFire(SecondaryFire):
     BASE_COOLDOWN = 1 / 0.9
     BASE_DAMAGE = 4
 
-    def __init__(self, player : 'Player', rank : int, original_upgrade: Upgrade | None = None) -> None:
+    def __init__(self, player : 'Player', rank : int, original_upgrade: Upgrade) -> None:
         super().__init__(player, 'LazerShot', rank, LazerSecondaryFire.BASE_COOLDOWN, LazerSecondaryFire.BASE_DAMAGE, original_upgrade)
 
     def attempt_fire(self) -> BaseProjectile | None:
@@ -62,6 +64,7 @@ class LazerSecondaryFire(SecondaryFire):
         proj_count : int = 0
         scatter_count : int = 0
         damage_decay : float = 0.0
+        core_object.bg_manager.play_sfx('lazer_shot_sfx', 1.0)
         return ScatterProjectile.spawn(self.player.position + pygame.Vector2(0, -30), pygame.Vector2(0, -16), None, None, 0,
                                        recolor_image(BaseProjectile.normal_image3, "Purple"), team=Teams.ALLIED,
                                        damage=self.player.upgrades.alt_fire_damage, can_destroy=True, bounce_count=0, scatter_count=scatter_count,

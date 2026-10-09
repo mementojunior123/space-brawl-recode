@@ -15,6 +15,10 @@ class AggregatorMethods:
         return sum(values)
 
     @staticmethod
+    def adjusted_sum_aggregator_creator(adjustment : float = 1) -> ModifierAggregationFunction:
+        return lambda f, m, v : sum(v) + adjustment
+
+    @staticmethod
     def manual_sum_aggregator(field_name : str, modifiers : list['PlayerStatsModifiers'], 
                               values : list[Any]) -> Any:
         if not values:
@@ -75,34 +79,34 @@ type PlayerStatsModifiersKey = Literal['max_hp_bonus', 'normal_firerate_mult', '
 
 MODIFIER_AGGREGATOR_DICT : dict[PlayerStatsModifiersKey, ModifierAggregationFunction] = {
     'max_hp_bonus' : AggregatorMethods.sum_aggregator,
-    'normal_firerate_mult' : AggregatorMethods.manual_product_aggregator,
-    'alt_firerate_mult' : AggregatorMethods.manual_product_aggregator,
-    'global_firerate_mult' : AggregatorMethods.manual_product_aggregator,
+    'normal_firerate_mult' : AggregatorMethods.adjusted_sum_aggregator_creator(1),
+    'alt_firerate_mult' : AggregatorMethods.adjusted_sum_aggregator_creator(1),
+    'global_firerate_mult' : AggregatorMethods.adjusted_sum_aggregator_creator(1),
     'accel_bonus' : AggregatorMethods.manual_sum_aggregator,
     'lock_accel' : AggregatorMethods.any_aggregator,
     'invincible' : AggregatorMethods.any_aggregator,
     'projectile_intangible' : AggregatorMethods.any_aggregator,
-    'normal_damage_mult' : AggregatorMethods.manual_product_aggregator,
-    'alt_damage_mult' : AggregatorMethods.manual_product_aggregator,
-    'global_damage_mult' : AggregatorMethods.manual_product_aggregator,
-    'ability_recharge_rate' : AggregatorMethods.manual_product_aggregator
+    'normal_damage_mult' : AggregatorMethods.adjusted_sum_aggregator_creator(1),
+    'alt_damage_mult' : AggregatorMethods.adjusted_sum_aggregator_creator(1),
+    'global_damage_mult' : AggregatorMethods.adjusted_sum_aggregator_creator(1),
+    'ability_recharge_rate' : AggregatorMethods.adjusted_sum_aggregator_creator(1)
 }
 
 
 @dataclass
 class PlayerStatsModifiers:
     max_hp_bonus : int = 0
-    normal_firerate_mult : float = 1
-    alt_firerate_mult : float = 1
-    global_firerate_mult : float = 1
-    normal_damage_mult : float = 1
-    alt_damage_mult : float = 1
-    global_damage_mult : float = 1
+    normal_firerate_mult : float = 0
+    alt_firerate_mult : float = 0
+    global_firerate_mult : float = 0
+    normal_damage_mult : float = 0
+    alt_damage_mult : float = 0
+    global_damage_mult : float = 0
     accel_bonus : pygame.Vector2 = field(default_factory=lambda : pygame.Vector2(0, 0))
     lock_accel : bool = False
     invincible : bool = False
     projectile_intangible : bool = False
-    ability_recharge_rate : float = 1
+    ability_recharge_rate : float = 0
     ...
 
     def to_dict(self) -> 'PlayerStatsModifiersDict':
@@ -158,12 +162,21 @@ type PerkName = Literal['DamageChain']
 PerkNameList : list[PerkName] = ['DamageChain']
 type SecondaryFireName = Literal['LazerShot']
 SecondaryFireNameList : list[SecondaryFireName] = ['LazerShot']
-type UpgradeName = AbilityName|PerkName|SecondaryFireName
+
+type MinorUpgradeName = Literal['BonusNormalDamage']
+MinorUpgradeNameList : list[MinorUpgradeName] = ['BonusNormalDamage']
+
+type MajorUpgradeName = Literal['BonusMaxHealth']
+MajorUpgradeNameList : list[MajorUpgradeName] = ['BonusMaxHealth']
+
+type UpgradeName = AbilityName|PerkName|SecondaryFireName|MinorUpgradeName|MajorUpgradeName
 
 UpgradeNameList : list[UpgradeName] = []
 UpgradeNameList.extend(AbilityNameList)
 UpgradeNameList.extend(PerkNameList)
 UpgradeNameList.extend(SecondaryFireNameList)
+UpgradeNameList.extend(MinorUpgradeNameList)
+UpgradeNameList.extend(MajorUpgradeNameList)
 
 class ShopTextOptions(TypedDict, total=False):
     pos : Required[pygame.Vector2|int]
@@ -186,7 +199,7 @@ class Upgrade:
     def get_shop_description(self, already_present_upgrades : list['Upgrade']) -> list[tuple[str, ShopTextOptions]]:
         match self.name:
             case _:
-                return [(f"{self.name} {to_roman(self.rank)} (type : {UpgradeType}), T{self.rarity_tier}", {'pos' : 30, 'anchor' : 'top'})]
+                return [(f"{self.name} {to_roman(self.rank)} (type : {self.upgrade_type}), T{self.rarity_tier}", {'pos' : 30, 'anchor' : 'top'})]
 
     def get_shop_border_info(self) -> tuple[ColorType, int]:
         return ("Blue", 15)
@@ -200,11 +213,52 @@ class Upgrade:
                 return Upgrade(UpgradeType.PERK, name, rank, 1, stackable=False)
             case 'LazerShot':
                 return Upgrade(UpgradeType.SECONDARY_FIRE, name, rank, 1, stackable=False)
+            case 'BonusNormalDamage':
+                return Upgrade(UpgradeType.MINOR, name, rank, 1, modifiers=PlayerStatsModifiers(normal_damage_mult=0.1*rank))
             case _:
+                core_object.log(f"Could not create upgrade '{name}'!")
                 return None
+
+    @staticmethod
+    def get_upgrade_type(name : UpgradeName) -> UpgradeType|None:
+        if name in AbilityNameList:
+            return UpgradeType.ABILITY
+        elif name in PerkNameList:
+            return UpgradeType.PERK
+        elif name in SecondaryFireNameList:
+            return UpgradeType.SECONDARY_FIRE
+        elif name in MajorUpgradeNameList:
+            return UpgradeType.MAJOR
+        elif name in MinorUpgradeNameList:
+            return UpgradeType.MINOR
+        else:
+            return None
+
+    @staticmethod
+    def get_list_of_all(upgrade_type : UpgradeType|None) -> list[UpgradeName]:
+        if upgrade_type is None:
+            return list(UpgradeNameList)
+        return [x for x in (filter(lambda name : Upgrade.get_upgrade_type(name) == upgrade_type, UpgradeNameList))]
+
+
+    def __str__(self) -> str:
+        return f"{self.name} {to_roman(self.rank)} (type : {self.upgrade_type}), T{self.rarity_tier}"
 
 def runtime_imports():
     pass
+
+                                    #(rank --> (rarity tier, weight), ignore_rarity_tier)
+BASE_WEIGHTS : dict[UpgradeName, tuple[dict[int, tuple[int, float]], bool]] = {
+    'BonusNormalDamage' : ({1 : (1, 1)}, False)
+}
+
+MAX_RANK : dict[PerkName|AbilityName|SecondaryFireName, int] = {
+    'Dash' : 2,
+
+    'DamageChain' : 2,
+
+    'LazerShot' : 3
+}
 
 class BaseInteractibleUpgrade:
     def __init__(self) -> None:

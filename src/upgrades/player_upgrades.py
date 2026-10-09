@@ -34,7 +34,8 @@ class PlayerUpgrades:
         self.apply_upgrade(default_alt_fire)
         self.apply_upgrade(default_ability)
         self.apply_upgrade(Upgrade.from_name_and_rank('DamageChain', 1))
-        print(list(self.curr_perks))
+        self.apply_upgrade(Upgrade.from_name_and_rank('BonusNormalDamage', 2))
+        self.apply_upgrade(Upgrade.from_name_and_rank('BonusNormalDamage', 5))
 
     @property
     def modifier_list(self) -> list[PlayerStatsModifiers]:
@@ -91,7 +92,7 @@ class PlayerUpgrades:
             case UpgradeType.ABILITY:
                 new_ability : Ability|None = Ability.get_ability_from_upgrade(self.player, upgrade)
                 if new_ability is None:
-                    core_object.log(f"Could not create ability '{upgrade.name}'!")
+                    core_object.log(f"Could not create ability '{upgrade.name}'!")  # TODO : Remember to delete old Upgrades
                     return False
                 
                 self.curr_ability.cleanup()
@@ -103,7 +104,7 @@ class PlayerUpgrades:
                     core_object.log(f"Could not create alternate fire '{upgrade.name}'!")
                     return False
                 
-                self.curr_alt_fire.cleanup()
+                self.curr_alt_fire.cleanup() # TODO : Remember to delete old Upgrades
                 self.curr_alt_fire = new_alt_fire
 
             case UpgradeType.PERK:

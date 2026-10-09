@@ -24,12 +24,12 @@ class Perk(BaseInteractibleUpgrade):
             case _:
                 return None
 
-    def __init__(self, player : 'Player', name : PerkName, rank : int, original_upgrade : Upgrade|None = None) -> None:
+    def __init__(self, player : 'Player', name : PerkName, rank : int, original_upgrade : Upgrade) -> None:
         super().__init__()
         self.player : Player = player
         self.name : PerkName = name
         self.rank : int = rank
-        self.original_upgrade : Upgrade|None = original_upgrade
+        self.original_upgrade : Upgrade = original_upgrade
         self.modifiers : PlayerStatsModifiers = PlayerStatsModifiers()
 
     def update(self, delta : float):
@@ -40,7 +40,7 @@ class Perk(BaseInteractibleUpgrade):
 
 class DamageChainPerk(Perk):
     MULT_EPSILON : float = 0.01
-    def __init__(self, player : 'Player', rank : int, original_upgrade : Upgrade|None = None) -> None:
+    def __init__(self, player : 'Player', rank : int, original_upgrade : Upgrade) -> None:
         name : PerkName = 'DamageChain'
         super().__init__(player, name, rank, original_upgrade)
         self.relevant_events = {BaseProjectile.PROJECTILE_HIT : False, BaseProjectile.PROJECTILE_MISSED : False}
@@ -83,7 +83,7 @@ class DamageChainPerk(Perk):
             self.accumulated_damage_bonus = self.damage_bonus_cap
         if self.accumulated_damage_bonus < self.MULT_EPSILON:
             self.accumulated_damage_bonus = 0
-        self.modifiers.global_damage_mult = 1 + self.accumulated_damage_bonus
+        self.modifiers.global_damage_mult = self.accumulated_damage_bonus
         self.mult_bar.progress = pygame.math.clamp(self.accumulated_damage_bonus / self.damage_bonus_cap, 0, 1)
 
     def cleanup(self):

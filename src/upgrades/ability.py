@@ -26,13 +26,13 @@ class Ability(BaseInteractibleUpgrade):
                 return None
         
     def __init__(self, player : 'Player', name : AbilityName, rank : int, base_cooldown : float,
-                 original_upgrade : Upgrade|None = None) -> None:
+                 original_upgrade : Upgrade) -> None:
         super().__init__()
         self.player : Player = player
         self.name : AbilityName = name
         self.rank : int = rank
         self.base_cooldown : float = base_cooldown
-        self.original_upgrade : Upgrade|None = original_upgrade
+        self.original_upgrade : Upgrade = original_upgrade
         self.modifiers : PlayerStatsModifiers = PlayerStatsModifiers()
 
     def activate(self) -> bool: # Does activate need to return anything?
@@ -52,7 +52,7 @@ class DashAbility(Ability):
     BASE_INVULN_TIME : float = 0.26
     BASE_DURATION : float = 0.3
 
-    def __init__(self, player : 'Player', rank : int, original_upgrade : Upgrade|None = None) -> None:
+    def __init__(self, player : 'Player', rank : int, original_upgrade : Upgrade) -> None:
         super().__init__(player, 'Dash', rank, self.BASE_COOLDOWN, original_upgrade)
         self.dash_timer : Timer = Timer(-1, core_object.game_tsource)
         self.active : bool = False
