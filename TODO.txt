@@ -1,15 +1,13 @@
 ---Now---
 -Shop start
 -Some normal enemies
----Soon---
 -Basic wave implementation
--Basic boss start
--Some enemies
+---Soon---
+-Some bosses
+-Full enemy implementation
 ---Later---
 -Complete upgrade selection
--Full enemy implementation
 -Tutorial
--Some bosses
 ---Long-term---
 -Settings
 -Mobile support
@@ -30,3 +28,4 @@
 -Animation's set_alpha and alpha_gradient instructions are now supported (05/10/2026 19:26)
 -Added a ProgressBar UiSprite (07/10/2026 23:44)
 -Fixed a bug in particle effects in persistent that caused them to occasionally not spawn (08/10/2026, 20:12)
+-Fixed some bugs in framework/ui (08/10/2026, 22:33)
