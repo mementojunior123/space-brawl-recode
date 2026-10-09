@@ -380,6 +380,7 @@ class GameOverGameState(GameState):
     def __init__(self, game_object : "Game", text = "Game over!", prev_state : GameState|None = None): # TODO : Revamp this code at some point
         self.game : Game = game_object
         self.lost : bool = text == "Game over!"
+        self.prev : GameState|None = prev_state
         self.control_script : GameOverControlScript = GameOverControlScript()
         prev_player : Any = getattr(self.prev, 'player', None)
         if not isinstance(prev_player, Player):
@@ -387,7 +388,6 @@ class GameOverGameState(GameState):
         self.control_script.initialize(self.game.game_timer.get_time, self, prev_player)
         self.game.alert_player(text)
         core_object.bg_manager.stop_all_music()
-        self.prev = prev_state
 
     def main_logic(self, delta : float):
         Particle.update_all(delta)
