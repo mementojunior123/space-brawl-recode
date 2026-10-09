@@ -208,13 +208,15 @@ class Upgrade:
     def from_name_and_rank(name : UpgradeName, rank : int) -> 'Upgrade|None':
         match name:
             case 'Dash':
-                return Upgrade(UpgradeType.ABILITY, name, rank, 1, stackable=False)
+                return Upgrade(UpgradeType.ABILITY, name, rank, rarity_tier=rank, stackable=False)
             case 'DamageChain':
-                return Upgrade(UpgradeType.PERK, name, rank, 1, stackable=False)
+                return Upgrade(UpgradeType.PERK, name, rank, rarity_tier=rank, stackable=False)
             case 'LazerShot':
-                return Upgrade(UpgradeType.SECONDARY_FIRE, name, rank, 1, stackable=False)
+                return Upgrade(UpgradeType.SECONDARY_FIRE, name, rank, rarity_tier=rank, stackable=False)
             case 'BonusNormalDamage':
-                return Upgrade(UpgradeType.MINOR, name, rank, 1, modifiers=PlayerStatsModifiers(normal_damage_mult=0.1*rank))
+                return Upgrade(UpgradeType.MINOR, name, rank, rarity_tier=rank, modifiers=PlayerStatsModifiers(normal_damage_mult=0.1*rank))
+            case 'BonusMaxHealth':
+                return Upgrade(UpgradeType.MAJOR, name, rank, rarity_tier=rank, modifiers=(PlayerStatsModifiers(max_hp_bonus=rank)))
             case _:
                 core_object.log(f"Could not create upgrade '{name}'!")
                 return None
@@ -249,13 +251,39 @@ def runtime_imports():
 
                                     #(rank --> (rarity tier, weight), ignore_rarity_tier)
 BASE_WEIGHTS : dict[UpgradeName, tuple[dict[int, tuple[int, float]], bool]] = {
-    'BonusNormalDamage' : ({1 : (1, 1)}, False)
+    'BonusNormalDamage' : ({1 : (1, 1.0), 
+                            2 : (2, 1.0),
+                            3 : (3, 1.0),
+                            4 : (4, 1.0),
+                            5 : (5, 1.0)},
+                            False),
+
+
+    'BonusMaxHealth' : ({1 : (1, 0.15), 
+                            2 : (2, 0.01)},
+                            True),
+
+    'Dash' : ({1 : (1, 1.0), 
+               2 : (2, 1.0)},
+               False),
+
+
+    'DamageChain' : ({1 : (1, 1.0), 
+               2 : (2, 1.0)},
+               False),
+
+
+    'LazerShot' :  ({1 : (1, 1.0), 
+               2 : (2, 1.0)},
+               False),
 }
 
 MAX_RANK : dict[PerkName|AbilityName|SecondaryFireName, int] = {
     'Dash' : 2,
 
+
     'DamageChain' : 2,
+
 
     'LazerShot' : 3
 }

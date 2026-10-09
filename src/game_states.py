@@ -206,7 +206,7 @@ class ShopGameState(NormalGameState):
                     else UpgradeType.MINOR
                 ) for i in range(amount - sum(guaranteed.values()))]
             case 5:
-                guaranteed = {UpgradeType.MINOR : 2}
+                guaranteed = {UpgradeType.MINOR : 1}
                 random_given = [(
                     UpgradeType.PERK if random_list[i] <= 400 
                     else UpgradeType.ABILITY if random_list[i] <= 600
@@ -257,28 +257,33 @@ class ShopGameState(NormalGameState):
 
         if (type_distribution[UpgradeType.ABILITY] > 0
             and self.player.upgrades.curr_ability.rank < src.upgrades.MAX_RANK[self.player.upgrades.curr_ability.name]
-            and random.random() <= 0.5):
+            and (random.random() <= 0.5
+                  or not self.valid_random_upgrade_of_type_exsists(UpgradeType.ABILITY, target_tier, rarity_bonus_tier, 
+                                                                   [s[0] for s in selected]))):
 
             type_distribution[UpgradeType.ABILITY] -= 1
             selected.append((self.player.upgrades.curr_ability.name, self.player.upgrades.curr_ability.rank + 1))
 
-        for _ in range(type_distribution[UpgradeType.PERK]):
-            if random.random() <= 0.5:
-                eligible_existing_perks : list[tuple[UpgradeName, int]] = [
-                    (perk.name, perk.rank + 1) for perk in 
-                    filter(lambda p : p.rank < src.upgrades.MAX_RANK[p.name], self.player.upgrades.curr_perks)
-                ]
-                if not eligible_existing_perks:
-                    break
-                selected.append(random.choice(eligible_existing_perks))
-                type_distribution[UpgradeType.PERK] -= 1
+        perks_left : int = type_distribution[UpgradeType.PERK]
+        if perks_left:
+            for _ in range(perks_left):
+                if random.random() <= 0.5 or not self.valid_random_upgrade_of_type_exsists(UpgradeType.PERK, target_tier, rarity_bonus_tier, 
+                                                                   [s[0] for s in selected]):
+                    eligible_existing_perks : list[tuple[UpgradeName, int]] = [
+                        (perk.name, perk.rank + 1) for perk in 
+                        filter(lambda p : p.rank < src.upgrades.MAX_RANK[p.name], self.player.upgrades.curr_perks)
+                    ]
+                    if not eligible_existing_perks:
+                        break
+                    selected.append(random.choice(eligible_existing_perks))
+                    type_distribution[UpgradeType.PERK] -= 1
 
         for upgrade_type in type_distribution:
             for _ in range(type_distribution[upgrade_type]):
                 result = self.select_random_upgrade_of_type(upgrade_type, target_tier, rarity_bonus_tier, 
                                                                    [s[0] for s in selected])
                 if result is None:
-                    result = self.select_random_upgrade_of_type(UpgradeType.MINOR, target_tier, rarity_bonus_tier, 
+                    result = self.select_random_upgrade_of_type(UpgradeType.MINOR, target_tier + 1, rarity_bonus_tier, 
                                                                    [s[0] for s in selected])
                     if result is None:
                         result = ('BonusNormalDamage', 1)
@@ -287,21 +292,23 @@ class ShopGameState(NormalGameState):
 
         return selected
 
-    
-    def select_random_upgrade_of_type(self, upgrade_type : 'UpgradeType', target_tier : int, 
+
+    def valid_random_upgrade_of_type_exsists(self, upgrade_type : 'UpgradeType', target_tier : int, 
                                       rarity_bonus_tier : int = 0,
-                                      already_selected : list['UpgradeName']| None = None) -> tuple['UpgradeName', int]|None:
+                                      already_selected : list['UpgradeName']| None = None,
+                                      debug : bool = False) -> bool:
         if already_selected is None: already_selected = []
         eligible : list[UpgradeName] = Upgrade.get_list_of_all(upgrade_type)
         if upgrade_type in (UpgradeType.ABILITY, UpgradeType.PERK, UpgradeType.SECONDARY_FIRE): # getting upgrades you already have was already handled
             eligible = [x for x in filter(
-                lambda name : all(upg.name != name and upg.name not in already_selected 
-                                  for upg in self.player.upgrades.upgrades), eligible
+                lambda name : all(upg.name != name for upg in self.player.upgrades.upgrades) 
+                and name not in already_selected, eligible
             )]
 
         possibilites : dict[tuple[UpgradeName, int], float] = {}
 
-        for upgrade_name, weight_info in src.upgrades.BASE_WEIGHTS.items():
+        for upgrade_name in eligible:
+            weight_info = src.upgrades.BASE_WEIGHTS[upgrade_name]
             weight_set, ignore_rarity_tier = weight_info
             for rank, weight in weight_set.items():
                 rarity_tier, individual_weight = weight
@@ -312,7 +319,36 @@ class ShopGameState(NormalGameState):
                 if result <= 0:
                     continue
                 possibilites[(upgrade_name, rank)] = result
+        if debug: print(eligible, "-->", possibilites)
+        return bool(possibilites)
+    
+    def select_random_upgrade_of_type(self, upgrade_type : 'UpgradeType', target_tier : int, 
+                                      rarity_bonus_tier : int = 0,
+                                      already_selected : list['UpgradeName']| None = None,
+                                      debug : bool = False) -> tuple['UpgradeName', int]|None:
+        if already_selected is None: already_selected = []
+        eligible : list[UpgradeName] = Upgrade.get_list_of_all(upgrade_type)
+        if upgrade_type in (UpgradeType.ABILITY, UpgradeType.PERK, UpgradeType.SECONDARY_FIRE): # getting upgrades you already have was already handled
+            eligible = [x for x in filter(
+                lambda name : all(upg.name != name for upg in self.player.upgrades.upgrades) 
+                and name not in already_selected, eligible
+            )]
 
+        possibilites : dict[tuple[UpgradeName, int], float] = {}
+
+        for upgrade_name in eligible:
+            weight_info = src.upgrades.BASE_WEIGHTS[upgrade_name]
+            weight_set, ignore_rarity_tier = weight_info
+            for rank, weight in weight_set.items():
+                rarity_tier, individual_weight = weight
+
+                result : float = individual_weight
+                if not ignore_rarity_tier:
+                    result *= self.calculate_rarity_tier_modifier(rarity_tier, target_tier, rarity_bonus_tier)
+                if result <= 0:
+                    continue
+                possibilites[(upgrade_name, rank)] = result
+        if debug: print(eligible, "-->", possibilites)
         if not possibilites:
             return None
 

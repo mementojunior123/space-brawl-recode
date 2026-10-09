@@ -8,6 +8,8 @@
 -Add a hard mode where every upgrade has an upside
 -Make sections 10 short waves instead of 5 long waves?? make waves shorter?
 -Make DDA account for enemy type? Make DDA affect enemy type weight?
+    Calculate the ratio of (average onscreen/dead enemy weight) / (average enemy left weight)
+    if the ratio > 1, spawn easier enemies, and if the ratio < 1, spawn harder enemies
 -A tutorial!!!
 -Revamp the shop
 
