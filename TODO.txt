@@ -1,8 +1,10 @@
 ---Now---
--Shop start
+-Add upgrade descriptons
 -Some normal enemies
 -Basic wave implementation
 -Some sounds
+-Add shotgun, rocket, overcharge and ability leech
+-Add the upgrades for the abilities/perk/alt fires listed above
 ---Soon---
 -Some bosses
 -Full enemy implementation
