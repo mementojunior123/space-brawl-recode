@@ -63,6 +63,7 @@ class NormalGameState(GameState):
 SCORE_EVENT : int = pygame.event.custom_type()
 
 class ActiveWaveGameState(NormalGameState):
+    FIRST_WAVE : int = 1
     def __init__(self, game_object : 'Game', prev : 'ShopGameState|None' = None):
         self.game : Game = game_object
         self.player : Player
@@ -78,7 +79,7 @@ class ActiveWaveGameState(NormalGameState):
                                     TextSpriteInfo('Score : 0', TextStyle(self.game.font_50, 'White', False, 'Black', 2)))
             core_object.main_ui.add(self.score_sprite)
             self.score_sprite.position.y += 30 # TODO : Remove after debug
-            self.curr_wave = 1
+            self.curr_wave = self.FIRST_WAVE
             core_object.bg_manager.play('main_theme', 1) # TODO : Make sure music is handled properly in the future
         else:
             self.player = prev.player
@@ -135,15 +136,17 @@ class WaveControlScript(CoroutineScript[float, str|None]):
 
     @staticmethod
     def corou(state : ActiveWaveGameState, time_source : TimeSource, wave_data : dict|None = None):
-        test_timer : Timer = Timer(3 - state.curr_wave / 20, time_source)
-        test_timer.start_time -= 2
+        base_cooldown : float = 2.5 - state.curr_wave / 16
+        base_enemy_penalty : float = 0.07
+        test_timer : Timer = Timer(base_cooldown, time_source)
+        test_timer.start_time -= base_cooldown
         spawned : int = 0
         target_spawn_count : int = 5 + state.curr_wave // 2
         delta = yield
         while spawned < target_spawn_count:
             if test_timer.isover():
                 BasicEnemy.spawn('midbottom', pygame.Vector2(random.randint(0 + 50, 960 - 50), -20))
-                test_timer.restart()
+                test_timer.set_duration(base_cooldown - base_enemy_penalty * len(BaseEnemy.active_elements))
                 spawned += 1
             delta = yield
         while len(BaseEnemy.active_elements) > 0:
@@ -275,11 +278,7 @@ class ShopGameState(NormalGameState):
             if result is not None:
                 self.candidates.append(result)
 
-        spacing = self.calculate_spacing(upgrade_count)
-
-        self.upgrade_cards : list[UpgradeCard] = [UpgradeCard(pygame.Vector2(0 + spacing * i, -40), 'bottomleft', 
-                                            upg.get_shop_description(self.player.upgrades.upgrades),
-                                            upg.get_shop_border_info(), i) for i, upg in enumerate(self.candidates)]
+        self.upgrade_cards : list[UpgradeCard] = self.generate_card_list(self.candidates)
 
         self.selected_upgrade : Upgrade|None = None
 
@@ -290,14 +289,23 @@ class ShopGameState(NormalGameState):
 
     def calculate_spacing(self, card_amount : int) -> int:
         available_space : int = core_object.main_display.get_size()[0] - (0 + 55)
-        total_gap : int = available_space - (UpgradeCard.CARD_SIZE[0] * len(self.candidates))
+        total_gap : int = available_space - (UpgradeCard.CARD_SIZE[0] * card_amount)
         gap : int
-        if total_gap <= 0:
+        if total_gap <= 0 or card_amount <= 1:
             gap = 1
         else:
             gap = total_gap // (card_amount - 1)
         spacing : int = gap + UpgradeCard.CARD_SIZE[0]
         return spacing
+
+    def generate_card_list(self, upgrade_list : list['Upgrade']) -> list[UpgradeCard]:
+        spacing = self.calculate_spacing(len(upgrade_list))
+        
+        upgrade_cards : list[UpgradeCard] = [UpgradeCard(pygame.Vector2(0 + spacing * i, -40), 'bottomleft', 
+                                            upg.get_shop_description(self.player.upgrades.upgrades),
+                                            upg.get_shop_border_info(), i) for i, upg in enumerate(upgrade_list)]
+
+        return upgrade_cards
 
     def main_logic(self, delta : float):
         super().main_logic(delta)
@@ -323,6 +331,11 @@ class ShopGameState(NormalGameState):
             if card.transition_state is None or card.transition_state[0] != 'selected':
                 card.transition_out()
 
+    def clear_cards(self):
+        for card in self.upgrade_cards:
+            core_object.main_ui.remove(card)
+        self.upgrade_cards.clear()
+
     def transition_to_wave(self):
         if self.selected_upgrade:
             core_object.log(self.selected_upgrade)
@@ -346,8 +359,7 @@ class ShopGameState(NormalGameState):
     
     def deactivate(self):
         self.remove_connections()
-        for card in self.upgrade_cards:
-            core_object.main_ui.remove(card)
+        self.clear_cards()
 
     def select_upgrades(self, amount : int = 3, target_tier : int = 1, rarity_bonus_tier : int = 0) -> list[tuple['UpgradeName', int]]:
         wave_num : int = self.prev_state.curr_wave
@@ -414,7 +426,7 @@ class ShopGameState(NormalGameState):
             type_distribution[upgrade_type] += random_given.count(upgrade_type)
             if upgrade_type in guaranteed:
                 type_distribution[upgrade_type] += guaranteed[upgrade_type]
-        print(type_distribution, "#1")
+        core_object.log(type_distribution, "#1")
 
         selected : list[tuple[UpgradeName, int]] = []
 
@@ -489,7 +501,7 @@ class ShopGameState(NormalGameState):
                 if result <= 0:
                     continue
                 possibilites[(upgrade_name, rank)] = result
-        if debug: print(eligible, "-->", possibilites)
+        if debug: core_object.log(eligible, "-->", possibilites)
         return bool(possibilites)
     
     def select_random_upgrade_of_type(self, upgrade_type : 'UpgradeType', target_tier : int, 
@@ -568,6 +580,28 @@ class ShopControlScript(CoroutineScript[float, Literal['Done']|None]):
                     hit_card.transition_selected()
                     state.transition_cards_out()
                 delta = yield
+
+            state.clear_cards()
+            tranfser_rank : int|None = None
+            if state.selected_upgrade.upgrade_type == UpgradeType.SECONDARY_FIRE:
+                tranfser_rank = state.player.upgrades.get_rank_transfer(cast(SecondaryFireName, state.selected_upgrade.name))
+
+            if tranfser_rank is not None and tranfser_rank != 0:
+                upgrade_list : list[Upgrade] = []
+                for i in range(1, tranfser_rank + 1):
+                    new_upgrade : Upgrade|None = Upgrade.from_name_and_rank(state.selected_upgrade.name, i)
+                    if new_upgrade is not None:
+                        upgrade_list.append(new_upgrade)
+                state.upgrade_cards = state.generate_card_list(upgrade_list)
+                core_object.main_ui.add_multiple(state.upgrade_cards)
+                state.transition_cards_in()
+                state.game.alert_player("And here are a few bonuses...")
+                card_show_timer : Timer = Timer(5, core_object.game_tsource)
+                while not card_show_timer.isover():
+                    delta = yield
+                state.transition_cards_out()
+                while any(not card.transition_done for card in state.upgrade_cards):
+                    delta = yield
 
             delay_timer : Timer = Timer(0.5, core_object.game_tsource)
             while not delay_timer.isover():
@@ -683,8 +717,8 @@ def runtime_imports():
     from src.sprites.player import Player
     import src.sprites.player
 
-    global Upgrade, PlayerUpgrades, UpgradeType, UpgradeName, ShopTextOptions
-    from src.upgrades import Upgrade, PlayerUpgrades, UpgradeType, UpgradeName, ShopTextOptions
+    global Upgrade, PlayerUpgrades, UpgradeType, UpgradeName, ShopTextOptions, SecondaryFireName
+    from src.upgrades import Upgrade, PlayerUpgrades, UpgradeType, UpgradeName, ShopTextOptions, SecondaryFireName
     import src.upgrades
     src.upgrades.runtime_imports()
 

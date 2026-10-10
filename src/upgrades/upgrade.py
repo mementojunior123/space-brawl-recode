@@ -164,8 +164,8 @@ type AbilityName = Literal['Dash']
 AbilityNameList : list[AbilityName] = ['Dash']
 type PerkName = Literal['DamageChain']
 PerkNameList : list[PerkName] = ['DamageChain']
-type SecondaryFireName = Literal['LazerShot']
-SecondaryFireNameList : list[SecondaryFireName] = ['LazerShot']
+type SecondaryFireName = Literal['LazerShot', 'ShotgunShot', 'MissileShot']
+SecondaryFireNameList : list[SecondaryFireName] = ['LazerShot', 'ShotgunShot', 'MissileShot']
 
 type MinorUpgradeName = Literal['BonusNormalDamage', 'BonusAltDamage', 'BonusGlobalDamage',
                                 'BonusNormalFirerate', 'BonusAltFirerate', 'BonusGlobalFirerate',
@@ -237,6 +237,14 @@ class Upgrade:
                 match self.rank:
                     case 0:
                         result.append((f"A lazer that deals high damage...", {'pos' : None, 'anchor' : 'top'}))
+            case 'ShotgunShot':
+                match self.rank:
+                    case 0:
+                        result.append((f"A shotgun that fires 5 shells...", {'pos' : None, 'anchor' : 'top'}))
+            case 'MissileShot':
+                match self.rank:
+                    case 0:
+                        result.append((f"A heat-seeking missile that deals half of its damage as AOE damage on hit", {'pos' : None, 'anchor' : 'top'}))
 
             case 'Dash':
                 match self.rank:
@@ -265,15 +273,20 @@ class Upgrade:
 
         match self.upgrade_type:
             case UpgradeType.ABILITY|UpgradeType.SECONDARY_FIRE:
-                conflicting_upgrade : Upgrade|None = None
-                for upgrade in already_present_upgrades:
-                    if upgrade.upgrade_type == self.upgrade_type and upgrade.name != self.name:
-                        conflicting_upgrade = upgrade
-                        break
-                if conflicting_upgrade is not None:
-                    upgrade_type_text : str = 'ability' if self.upgrade_type == UpgradeType.ABILITY else 'secondary fire'
-                    result.append((f"Overrides {conflicting_upgrade.get_clean_name()} {upgrade_type_text}", 
-                                   {'pos' : None, 'anchor' : 'top', 'color' : pygame.Color('Red')}))
+                if self.rank != 0 and self.upgrade_type == UpgradeType.SECONDARY_FIRE:
+                    pass
+                elif self.rank != 1 and self.upgrade_type == UpgradeType.ABILITY:
+                    pass
+                else:
+                    conflicting_upgrade : Upgrade|None = None
+                    for upgrade in already_present_upgrades:
+                        if upgrade.upgrade_type == self.upgrade_type and upgrade.name != self.name:
+                            conflicting_upgrade = upgrade
+                            break
+                    if conflicting_upgrade is not None:
+                        upgrade_type_text : str = 'ability' if self.upgrade_type == UpgradeType.ABILITY else 'secondary fire'
+                        result.append((f"Overrides {conflicting_upgrade.get_clean_name()} {upgrade_type_text}", 
+                                    {'pos' : None, 'anchor' : 'top', 'color' : pygame.Color('Red')}))
         return result
     
     def get_shop_border_info(self) -> tuple[pygame.typing.ColorLike, int]:
@@ -323,6 +336,10 @@ class Upgrade:
             
             case 'LazerShot':
                 return Upgrade(UpgradeType.SECONDARY_FIRE, name, rank, rarity_tier=rank, stackable=False)
+            case 'ShotgunShot':
+                return Upgrade(UpgradeType.SECONDARY_FIRE, name, rank, rarity_tier=rank, stackable=False)
+            case 'MissileShot':
+                return Upgrade(UpgradeType.SECONDARY_FIRE, name, rank, rarity_tier=rank, stackable=False)
             
             case _:
                 core_object.log(f"Could not create upgrade '{name}'!")
@@ -362,7 +379,7 @@ class Upgrade:
                 target_rank = rank
                 break
 
-        return target_rank
+        return int(pygame.math.clamp(target_rank, 0, MAX_RANK[new_weapon]))
 
 
     def __str__(self) -> str:
@@ -387,6 +404,8 @@ CLEAN_NAME_DICT : dict[UpgradeName, str] = {
 
 
     'LazerShot' : 'Lazer',
+    'ShotgunShot' : 'Shotgun',
+    'MissileShot' : 'Homing Missile',
 
 
     'DamageChain' : 'Damage Chain'
@@ -461,8 +480,18 @@ BASE_WEIGHTS : dict[UpgradeName, tuple[dict[int, tuple[int, float]], bool]] = {
 
     'LazerShot' :  ({0 : (1, 1.0),
                     1 : (1, 1.0), 
+                    2 : (2, 1.0),
+                    3 : (2, 1.0)},
+                    True),
+
+    'ShotgunShot' : ({0 : (1, 1.0),
+                    1 : (1, 1.0), 
                     2 : (2, 1.0)},
-                    False),
+                    True),
+
+    'MissileShot' : ({0 : (1, 1.0),
+                    1 : (1, 1.0)},
+                    True),
 }
 
 MAX_RANK : dict[PerkName|AbilityName|SecondaryFireName, int] = {
@@ -472,7 +501,9 @@ MAX_RANK : dict[PerkName|AbilityName|SecondaryFireName, int] = {
     'DamageChain' : 2,
 
 
-    'LazerShot' : 3
+    'LazerShot' : 3,
+    'ShotgunShot' : 2,
+    'MissileShot' : 1,
 }
 
 class PlayerUpgradeHooks:

@@ -13,6 +13,7 @@ import src.particle_effects
 from .upgrade import SecondaryFireName, Upgrade, UpgradeType, PlayerStatsModifiers, BaseInteractibleUpgrade
 
 from src.sprites.projectiles import BaseProjectile, ScatterProjectile, NormalProjectile, HomingProjectile, Teams
+from src.sprites.enemy import BaseEnemy
 
 class SecondaryFire(BaseInteractibleUpgrade):
     BASE_COOLDOWN : float = 1
@@ -25,6 +26,10 @@ class SecondaryFire(BaseInteractibleUpgrade):
         match alt_fire_name:
             case 'LazerShot':
                 return LazerSecondaryFire(player, upgrade.rank, upgrade)
+            case 'ShotgunShot':
+                return ShotgunSecondaryFire(player, upgrade.rank, upgrade)
+            case 'MissileShot':
+                return ShotgunSecondaryFire(player, upgrade.rank, upgrade)
             case _:
                 return None
 
@@ -63,15 +68,62 @@ class LazerSecondaryFire(SecondaryFire):
 
     def attempt_fire(self) -> BaseProjectile | None:
         super().attempt_fire()
-        proj_count : int = 0
-        scatter_count : int = 0
+        proj_scatter_reps : int = 0
+        proj_per_scatter : int = 0
         damage_decay : float = 0.0
         core_object.bg_manager.play_sfx('lazer_shot_sfx', 1.0)
         return ScatterProjectile.spawn(self.player.position + pygame.Vector2(0, -30), pygame.Vector2(0, -16), None, None, 0,
                                        recolor_image(BaseProjectile.normal_image3, "Purple"), team=Teams.ALLIED,
-                                       damage=self.player.upgrades.alt_fire_damage, can_destroy=True, bounce_count=0, scatter_count=scatter_count,
-                                       scatter_proj_num=proj_count, scatter_reflect=True, damage_decay=damage_decay,
+                                       damage=self.player.upgrades.alt_fire_damage, can_destroy=True, bounce_count=0, scatter_count=proj_scatter_reps,
+                                       scatter_proj_num=proj_per_scatter, scatter_reflect=True, damage_decay=damage_decay,
                                         track_hits=True, track_misses=True)
+
+core_object.asset_manager.load_sound("assets/audio/sfx/shotgun_shot.ogg", 'shotgun_shot_sfx', 0.4)
+
+class ShotgunSecondaryFire(SecondaryFire):
+    BASE_COOLDOWN = 1 / 0.5
+    BASE_DAMAGE = 1.5
+
+    def __init__(self, player : 'Player', rank : int, original_upgrade: Upgrade) -> None:
+        super().__init__(player, 'ShotgunShot', rank, ShotgunSecondaryFire.BASE_COOLDOWN, ShotgunSecondaryFire.BASE_DAMAGE, original_upgrade)
+
+    def attempt_fire(self) -> BaseProjectile | None:
+        super().attempt_fire()
+        proj_list : list[ScatterProjectile] = []
+        proj_scatter_reps : int = 0
+        proj_per_scatter : int = 0
+        damage_decay : float = 0.0
+        wall_bounce_count : int = 0
+        core_object.bg_manager.play_sfx('shotgun_shot_sfx', 1.0)
+        for angle in (-20, 10, 0, 10, 20):
+            proj = ScatterProjectile.spawn(self.player.position + pygame.Vector2(0, -30), pygame.Vector2(0, -16).rotate(angle), None, None, 
+                                        angle, recolor_image(BaseProjectile.normal_image4, "Purple"), team=Teams.ALLIED,
+                                        damage=self.player.upgrades.alt_fire_damage, can_destroy=True, bounce_count=wall_bounce_count, 
+                                        scatter_count=proj_scatter_reps, scatter_proj_num=proj_per_scatter, scatter_reflect=True, 
+                                        damage_decay=damage_decay, track_hits=True, track_misses=True)
+            proj_list.append(proj)
+        return proj_list[2]
+
+core_object.asset_manager.load_sound("assets/audio/sfx/rocket_shot.ogg", 'rocket_shot_sfx', 0.4)
+
+class MissileSecondaryFire(SecondaryFire):
+    BASE_COOLDOWN = 1 / 0.35
+    BASE_DAMAGE = 4
+
+    def __init__(self, player : 'Player', rank : int, original_upgrade: Upgrade) -> None:
+        super().__init__(player, 'MissileShot', rank, MissileSecondaryFire.BASE_COOLDOWN, MissileSecondaryFire.BASE_DAMAGE, original_upgrade)
+
+    def attempt_fire(self) -> BaseProjectile | None:
+        super().attempt_fire()
+        core_object.bg_manager.play_sfx('rocket_shot_sfx', 1.0)
+        explosive_range : float = 250
+        aoe_fraction : float = 0.50
+        return HomingProjectile.spawn(self.player.position + pygame.Vector2(0, -30), 
+                                      pygame.Vector2(0, -10), 
+                                      None, None, 0,
+        BaseProjectile.rocket_image, homing_range=300, homing_rate=3,
+        homing_targets=BaseEnemy, team=Teams.ALLIED, can_destroy=True, damage=self.player.upgrades.alt_fire_damage, die_after_destroying=False,
+        explosion_damage=self.player.upgrades.alt_fire_damage * aoe_fraction, explosive_range=explosive_range)
 
 def runtime_imports3():
     global Player

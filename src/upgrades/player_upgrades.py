@@ -10,8 +10,9 @@ from framework.ui import RowLayout, BaseDrawableInfo, BaseUiFrameInfo, UiSprite,
 from framework.utils.base_particle_effects import ParticleEffect
 import src.particle_effects
 
-from .upgrade import AbilityName, Upgrade, UpgradeType, PlayerStatsModifiers, PlayerStatsModifiersKey
+from .upgrade import Upgrade, UpgradeType, PlayerStatsModifiers, PlayerStatsModifiersKey
 from .upgrade import BaseInteractibleUpgrade, PRE_UPGRADE_HOOKS, POST_UPGRADE_HOOKS
+from .upgrade import SecondaryFireName
 
 from .ability import Ability, DashAbility
 from .perk import Perk
@@ -102,6 +103,13 @@ class PlayerUpgrades:
                 self.curr_ability = new_ability
 
             case UpgradeType.SECONDARY_FIRE:
+                new_rank : int
+                if upgrade.rank == 0:
+                    new_rank = self.get_rank_transfer(cast(SecondaryFireName, upgrade.name))
+                else:
+                    new_rank = upgrade.rank
+                upgrade.rank = new_rank
+
                 new_alt_fire : SecondaryFire|None = SecondaryFire.get_secondary_fire_from_upgrade(self.player, upgrade)
                 if new_alt_fire is None:
                     core_object.log(f"Could not create alternate fire '{upgrade.name}'!")
@@ -140,6 +148,10 @@ class PlayerUpgrades:
         if upgrade.name in POST_UPGRADE_HOOKS:
             POST_UPGRADE_HOOKS[upgrade.name](self, upgrade)
         return True
+
+    def get_rank_transfer(self, new_weapon : SecondaryFireName) -> int:
+        return Upgrade.get_specialisation_transfer_rank(self.curr_alt_fire.rank, self.curr_alt_fire.name, 
+                                                                        cast(SecondaryFireName, new_weapon))
 
     def get_modifier_list(self) -> list[PlayerStatsModifiers]:
         mod_list : list[PlayerStatsModifiers] = [upgrade.modifiers for upgrade in self.upgrades]

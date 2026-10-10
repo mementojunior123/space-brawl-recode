@@ -6,16 +6,19 @@
 -Add the upgrades for the abilities/perk/alt fires listed above
 ---Soon---
 -Some bosses
--Full enemy implementation
+-Full normal enemy implementation
+-Reroll
+-Upgrade preview feature
+-Some more upgrades
 ---Later---
 -Complete upgrade selection
 -Tutorial
+-Full boss implementation
+-Full upgrade tree
 ---Long-term---
 -Settings
 -Mobile support
 -Hard mode
--Full boss implementation
--Full upgrade tree
 
 ---Sync---
 -Add missing type annotation in bg_manager (04/10/2026)
