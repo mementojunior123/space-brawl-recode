@@ -23,7 +23,7 @@ from src.sprites.enemy import BaseEnemy
 
 class PlayerUpgrades:
     def __init__(self, player : 'Player'):
-        default_alt_fire : Upgrade = cast(Upgrade, Upgrade.from_name_and_rank('LazerShot', 1))
+        default_alt_fire : Upgrade = cast(Upgrade, Upgrade.from_name_and_rank('LazerShot', 0))
         default_ability : Upgrade = cast(Upgrade, Upgrade.from_name_and_rank('Dash', 1))
 
         self.player : Player = player

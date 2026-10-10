@@ -3,13 +3,15 @@
 -Basic wave implementation
 -Some sounds
 -Add shotgun, rocket, overcharge and ability leech
--Add the upgrades for the abilities/perk/alt fires listed above
+-Add upgrade levels for abilities and perks
+-Add visuals for ability active use timer
 ---Soon---
 -Some bosses
 -Full normal enemy implementation
 -Reroll
 -Upgrade preview feature
 -Some more upgrades
+-More visuals to distinguish upgrade types
 ---Later---
 -Complete upgrade selection
 -Tutorial

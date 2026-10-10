@@ -29,6 +29,7 @@ class BaseEnemy(Sprite):
     KILL_SCORE : int = 5
 
     health_epsilon : float = 0.01
+    ENEMY_KILLED : int = pygame.event.custom_type()
 
     def __init__(self) -> None:
         super().__init__()
@@ -73,6 +74,7 @@ class BaseEnemy(Sprite):
         point_of_contact : pygame.Vector2 = (pygame.Vector2(self.rect.topleft) + overlap_point) if overlap_point else self.position
         if self.health <= BaseEnemy.health_epsilon:
             self.kill_instance_safe()
+            pygame.event.post(pygame.Event(self.ENEMY_KILLED, {'enemy_type' : self.type}))
             enemy_killed_particle_effect.play(self.position.copy(), core_object.game.game_timer.get_time)
             core_object.bg_manager.play_sfx('enemy_killed_sfx', 1.0)
             self.give_score(self.KILL_SCORE)

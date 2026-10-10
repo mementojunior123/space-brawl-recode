@@ -141,12 +141,12 @@ class WaveControlScript(CoroutineScript[float, str|None]):
         test_timer : Timer = Timer(base_cooldown, time_source)
         test_timer.start_time -= base_cooldown
         spawned : int = 0
-        target_spawn_count : int = 5 + state.curr_wave // 2
+        target_spawn_count : int = 3 + int(state.curr_wave //2.5)
         delta = yield
         while spawned < target_spawn_count:
             if test_timer.isover():
                 BasicEnemy.spawn('midbottom', pygame.Vector2(random.randint(0 + 50, 960 - 50), -20))
-                test_timer.set_duration(base_cooldown - base_enemy_penalty * len(BaseEnemy.active_elements))
+                test_timer.set_duration(base_cooldown + base_enemy_penalty * len(BaseEnemy.active_elements))
                 spawned += 1
             delta = yield
         while len(BaseEnemy.active_elements) > 0:

@@ -160,10 +160,10 @@ class UpgradeType(Enum):
     SECONDARY_FIRE = 'Secondary fire'
 
 
-type AbilityName = Literal['Dash']
-AbilityNameList : list[AbilityName] = ['Dash']
-type PerkName = Literal['DamageChain']
-PerkNameList : list[PerkName] = ['DamageChain']
+type AbilityName = Literal['Dash', 'Overcharge']
+AbilityNameList : list[AbilityName] = ['Dash', 'Overcharge']
+type PerkName = Literal['DamageChain', 'AbilityLeech']
+PerkNameList : list[PerkName] = ['DamageChain', 'AbilityLeech']
 type SecondaryFireName = Literal['LazerShot', 'ShotgunShot', 'MissileShot']
 SecondaryFireNameList : list[SecondaryFireName] = ['LazerShot', 'ShotgunShot', 'MissileShot']
 
@@ -208,7 +208,8 @@ class Upgrade:
         result : list[tuple[str, ShopTextOptions]] = []
         title_text : str
         if self.upgrade_type in (UpgradeType.ABILITY, UpgradeType.PERK):
-            title_text = f"{self.get_clean_name()} {to_roman(self.rank)}"
+            title_text = (f"{self.get_clean_name()} {to_roman(self.rank)}" if self.rank >= 1 
+                          else f"New {'ability' if self.upgrade_type == UpgradeType.ABILITY else 'perk'} {self.get_clean_name()}")
         elif self.upgrade_type == UpgradeType.SECONDARY_FIRE:
             title_text = f"New weapon : {self.get_clean_name()}" if self.rank == 0 else f"{self.get_clean_name()} {to_roman(self.rank)}"
         else:
@@ -237,24 +238,47 @@ class Upgrade:
                 match self.rank:
                     case 0:
                         result.append((f"A lazer that deals high damage...", {'pos' : None, 'anchor' : 'top'}))
+                    case 1:
+                        result.append((f"On hit, the lazer splits into 4 parts that deal half-damage", {'pos' : None, 'anchor' : 'top'}))
+                    case 2:
+                        result.append((f"The lazer splits one more time, dealing more damage", {'pos' : None, 'anchor' : 'top'}))
+                    case 3:
+                        result.append((f"The lazer no longer loses damage each split", {'pos' : None, 'anchor' : 'top'}))                    
             case 'ShotgunShot':
                 match self.rank:
                     case 0:
                         result.append((f"A shotgun that fires 5 shells...", {'pos' : None, 'anchor' : 'top'}))
+                    case 1:
+                        result.append((f"The shells scatter on hit, creating more projectiles and dealing more damage", 
+                                       {'pos' : None, 'anchor' : 'top'}))
+                    case 2:
+                        result.append((f"The shells bounce of the walls of the screen dealing even more damage", 
+                                        {'pos' : None, 'anchor' : 'top'}))
             case 'MissileShot':
                 match self.rank:
                     case 0:
                         result.append((f"A heat-seeking missile that deals half of its damage as AOE damage on hit", {'pos' : None, 'anchor' : 'top'}))
+                    case 1:
+                        result.append((f"The missile deals more AOE damage and has a bigger range", {'pos' : None, 'anchor' : 'top'}))
 
             case 'Dash':
                 match self.rank:
                     case 1:
                         result.append((f"A dash that gives you i-frames...", {'pos' : None, 'anchor' : 'top'}))
+            case 'Overcharge':
+                match self.rank:
+                    case 1:
+                        result.append((f"Your secondary fire becomes much more dangerous...\n(+50% firerate)", {'pos' : None, 'anchor' : 'top'}))
 
             case 'DamageChain':
                 match self.rank:
                     case 1:
                         result.append((f"Every hit, your chain goes up... Every miss, chain gets reset... Higher chain, higher damage...", 
+                                       {'pos' : None, 'anchor' : 'top'}))
+            case 'AbilityLeech':
+                match self.rank:
+                    case 1:
+                        result.append((f"Every time you kill an enemy, progress your ability cooldown by 5%",
                                        {'pos' : None, 'anchor' : 'top'}))
             case _:
                 result = [(f"{self.name} {to_roman(self.rank)} (type : {self.upgrade_type}), T{self.rarity_tier}", {'pos' : None, 'anchor' : 'top'})]
@@ -330,8 +354,12 @@ class Upgrade:
 
             case 'Dash':
                 return Upgrade(UpgradeType.ABILITY, name, rank, rarity_tier=rank, stackable=False)
+            case 'Overcharge':
+                return Upgrade(UpgradeType.ABILITY, name, rank, rarity_tier=rank, stackable=False)
             
             case 'DamageChain':
+                return Upgrade(UpgradeType.PERK, name, rank, rarity_tier=rank, stackable=False)
+            case 'AbilityLeech':
                 return Upgrade(UpgradeType.PERK, name, rank, rarity_tier=rank, stackable=False)
             
             case 'LazerShot':
@@ -401,6 +429,7 @@ CLEAN_NAME_DICT : dict[UpgradeName, str] = {
 
 
     'Dash' : 'Dash',
+    'Overcharge' : 'Overcharge',
 
 
     'LazerShot' : 'Lazer',
@@ -408,7 +437,8 @@ CLEAN_NAME_DICT : dict[UpgradeName, str] = {
     'MissileShot' : 'Homing Missile',
 
 
-    'DamageChain' : 'Damage Chain'
+    'DamageChain' : 'Damage Chain',
+    'AbilityLeech' : 'Ability Leech'
 }
 
                                     #(rank --> (rarity tier, weight), ignore_rarity_tier)
@@ -472,6 +502,12 @@ BASE_WEIGHTS : dict[UpgradeName, tuple[dict[int, tuple[int, float]], bool]] = {
                2 : (2, 1.0)},
                False),
 
+    'Overcharge' : ({1 : (1, 1.0)},
+                   False),
+
+    'AbilityLeech' : ({1 : (1, 1.0)},
+                   False),
+
 
     'DamageChain' : ({1 : (1, 1.0), 
                     2 : (2, 1.0)},
@@ -496,9 +532,11 @@ BASE_WEIGHTS : dict[UpgradeName, tuple[dict[int, tuple[int, float]], bool]] = {
 
 MAX_RANK : dict[PerkName|AbilityName|SecondaryFireName, int] = {
     'Dash' : 2,
+    'Overcharge' : 1,
 
 
     'DamageChain' : 2,
+    'AbilityLeech' : 1,
 
 
     'LazerShot' : 3,

@@ -68,9 +68,26 @@ class LazerSecondaryFire(SecondaryFire):
 
     def attempt_fire(self) -> BaseProjectile | None:
         super().attempt_fire()
-        proj_scatter_reps : int = 0
-        proj_per_scatter : int = 0
-        damage_decay : float = 0.0
+        proj_scatter_reps : int
+        proj_per_scatter : int
+        damage_decay : float
+        if self.rank >= 3:
+            proj_scatter_reps = 2
+            proj_per_scatter = 4
+            damage_decay = 1.0
+        elif self.rank >= 2:
+            proj_scatter_reps = 2
+            proj_per_scatter = 4
+            damage_decay = 0.5
+        elif self.rank >= 1:
+            proj_scatter_reps = 1
+            proj_per_scatter = 4
+            damage_decay = 0.5
+        else:      
+            proj_scatter_reps : int = 0
+            proj_per_scatter : int = 0
+            damage_decay : float = 0.0
+
         core_object.bg_manager.play_sfx('lazer_shot_sfx', 1.0)
         return ScatterProjectile.spawn(self.player.position + pygame.Vector2(0, -30), pygame.Vector2(0, -16), None, None, 0,
                                        recolor_image(BaseProjectile.normal_image3, "Purple"), team=Teams.ALLIED,
@@ -90,17 +107,17 @@ class ShotgunSecondaryFire(SecondaryFire):
     def attempt_fire(self) -> BaseProjectile | None:
         super().attempt_fire()
         proj_list : list[ScatterProjectile] = []
-        proj_scatter_reps : int = 0
-        proj_per_scatter : int = 0
+        proj_scatter_reps : int = 1 if self.rank >= 1 else 0
+        proj_per_scatter : int = 3
         damage_decay : float = 0.0
-        wall_bounce_count : int = 0
+        wall_bounce_count : int = 2 if self.rank >= 2 else 0
         core_object.bg_manager.play_sfx('shotgun_shot_sfx', 1.0)
-        for angle in (-20, 10, 0, 10, 20):
+        for angle in (-20, -10, 0, 10, 20):
             proj = ScatterProjectile.spawn(self.player.position + pygame.Vector2(0, -30), pygame.Vector2(0, -16).rotate(angle), None, None, 
-                                        angle, recolor_image(BaseProjectile.normal_image4, "Purple"), team=Teams.ALLIED,
+                                        angle, recolor_image(BaseProjectile.normal_image4, "White"), team=Teams.ALLIED,
                                         damage=self.player.upgrades.alt_fire_damage, can_destroy=True, bounce_count=wall_bounce_count, 
                                         scatter_count=proj_scatter_reps, scatter_proj_num=proj_per_scatter, scatter_reflect=True, 
-                                        damage_decay=damage_decay, track_hits=True, track_misses=True)
+                                        damage_decay=damage_decay, track_hits=True, track_misses=(angle==0))
             proj_list.append(proj)
         return proj_list[2]
 
@@ -116,8 +133,8 @@ class MissileSecondaryFire(SecondaryFire):
     def attempt_fire(self) -> BaseProjectile | None:
         super().attempt_fire()
         core_object.bg_manager.play_sfx('rocket_shot_sfx', 1.0)
-        explosive_range : float = 250
-        aoe_fraction : float = 0.50
+        explosive_range : float = 300 if self.rank >= 1 else 250
+        aoe_fraction : float = 0.75 if self.rank >= 1 else 0.50
         return HomingProjectile.spawn(self.player.position + pygame.Vector2(0, -30), 
                                       pygame.Vector2(0, -10), 
                                       None, None, 0,

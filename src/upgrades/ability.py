@@ -22,6 +22,8 @@ class Ability(BaseInteractibleUpgrade):
         match ability_name:
             case 'Dash':
                 return DashAbility(player, upgrade.rank, upgrade)
+            case 'Overcharge':
+                return OverchargeAbility(player, upgrade.rank, upgrade)
             case _:
                 return None
         
@@ -103,6 +105,37 @@ class DashAbility(Ability):
                 self.dash_track = None
             else:
                 self.dash_track.origin = self.player.position
+
+class OverchargeAbility(Ability):
+    BASE_COOLDOWN : float = 20
+    dash_effect : ParticleEffect = cast(ParticleEffect, ParticleEffect.load_effect('dash_effect', persistance=True))
+
+    BASE_DURATION : float = 3
+
+    def __init__(self, player : 'Player', rank : int, original_upgrade : Upgrade) -> None:
+        super().__init__(player, 'Overcharge', rank, self.BASE_COOLDOWN, original_upgrade)
+        self.ability_timer : Timer = Timer(self.BASE_DURATION, core_object.game_tsource)
+        self.active : bool = False
+
+    def activate(self) -> bool:
+        super().activate()
+        self.player.ability_cooldown_timer.pause()
+        actual_duration : float = self.BASE_DURATION
+        self.ability_timer.set_duration(actual_duration)
+
+        self.modifiers.alt_firerate_mult = 1
+        self.active = True
+        return True
+
+    def deactivate(self):
+        self.player.ability_cooldown_timer.unpause()
+        self.active = False
+        self.modifiers.alt_firerate_mult = 0
+
+    def update(self, delta : float):
+        if self.active:
+            if self.ability_timer.isover():
+                self.deactivate()
 
 def runtime_imports1():
     global Player

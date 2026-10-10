@@ -9,6 +9,7 @@ from framework.utils.helpers import AnchorStr
 from framework.ui import RowLayout, BaseDrawableInfo, BaseUiFrameInfo, UiSprite, UiPosition, ProgressBar, UiFrame
 from framework.utils.base_particle_effects import ParticleEffect
 from src.sprites.projectiles import BaseProjectile
+from src.sprites.enemy import BaseEnemy
 import src.particle_effects
 
 from .upgrade import PerkName, Upgrade, UpgradeType, PlayerStatsModifiers, BaseInteractibleUpgrade
@@ -21,6 +22,8 @@ class Perk(BaseInteractibleUpgrade):
         match perk_name:
             case 'DamageChain':
                 return DamageChainPerk(player, upgrade.rank, upgrade)
+            case 'AbilityLeech':
+                return AbilityLeechPerk(player, upgrade.rank, upgrade)
             case _:
                 return None
 
@@ -41,8 +44,7 @@ class Perk(BaseInteractibleUpgrade):
 class DamageChainPerk(Perk):
     MULT_EPSILON : float = 0.01
     def __init__(self, player : 'Player', rank : int, original_upgrade : Upgrade) -> None:
-        name : PerkName = 'DamageChain'
-        super().__init__(player, name, rank, original_upgrade)
+        super().__init__(player, 'DamageChain', rank, original_upgrade)
         self.relevant_events = {BaseProjectile.PROJECTILE_HIT : False, BaseProjectile.PROJECTILE_MISSED : False}
         self.accumulated_damage_bonus : float = 0
         self.frame_timer : Timer = Timer(-1, core_object.game_tsource)
@@ -69,13 +71,15 @@ class DamageChainPerk(Perk):
         self.mult_bar_frame.position = UiPosition(self.player.rect.midleft + pygame.Vector2(-10, 0), 'midright')
 
     def on_event(self, event : pygame.Event):
-        if isinstance(core_object.game.state, core_object.game.STATES.ShopGameState):
-            return
-        if event.type == BaseProjectile.PROJECTILE_MISSED:
-            self.accumulated_damage_bonus = 0 # Make this a penalty
-            self.update_damage_mult()
-        elif event.type == BaseProjectile.PROJECTILE_HIT:
+        if event.type == BaseProjectile.PROJECTILE_HIT:
             self.accumulated_damage_bonus += self.hit_bonus
+            self.update_damage_mult()
+
+        elif isinstance(core_object.game.state, core_object.game.STATES.ShopGameState):
+            return
+        
+        elif event.type == BaseProjectile.PROJECTILE_MISSED:
+            self.accumulated_damage_bonus = 0 # Make this a penalty
             self.update_damage_mult()
 
     def update_damage_mult(self):
@@ -88,6 +92,19 @@ class DamageChainPerk(Perk):
 
     def cleanup(self):
         core_object.main_ui.remove(self.mult_bar_frame)
+
+class AbilityLeechPerk(Perk):
+    def __init__(self, player : 'Player', rank : int, original_upgrade : Upgrade) -> None:
+        super().__init__(player, 'AbilityLeech', rank, original_upgrade)
+        self.relevant_events = {BaseProjectile.PROJECTILE_HIT : False, BaseEnemy.ENEMY_KILLED : False}
+        self.hit_bonus : float = 0.00
+        self.kill_bonus : float = 0.05
+
+    def on_event(self, event: pygame.Event):
+        if event.type == BaseProjectile.PROJECTILE_HIT:
+            self.player.alt_fire_cooldown_timer.start_time -= self.hit_bonus * self.player.alt_fire_cooldown_timer.duration
+        elif event.type == BaseEnemy.ENEMY_KILLED:
+            self.player.alt_fire_cooldown_timer.start_time -= self.kill_bonus * self.player.alt_fire_cooldown_timer.duration
 
 def runtime_imports4():
     global Player

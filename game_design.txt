@@ -111,7 +111,7 @@ Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
             III --> Lower cooldown and higher health.
             IV --> Projectiles are now reflected instead of blocked
         Ability leech:
-            I --> Every time an enemy is killed, progress ability cooldown by 1%.
+            I --> Every time an enemy is hit, progress ability cooldown by 1%.
             II --> 2% instead of 1%
             III --> 3% instead of 2%
             IV --> 4% instead of 3%
