@@ -217,19 +217,19 @@ class Upgrade:
         result.append((title_text, {'pos' : None, 'anchor' : 'top'}))
         match self.name:
             case 'BonusNormalDamage':
-                result.append((f"Increase regular shot damage by {self.modifiers.normal_damage_mult:.2%}", {'pos' : None, 'anchor' : 'top'}))
+                result.append((f"Increase regular shot damage by {self.modifiers.normal_damage_mult:.0%}", {'pos' : None, 'anchor' : 'top'}))
             case 'BonusAltDamage':
-                result.append((f"Increase regular alternate fire damage by {self.modifiers.alt_damage_mult:.2%}", {'pos' : None, 'anchor' : 'top'}))
+                result.append((f"Increase regular alternate fire damage by {self.modifiers.alt_damage_mult:.0%}", {'pos' : None, 'anchor' : 'top'}))
             case 'BonusGlobalDamage':
-                result.append((f"Increase all damage by {self.modifiers.global_damage_mult:.2%}", {'pos' : None, 'anchor' : 'top'}))
+                result.append((f"Increase all damage by {self.modifiers.global_damage_mult:.0%}", {'pos' : None, 'anchor' : 'top'}))
             case 'BonusNormalFirerate':
-                result.append((f"Increase regular shot firerate by {self.modifiers.normal_firerate_mult:.2%}", {'pos' : None, 'anchor' : 'top'}))
+                result.append((f"Increase regular shot firerate by {self.modifiers.normal_firerate_mult:.0%}", {'pos' : None, 'anchor' : 'top'}))
             case 'BonusAltFirerate':
-                result.append((f"Increase alternate shot firerate by {self.modifiers.alt_firerate_mult:.2%}", {'pos' : None, 'anchor' : 'top'}))
+                result.append((f"Increase alternate shot firerate by {self.modifiers.alt_firerate_mult:.0%}", {'pos' : None, 'anchor' : 'top'}))
             case 'BonusGlobalFirerate':
-                result.append((f"Increase all firerate by {self.modifiers.global_firerate_mult:.2%}", {'pos' : None, 'anchor' : 'top'}))
+                result.append((f"Increase all firerate by {self.modifiers.global_firerate_mult:.0%}", {'pos' : None, 'anchor' : 'top'}))
             case 'BonusAbilityRechargeRate':
-                result.append((f"Increase ability recharge rate by {self.modifiers.ability_recharge_rate:.2%}", {'pos' : None, 'anchor' : 'top'}))
+                result.append((f"Increase ability recharge rate by {self.modifiers.ability_recharge_rate:.0%}", {'pos' : None, 'anchor' : 'top'}))
 
             case 'BonusMaxHealth':
                 result.append((f"Increase max hp by {self.modifiers.max_hp_bonus}", {'pos' : None, 'anchor' : 'top'}))
