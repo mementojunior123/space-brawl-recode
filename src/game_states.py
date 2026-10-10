@@ -638,6 +638,7 @@ class GameOverControlScript(CoroutineScript[float, str|None]):
     @staticmethod
     def corou(time_source : TimeSource, state : GameOverGameState, player : 'Player'):
         timer : Timer = Timer(1, time_source)
+        player.visible = True
         delta : float = yield
         if delta is None: delta = core_object.dt
         while not timer.isover():
