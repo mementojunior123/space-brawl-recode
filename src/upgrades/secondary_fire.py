@@ -29,7 +29,7 @@ class SecondaryFire(BaseInteractibleUpgrade):
             case 'ShotgunShot':
                 return ShotgunSecondaryFire(player, upgrade.rank, upgrade)
             case 'MissileShot':
-                return ShotgunSecondaryFire(player, upgrade.rank, upgrade)
+                return MissileSecondaryFire(player, upgrade.rank, upgrade)
             case _:
                 return None
 

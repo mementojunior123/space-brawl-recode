@@ -98,7 +98,7 @@ MODIFIER_AGGREGATOR_DICT : dict[PlayerStatsModifiersKey, ModifierAggregationFunc
 
 
 @dataclass
-class PlayerStatsModifiers:
+class PlayerStatsModifiers: # TODO : Add a temporary field?
     max_hp_bonus : int = 0
     normal_firerate_mult : float = 0
     alt_firerate_mult : float = 0
