@@ -12,3 +12,6 @@ Version R04 (08-10-2026, 23:13):
 
 Version R05 (10-10-2026, 19:52):
     -Made some more progress on the ugprade system. Implemented a few more upgrades
+
+Version R06 (10-10-2026, 19:56):
+    -Fixed a few bugs
