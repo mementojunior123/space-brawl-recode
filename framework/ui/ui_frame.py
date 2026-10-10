@@ -64,6 +64,7 @@ class UiFrame(UiSpriteGroup):
     def size(self, value : pygame.Vector2):
         self._base_size = value
         self._cache.clear()
+        self._trigger_parent_frame_update(True)
     
     def translate_local_to_world(self, point : pygame.typing.Point) -> pygame.Vector2:
         if self.temp_local_tranfs_rect is None:
