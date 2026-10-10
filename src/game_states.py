@@ -498,11 +498,11 @@ class ShopGameState(NormalGameState):
                                       debug : bool = False) -> tuple['UpgradeName', int]|None:
         if already_selected is None: already_selected = []
         eligible : list[UpgradeName] = Upgrade.get_list_of_all(upgrade_type)
+        filter_func = lambda name : (all(upg.name != name for upg in self.player.upgrades.upgrades) and (name not in already_selected))
         if upgrade_type in (UpgradeType.ABILITY, UpgradeType.PERK, UpgradeType.SECONDARY_FIRE): # getting upgrades you already have was already handled
-            eligible = [x for x in filter(
-                lambda name : all(upg.name != name for upg in self.player.upgrades.upgrades) 
-                and name not in already_selected, eligible
-            )]
+            eligible = [x for x in filter(filter_func, eligible)]
+        else:
+            eligible = [x for x in filter(lambda name : name not in already_selected, eligible)]
 
         possibilites : dict[tuple[UpgradeName, int], float] = {}
 

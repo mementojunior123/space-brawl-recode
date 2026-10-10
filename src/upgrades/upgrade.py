@@ -206,12 +206,62 @@ class Upgrade:
 
     def get_shop_description(self, already_present_upgrades : list['Upgrade']) -> list[tuple[str, ShopTextOptions]]:
         result : list[tuple[str, ShopTextOptions]] = []
-        result.append((f"{self.name}", {'pos' : None, 'anchor' : 'top'}))
+        title_text : str
+        if self.upgrade_type in (UpgradeType.ABILITY, UpgradeType.PERK):
+            title_text = f"{self.get_clean_name()} {to_roman(self.rank)}"
+        elif self.upgrade_type == UpgradeType.SECONDARY_FIRE:
+            title_text = f"New weapon : {self.get_clean_name()}" if self.rank == 0 else f"{self.get_clean_name()} {to_roman(self.rank)}"
+        else:
+            title_text = f"{self.get_clean_name()}"
+        result.append((title_text, {'pos' : None, 'anchor' : 'top'}))
         match self.name:
             case 'BonusNormalDamage':
-                result.append((f"Increase regular fire damage by {self.modifiers.normal_damage_mult:.2%}", {'pos' : None, 'anchor' : 'top'}))
+                result.append((f"Increase regular shot damage by {self.modifiers.normal_damage_mult:.2%}", {'pos' : None, 'anchor' : 'top'}))
+            case 'BonusAltDamage':
+                result.append((f"Increase regular alternate fire damage by {self.modifiers.alt_damage_mult:.2%}", {'pos' : None, 'anchor' : 'top'}))
+            case 'BonusGlobalDamage':
+                result.append((f"Increase all damage by {self.modifiers.global_damage_mult:.2%}", {'pos' : None, 'anchor' : 'top'}))
+            case 'BonusNormalFirerate':
+                result.append((f"Increase regular shot firerate by {self.modifiers.normal_firerate_mult:.2%}", {'pos' : None, 'anchor' : 'top'}))
+            case 'BonusAltFirerate':
+                result.append((f"Increase alternate shot firerate by {self.modifiers.alt_firerate_mult:.2%}", {'pos' : None, 'anchor' : 'top'}))
+            case 'BonusGlobalFirerate':
+                result.append((f"Increase all firerate by {self.modifiers.global_firerate_mult:.2%}", {'pos' : None, 'anchor' : 'top'}))
+            case 'BonusAbilityRechargeRate':
+                result.append((f"Increase ability recharge rate by {self.modifiers.ability_recharge_rate:.2%}", {'pos' : None, 'anchor' : 'top'}))
+
+            case 'BonusMaxHealth':
+                result.append((f"Increase max hp by {self.modifiers.max_hp_bonus}", {'pos' : None, 'anchor' : 'top'}))
+
+            case 'LazerShot':
+                match self.rank:
+                    case 0:
+                        result.append((f"A lazer that deals high damage...", {'pos' : None, 'anchor' : 'top'}))
+
+            case 'Dash':
+                match self.rank:
+                    case 1:
+                        result.append((f"A dash that gives you i-frames...", {'pos' : None, 'anchor' : 'top'}))
+
+            case 'DamageChain':
+                match self.rank:
+                    case 1:
+                        result.append((f"Every hit, your chain goes up... Every miss, chain gets reset... Higher chain, higher damage...", 
+                                       {'pos' : None, 'anchor' : 'top'}))
             case _:
                 result = [(f"{self.name} {to_roman(self.rank)} (type : {self.upgrade_type}), T{self.rarity_tier}", {'pos' : None, 'anchor' : 'top'})]
+
+        if self.rank == 0 and self.upgrade_type == UpgradeType.SECONDARY_FIRE:
+            prev_alt_fire : Upgrade|None = None
+            for upgrade in already_present_upgrades:
+                if upgrade.upgrade_type == UpgradeType.SECONDARY_FIRE and upgrade.name != self.name:
+                    prev_alt_fire = upgrade
+                    break
+            if prev_alt_fire is not None:
+                transfer_rank : int = self.get_specialisation_transfer_rank(prev_alt_fire.rank,
+                    cast(SecondaryFireName, prev_alt_fire.name), cast(SecondaryFireName, self.name))
+                if transfer_rank != 0:
+                    result.append((f"Automatically upgraded to rank {transfer_rank}", {'pos' : None, 'anchor' : 'top', 'color' : pygame.Color('Cyan')}))
 
         match self.upgrade_type:
             case UpgradeType.ABILITY|UpgradeType.SECONDARY_FIRE:
@@ -298,6 +348,21 @@ class Upgrade:
         if upgrade_type is None:
             return list(UpgradeNameList)
         return [x for x in (filter(lambda name : Upgrade.get_upgrade_type(name) == upgrade_type, UpgradeNameList))]
+
+    @staticmethod
+    def get_specialisation_transfer_rank(prev_rank : int, prev_weapon : SecondaryFireName, new_weapon : SecondaryFireName) -> int:
+        if prev_weapon not in BASE_WEIGHTS or new_weapon not in BASE_WEIGHTS or prev_weapon == new_weapon:
+            return 0
+
+        prev_rarity_tier : int = BASE_WEIGHTS[prev_weapon][0].get(prev_rank, {0 : 0})[0]
+        target_rank : int = 0
+
+        for rank, rarity_info in sorted(BASE_WEIGHTS[prev_weapon][0].items(), key = lambda w_info : w_info[0], reverse=True):
+            if prev_rarity_tier > rarity_info[0]:
+                target_rank = rank
+                break
+
+        return target_rank
 
 
     def __str__(self) -> str:
