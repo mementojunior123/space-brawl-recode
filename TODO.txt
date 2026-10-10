@@ -30,3 +30,4 @@
 -Added a ProgressBar UiSprite (07/10/2026 23:44)
 -Fixed a bug in particle effects in persistent that caused them to occasionally not spawn (08/10/2026, 20:12)
 -Fixed some bugs in framework/ui (08/10/2026, 22:33)
+-UI.add_multiple now uses Sequence instead of list (10/10/2026, 11:52)

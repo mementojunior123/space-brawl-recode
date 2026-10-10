@@ -1,7 +1,7 @@
 import pygame
 from framework.ui import UiDrawable
 from framework.utils.my_timer import Timer
-from typing import Callable
+from typing import Callable, Sequence
 
 class Ui:
     def __init__(self, elements : list[UiDrawable]|None = None) -> None:
@@ -43,7 +43,7 @@ class Ui:
             self.elements.append(element)
             self.complete_list.append(element)
     
-    def add_multiple(self, elements : list[UiDrawable], duplicate = False):
+    def add_multiple(self, elements : Sequence[UiDrawable], duplicate = False):
         for element in elements:
             self.add(element, duplicate=duplicate)
 
