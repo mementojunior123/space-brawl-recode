@@ -31,10 +31,12 @@ core_object.asset_manager.load_sound("assets/audio/sfx/dash.ogg", 'dash_sfx', 0.
 enemy_killed_effect : ParticleEffect = cast(ParticleEffect, ParticleEffect.load_effect('enemy_killed'))
 
 class PlayerHealthbar(RowLayout):
+    SPACING : int = 4
+    HEART_WIDTH : int = -1
     def __init__(self, heart_count : int, position : pygame.Vector2, anchor : AnchorStr):
-        SPACING : int = 4
-        HEART_WIDTH : int = max(Player.empty_heart.get_size()[0], Player.full_heart.get_size()[0])
-        size : tuple[int, int] = ((SPACING + HEART_WIDTH) * max(heart_count, 1), 100)
+        if self.HEART_WIDTH == -1:
+            self.HEART_WIDTH = max(Player.empty_heart.get_size()[0], Player.full_heart.get_size()[0])
+        size : tuple[int, int] = ((self.SPACING + self.HEART_WIDTH) * max(heart_count, 1), 100)
         pos : UiPosition = UiPosition(UiPosition(position, anchor).calculate_anchor(size, 'midright'), 'midright')
         base_drawable_info : BaseDrawableInfo = BaseDrawableInfo(pos, name="player_healthbar")
         ui_frame_info : BaseUiFrameInfo = BaseUiFrameInfo((size))
@@ -42,7 +44,7 @@ class PlayerHealthbar(RowLayout):
         self._heart_count : int = heart_count
         self._health : int = heart_count
 
-        super().__init__(base_drawable_info, [], ui_frame_info, SPACING)
+        super().__init__(base_drawable_info, [], ui_frame_info, self.SPACING)
 
         self.update_heart_amount()
         self.update_hearts()
@@ -69,6 +71,7 @@ class PlayerHealthbar(RowLayout):
         return UiSprite(BaseDrawableInfo(UiPosition((0, 0), 'topright')), Player.full_heart)
 
     def update_heart_amount(self):
+        self.size = pygame.Vector2((self.SPACING + self.HEART_WIDTH) * max(self._heart_count, 1), 100)
         curr_elem_count : int = len(self.elements)
         if curr_elem_count < self._heart_count:
             for _ in range(self._heart_count - curr_elem_count):
@@ -229,7 +232,7 @@ class Player(Sprite, sprite_count=1):
         return accel_total
 
     def restrict_to_screen(self):
-        MARGIN : int = 25
+        MARGIN : int = 5
         if self.rect.right > Player.display_size[0] - MARGIN:
             self.move_rect("right", Player.display_size[0] - MARGIN)
             if self.velocity.x > 0: self.velocity.x = 0
@@ -278,10 +281,11 @@ class Player(Sprite, sprite_count=1):
         pressed = pygame.key.get_pressed()
         if pressed[Player.PRIMARY_FIRE_BIND]:
             self.attempt_primary_fire(ignore_cooldown=False)
-        if pressed[Player.ABILITY_BIND] or pressed[pygame.K_RSHIFT]:
-            self.attempt_ability_use(ignore_cooldown=False)
-        if pressed[Player.ALT_FIRE_BIND]:
-            self.attempt_alt_fire(ignore_cooldown=False)
+        if not isinstance(core_object.game.state, core_object.game.STATES.ShopGameState):
+            if pressed[Player.ABILITY_BIND] or pressed[pygame.K_RSHIFT]:
+                self.attempt_ability_use(ignore_cooldown=False)
+            if pressed[Player.ALT_FIRE_BIND]:
+                self.attempt_alt_fire(ignore_cooldown=False)
 
     def attempt_primary_fire(self, ignore_cooldown : bool = False) -> BaseProjectile|None:
         if not self.shot_cooldown_timer.isover() and not ignore_cooldown:

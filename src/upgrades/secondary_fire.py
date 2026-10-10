@@ -47,8 +47,10 @@ class SecondaryFire(BaseInteractibleUpgrade):
     def update(self, delta : float):
         ...
 
-    def refresh_cooldown(self):
-        self.player.alt_fire_cooldown_timer.set_duration(self.player.upgrades.alt_fire_cooldown)
+    def refresh_cooldown(self, active_now : bool = False):
+        cooldown : float = self.player.upgrades.alt_fire_cooldown
+        self.player.alt_fire_cooldown_timer.set_duration(cooldown)
+        if active_now: self.player.alt_fire_cooldown_timer.start_time -= cooldown
 
 core_object.asset_manager.load_sound("assets/audio/sfx/lazer.ogg", 'lazer_shot_sfx', 0.4)
 

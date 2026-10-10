@@ -42,8 +42,10 @@ class Ability(BaseInteractibleUpgrade):
     def update(self, delta : float):
         pass
 
-    def refresh_cooldown(self):
-        self.player.ability_cooldown_timer.set_duration(self.player.upgrades.ability_cooldown)
+    def refresh_cooldown(self, active_now : bool = False):
+        cooldown : float = self.player.upgrades.ability_cooldown
+        self.player.ability_cooldown_timer.set_duration(cooldown)
+        if active_now: self.player.ability_cooldown_timer.start_time -= cooldown
 
 class DashAbility(Ability):
     BASE_COOLDOWN : float = 3

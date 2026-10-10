@@ -11,7 +11,7 @@ from framework.utils.base_particle_effects import ParticleEffect
 import src.particle_effects
 
 from .upgrade import AbilityName, Upgrade, UpgradeType, PlayerStatsModifiers, PlayerStatsModifiersKey
-from .upgrade import BaseInteractibleUpgrade
+from .upgrade import BaseInteractibleUpgrade, PRE_UPGRADE_HOOKS, POST_UPGRADE_HOOKS
 
 from .ability import Ability, DashAbility
 from .perk import Perk
@@ -33,9 +33,6 @@ class PlayerUpgrades:
 
         self.apply_upgrade(default_alt_fire)
         self.apply_upgrade(default_ability)
-        self.apply_upgrade(Upgrade.from_name_and_rank('DamageChain', 1))
-        self.apply_upgrade(Upgrade.from_name_and_rank('BonusNormalDamage', 2))
-        self.apply_upgrade(Upgrade.from_name_and_rank('BonusNormalDamage', 5))
 
     @property
     def modifier_list(self) -> list[PlayerStatsModifiers]:
@@ -88,6 +85,12 @@ class PlayerUpgrades:
     def apply_upgrade(self, upgrade : Upgrade|None) -> bool:
         if upgrade is None:
             return False
+        if upgrade.name in PRE_UPGRADE_HOOKS:
+            hook_exec_result : bool|None = PRE_UPGRADE_HOOKS[upgrade.name](self, upgrade)
+            if hook_exec_result is not None:
+                return hook_exec_result
+            
+        remove_all_of_type : bool = upgrade.upgrade_type in (UpgradeType.ABILITY, UpgradeType.SECONDARY_FIRE)
         match upgrade.upgrade_type:
             case UpgradeType.ABILITY:
                 new_ability : Ability|None = Ability.get_ability_from_upgrade(self.player, upgrade)
@@ -104,7 +107,7 @@ class PlayerUpgrades:
                     core_object.log(f"Could not create alternate fire '{upgrade.name}'!")
                     return False
                 
-                self.curr_alt_fire.cleanup() # TODO : Remember to delete old Upgrades
+                self.curr_alt_fire.cleanup()
                 self.curr_alt_fire = new_alt_fire
 
             case UpgradeType.PERK:
@@ -123,14 +126,19 @@ class PlayerUpgrades:
                 pass
             case UpgradeType.MINOR:
                 pass
+
         self.upgrades.append(upgrade)
-        if not upgrade.stackable:
-            overriden_perk_upgrades : list[Upgrade] = list(filter(lambda p : p.name == upgrade.name, self.upgrades))
+        if not upgrade.stackable or remove_all_of_type:
+            overriden_perk_upgrades : list[Upgrade] = list(filter(
+                lambda p : (p.name == upgrade.name and not upgrade.stackable) or (remove_all_of_type and p.upgrade_type == upgrade.upgrade_type),
+                self.upgrades))
             for to_del_upgrade in overriden_perk_upgrades:
                 if to_del_upgrade == upgrade:
                     continue
                 self.upgrades.remove(to_del_upgrade)
 
+        if upgrade.name in POST_UPGRADE_HOOKS:
+            POST_UPGRADE_HOOKS[upgrade.name](self, upgrade)
         return True
 
     def get_modifier_list(self) -> list[PlayerStatsModifiers]:

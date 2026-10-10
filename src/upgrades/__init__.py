@@ -1,7 +1,9 @@
 from .upgrade import UpgradeType, Upgrade, ShopTextOptions
 from .upgrade import UpgradeName, UpgradeNameList
 from .upgrade import AbilityName, AbilityNameList, PerkNameList, PerkName, SecondaryFireName, SecondaryFireNameList
-from .upgrade import PlayerStatsModifiers, PlayerStatsModifiersKey, BASE_WEIGHTS, MAX_RANK
+from .upgrade import PlayerStatsModifiers, PlayerStatsModifiersKey, BASE_WEIGHTS, MAX_RANK, ShopTextOptions, local_imports1
+from .upgrade import PRE_UPGRADE_HOOKS, POST_UPGRADE_HOOKS, PreUpgradeApplicationCallback, PostUpgradeApplicationCallback
+from .upgrade import CLEAN_NAME_DICT
 
 from .ability import Ability, DashAbility, runtime_imports1
 from .perk import Perk, DamageChainPerk, runtime_imports4
@@ -14,6 +16,8 @@ def runtime_imports():
     runtime_imports3()
     runtime_imports4()
 
+local_imports1()
+del (local_imports1)
 
 __all__ = ("UpgradeType", "Upgrade", "ShopTextOptions", "UpgradeName", "UpgradeNameList",
            "AbilityName", "AbilityNameList", "PerkName", "PerkNameList", "SecondaryFireName", "SecondaryFireNameList",
@@ -21,6 +25,7 @@ __all__ = ("UpgradeType", "Upgrade", "ShopTextOptions", "UpgradeName", "UpgradeN
            "Perk", "DamageChainPerk",
            "SecondaryFire", "LazerSecondaryFire",
            "PlayerUpgrades", "PlayerStatsModifiers", "PlayerStatsModifiersKey",
-           "BASE_WEIGHTS", "MAX_RANK",
+           "BASE_WEIGHTS", "MAX_RANK", "ShopTextOptions", "CLEAN_NAME_DICT",
+           "PRE_UPGRADE_HOOKS", "POST_UPGRADE_HOOKS", "PreUpgradeApplicationCallback", "PostUpgradeApplicationCallback",
            "runtime_imports"
            )
