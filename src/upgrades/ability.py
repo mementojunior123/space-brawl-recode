@@ -38,7 +38,7 @@ class Ability(BaseInteractibleUpgrade):
         self.modifiers : PlayerStatsModifiers = PlayerStatsModifiers()
 
     def activate(self) -> bool: # Does activate need to return anything?
-        self.player.ability_cooldown_timer.set_duration(self.player.upgrades.ability_cooldown)
+        self.refresh_cooldown()
         return True
 
     def update(self, delta : float):
@@ -49,20 +49,62 @@ class Ability(BaseInteractibleUpgrade):
         self.player.ability_cooldown_timer.set_duration(cooldown)
         if active_now: self.player.ability_cooldown_timer.start_time -= cooldown
 
+    @property
+    def active_ability_progress(self) -> float:
+        return 0
+
 class DashAbility(Ability):
     BASE_COOLDOWN : float = 3
     dash_effect : ParticleEffect = cast(ParticleEffect, ParticleEffect.load_effect('dash_effect', persistance=True))
 
-    BASE_INVULN_TIME : float = 0.26
-    BASE_DURATION : float = 0.3
+    BASE_INVULN_TIME : float = 0.125
+    BASE_DURATION : float = 0.15
 
     def __init__(self, player : 'Player', rank : int, original_upgrade : Upgrade) -> None:
         super().__init__(player, 'Dash', rank, self.BASE_COOLDOWN, original_upgrade)
         self.dash_timer : Timer = Timer(-1, core_object.game_tsource)
         self.active : bool = False
         self.dash_track : ParticleEffectTrack|None = None
+        self.duration : float
+        self.invlun_time : float
+        self.max_uses : int
+
+        self.curr_uses : int = 0
+
+        if self.rank <= 1:
+            self.duration = self.BASE_DURATION
+            self.invlun_time = self.BASE_INVULN_TIME
+            self.max_uses = 1
+        elif self.rank == 2:
+            self.duration = 0.225
+            self.invlun_time = 0.18
+            self.max_uses = 1
+        elif self.rank == 3:
+            self.duration = 0.225
+            self.invlun_time = 0.20
+            self.max_uses = 2
+        elif self.rank == 4:
+            self.duration = 0.30
+            self.invlun_time = 0.25
+            self.max_uses = 2
+        elif self.rank >= 5:
+            self.duration = 0.30
+            self.invlun_time = 0.25
+            self.max_uses = 3
+        
+
+    @property
+    def active_ability_progress(self) -> float:
+        if not self.player.ability_cooldown_timer.isover():
+            return 0
+        uses_left : int = self.max_uses - self.curr_uses
+        curr_dash_progress : float = 0 if not self.active else 1 - (pygame.math.clamp(self.dash_timer.get_time() / self.invlun_time, 0, 1))
+        return (curr_dash_progress + uses_left) / self.max_uses
 
     def activate(self) -> bool:
+        if self.curr_uses >= self.max_uses or self.active:
+            return False
+        
         active_keys = pygame.key.get_pressed()
         direction : int = -1 * (active_keys[pygame.K_a] or active_keys[pygame.K_LEFT]) + 1 * (active_keys[pygame.K_d] or active_keys[pygame.K_RIGHT])
         if direction == 0:
@@ -70,13 +112,12 @@ class DashAbility(Ability):
                 return False
             direction = round(sign(self.player.velocity.x))
 
-        super().activate() # This code should only run if the activation is sucessful
-
         self.player.ability_cooldown_timer.pause()
-        self.dash_timer.set_duration(self.BASE_DURATION)
+        self.dash_timer.set_duration(self.duration)
         self.dash_track = self.dash_effect.play(self.player.position, core_object.game_tsource)
         self.dash_track.origin = self.player.position
         core_object.bg_manager.play_sfx('dash_sfx', 1.0)
+        self.curr_uses += 1
         
         self.modifiers.lock_accel = True
         self.modifiers.accel_bonus = pygame.Vector2(direction * 7, 0)
@@ -93,11 +134,15 @@ class DashAbility(Ability):
         self.modifiers.projectile_intangible = False
         self.active = False
 
+        if self.curr_uses >= self.max_uses:
+            self.curr_uses = 0
+            self.refresh_cooldown()
+
     def update(self, delta : float):
         if self.active:
             if self.dash_timer.isover():
                 self.deactivate()
-            elif self.dash_timer.get_time() > self.BASE_INVULN_TIME:
+            elif self.dash_timer.get_time() > self.invlun_time:
                 self.modifiers.invincible = False
                 self.modifiers.projectile_intangible = False
         if self.dash_track:
@@ -117,13 +162,38 @@ class OverchargeAbility(Ability): # TODO : Add ability visual
         self.ability_timer : Timer = Timer(self.BASE_DURATION, core_object.game_tsource)
         self.active : bool = False
 
+        self.damage_bonus : float
+        self.firerate_bonus : float
+        self.duration : float
+
+        if self.rank <= 1:
+            self.damage_bonus = 0
+            self.firerate_bonus = 0.5
+            self.duration = 3
+        elif self.rank == 2:
+            self.damage_bonus = 0
+            self.firerate_bonus = 0.5
+            self.duration = 5
+        elif self.rank == 3:
+            self.damage_bonus = 0.5
+            self.firerate_bonus = 0.5
+            self.duration = 5
+        elif self.rank == 4:
+            self.damage_bonus = 1
+            self.firerate_bonus = 1
+            self.duration = 5
+
+    @property
+    def active_ability_progress(self) -> float:
+        return 0 if not self.active else pygame.math.clamp(1 - self.ability_timer.get_time() / self.ability_timer.duration, 0, 1)
+    
     def activate(self) -> bool:
         super().activate()
         self.player.ability_cooldown_timer.pause()
-        actual_duration : float = self.BASE_DURATION
-        self.ability_timer.set_duration(actual_duration)
+        self.ability_timer.set_duration(self.duration)
 
-        self.modifiers.alt_firerate_mult = 1
+        self.modifiers.alt_firerate_mult = self.firerate_bonus
+        self.modifiers.alt_damage_mult = self.damage_bonus
         self.active = True
         return True
 
@@ -131,6 +201,7 @@ class OverchargeAbility(Ability): # TODO : Add ability visual
         self.player.ability_cooldown_timer.unpause()
         self.active = False
         self.modifiers.alt_firerate_mult = 0
+        self.modifiers.alt_damage_mult = 0
 
     def update(self, delta : float):
         if self.active:

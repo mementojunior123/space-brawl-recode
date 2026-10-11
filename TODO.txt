@@ -1,10 +1,7 @@
 ---Now---
 -Some normal enemies
 -Basic wave implementation
--Some sounds
--Add shotgun, rocket, overcharge and ability leech
 -Add upgrade levels for abilities and perks
--Add visuals for ability active use timer
 ---Soon---
 -Some bosses
 -Full normal enemy implementation
@@ -12,6 +9,7 @@
 -Upgrade preview feature
 -Some more upgrades
 -More visuals to distinguish upgrade types
+-Some sounds?
 ---Later---
 -Complete upgrade selection
 -Tutorial

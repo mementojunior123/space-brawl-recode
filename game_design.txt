@@ -133,8 +133,10 @@ Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
     -Ability:
         -Dash:
             I (default) --> Quickly move in one direction [jam]
-            II (T1) --> More I-frames
+            II (T1) --> Dash is longer
             III (T2) --> Now has two uses before going on cooldown
+            IV (T3) --> Dash is even longer
+            V (T5) --> Now has three uses before going on cooldown
         -Slow-mo:
             I (T2) --> Temporarly slow down time
             II (T3) --> Make slow-down longer

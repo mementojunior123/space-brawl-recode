@@ -265,11 +265,25 @@ class Upgrade:
                 match self.rank:
                     case 1:
                         result.append((f"A dash that gives you i-frames...", {'pos' : None, 'anchor' : 'top'}))
+                    case 2:
+                        result.append((f"Your dash lasts 50% longer", {'pos' : None, 'anchor' : 'top'}))
+                    case 3:
+                        result.append((f"You can now dash twice before the ability goes on cooldown", {'pos' : None, 'anchor' : 'top'}))
+                    case 4:
+                        result.append((f"Your dash lasts even longer (50% more)", {'pos' : None, 'anchor' : 'top'}))
+                    case 5:
+                        result.append((f"You can now dash a third time before the ability goes on cooldown", {'pos' : None, 'anchor' : 'top'}))
+
             case 'Overcharge':
                 match self.rank:
                     case 1:
-                        result.append((f"Your secondary fire becomes much more dangerous...\n(+50% firerate)", {'pos' : None, 'anchor' : 'top'}))
-
+                        result.append((f"Your secondary fire becomes more dangerous...\n(+50% firerate)", {'pos' : None, 'anchor' : 'top'}))
+                    case 2:
+                        result.append((f"This ability lasts longer...\n(3s --> 5s)", {'pos' : None, 'anchor' : 'top'}))
+                    case 3:
+                        result.append((f"Your secondary fire deals 50% more damage...", {'pos' : None, 'anchor' : 'top'}))
+                    case 4:
+                        result.append((f"Your secondary fire has double firerate and double firerate instead", {'pos' : None, 'anchor' : 'top'}))
             case 'DamageChain':
                 match self.rank:
                     case 1:
@@ -498,41 +512,39 @@ BASE_WEIGHTS : dict[UpgradeName, tuple[dict[int, tuple[int, float]], bool]] = {
                             True),
                             
 
-    'Dash' : ({1 : (1, 1.0), 
-               2 : (2, 1.0)},
+    'Dash' : ({1 : (1, 1.0)},
                False),
 
-    'Overcharge' : ({1 : (1, 1.0)},
+    'Overcharge' : ({1 : (2, 1.0)},
                    False),
+
 
     'AbilityLeech' : ({1 : (1, 1.0)},
                    False),
 
-
-    'DamageChain' : ({1 : (1, 1.0), 
-                    2 : (2, 1.0)},
+    'DamageChain' : ({1 : (1, 1.0)},
                     False),
 
 
-    'LazerShot' :  ({0 : (1, 1.0),
+    'LazerShot' :  ({0 : (0, 1.0),
                     1 : (1, 1.0), 
                     2 : (2, 1.0),
-                    3 : (2, 1.0)},
+                    3 : (3, 1.0)},
                     True),
 
     'ShotgunShot' : ({0 : (1, 1.0),
-                    1 : (1, 1.0), 
-                    2 : (2, 1.0)},
+                    1 : (2, 1.0), 
+                    2 : (3, 1.0)},
                     True),
 
-    'MissileShot' : ({0 : (1, 1.0),
-                    1 : (1, 1.0)},
+    'MissileShot' : ({0 : (2, 1.0),
+                    1 : (3, 1.0)},
                     True),
 }
 
 MAX_RANK : dict[PerkName|AbilityName|SecondaryFireName, int] = {
-    'Dash' : 2,
-    'Overcharge' : 1,
+    'Dash' : 5,
+    'Overcharge' : 4,
 
 
     'DamageChain' : 2,

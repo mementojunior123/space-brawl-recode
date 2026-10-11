@@ -130,6 +130,7 @@ class Player(Sprite, sprite_count=1):
 
         self.ability_cooldown_bar : ProgressBar
         self.alt_fire_cooldown_bar : ProgressBar
+        self.ability_active_bar : ProgressBar
 
         self.mask : pygame.Mask #type: ignore
 
@@ -177,11 +178,17 @@ class Player(Sprite, sprite_count=1):
         )
 
         element.ability_cooldown_bar = ProgressBar(
-            BaseDrawableInfo(UiPosition(element.rect.midright + pygame.Vector2(10, 0), 'midleft'), name='ability_cooldown'), 
+            BaseDrawableInfo(UiPosition(element.rect.midbottom + pygame.Vector2(0, 3), 'midtop'), name='ability_cooldown'), 
             (50, 5), (0, 0, 0, 0), (255, 255, 255, 255), 'right', 0, True
         )
 
-        core_object.main_ui.add_multiple([element.healthbar, element.alt_fire_cooldown_bar, element.ability_cooldown_bar])
+        element.ability_active_bar = ProgressBar(
+            BaseDrawableInfo(UiPosition(element.rect.midbottom + pygame.Vector2(0, 3), 'midtop'), name='ability_active', zindex=1), 
+            (50, 5), (0, 0, 0, 0), 'Orange', 'right', 0, True
+        )
+
+        core_object.main_ui.add_multiple([element.healthbar, element.alt_fire_cooldown_bar, 
+                                          element.ability_cooldown_bar, element.ability_active_bar])
 
         cls.unpool(element)
         return element
@@ -201,7 +208,9 @@ class Player(Sprite, sprite_count=1):
             (1 - self.alt_fire_cooldown_timer.get_time() / self.alt_fire_cooldown_timer.duration), 0, 1)
         self.ability_cooldown_bar.progress = ability_cooldown_bar_progress
         self.alt_fire_cooldown_bar.progress = alt_fire_cooldown_bar_progress
+        self.ability_active_bar.progress = self.upgrades.curr_ability.active_ability_progress
         self.ability_cooldown_bar.position = UiPosition(self.rect.midbottom + pygame.Vector2(0, 3), 'midtop')
+        self.ability_active_bar.position = UiPosition(self.rect.midbottom + pygame.Vector2(0, 3), 'midtop')
         self.alt_fire_cooldown_bar.position = UiPosition(self.rect.midright + pygame.Vector2(10, 0), 'midleft')
 
     def update_movement(self, delta : float):
