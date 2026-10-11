@@ -38,3 +38,4 @@
 -Fixed some bugs in framework/ui (08/10/2026, 22:33)
 -UI.add_multiple now uses Sequence instead of list (10/10/2026, 11:52)
 -Fixed a bug in UIFrame (10/10/2026, 14:10)
+-Fixed a bug in BgManager (10/10/2026, 20:20)

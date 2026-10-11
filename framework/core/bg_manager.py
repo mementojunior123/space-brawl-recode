@@ -247,7 +247,6 @@ class BgManager:
         if not channel:
             core_object.log("Attempted to play sfx, but ran out of audio channels!")
             return
-        channel = sfx.play(loops, maxtime, fade_ms)
         channel.set_volume(volume * self.global_volume)
         self.current[channel] = TrackInfo(volume, sound_type)
         return channel
