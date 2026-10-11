@@ -102,9 +102,9 @@ class AbilityLeechPerk(Perk):
 
     def on_event(self, event: pygame.Event):
         if event.type == BaseProjectile.PROJECTILE_HIT:
-            self.player.alt_fire_cooldown_timer.start_time -= self.hit_bonus * self.player.alt_fire_cooldown_timer.duration
+            self.player.ability_cooldown_timer.start_time -= self.hit_bonus * self.player.upgrades.ability_cooldown
         elif event.type == BaseEnemy.ENEMY_KILLED:
-            self.player.alt_fire_cooldown_timer.start_time -= self.kill_bonus * self.player.alt_fire_cooldown_timer.duration
+            self.player.ability_cooldown_timer.start_time -= self.kill_bonus * self.player.upgrades.ability_cooldown
 
 def runtime_imports4():
     global Player
