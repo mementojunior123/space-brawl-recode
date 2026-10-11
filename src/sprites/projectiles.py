@@ -319,10 +319,10 @@ class HomingProjectile(BaseProjectile, sprite_count = 50):
         targets : list[Sprite] = []
         for grp in Sprite._handle_collision_group_argument(self.homing_targets):
             targets.extend(grp)
+        if not targets:
+            return None
         targets.sort(key=lambda sprite : (self.position - sprite.position).magnitude())
         if (self.position - targets[0].position).magnitude() > self.homing_range:
-            return None
-        if not targets:
             return None
         return targets[0]
     

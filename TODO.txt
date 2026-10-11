@@ -1,7 +1,6 @@
 ---Now---
 -Some normal enemies
 -Basic wave implementation
--Add upgrade levels for abilities and perks
 ---Soon---
 -Some bosses
 -Full normal enemy implementation

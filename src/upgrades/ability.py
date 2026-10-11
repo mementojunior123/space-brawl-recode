@@ -91,6 +91,11 @@ class DashAbility(Ability):
             self.duration = 0.30
             self.invlun_time = 0.25
             self.max_uses = 3
+
+
+    def refresh_cooldown(self, active_now: bool = False):
+        super().refresh_cooldown(active_now)
+        self.curr_uses = 0
         
 
     @property
@@ -178,7 +183,7 @@ class OverchargeAbility(Ability): # TODO : Add ability visual
             self.damage_bonus = 0.5
             self.firerate_bonus = 0.5
             self.duration = 5
-        elif self.rank == 4:
+        elif self.rank >= 4:
             self.damage_bonus = 1
             self.firerate_bonus = 1
             self.duration = 5

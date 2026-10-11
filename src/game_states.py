@@ -136,13 +136,15 @@ class WaveControlScript(CoroutineScript[float, str|None]):
 
     @staticmethod
     def corou(state : ActiveWaveGameState, time_source : TimeSource, wave_data : dict|None = None):
-        base_cooldown : float = 2.5 - state.curr_wave / 16
+        base_cooldown : float = max(2.5 - state.curr_wave / 10, 0.5)
         base_enemy_penalty : float = 0.07
         test_timer : Timer = Timer(base_cooldown, time_source)
         test_timer.start_time -= base_cooldown
         spawned : int = 0
         target_spawn_count : int = 3 + int(state.curr_wave //2.5)
         delta = yield
+        if (pressed := pygame.key.get_pressed())[pygame.K_CAPSLOCK] and pressed[pygame.K_o]:
+            return 'Done'
         while spawned < target_spawn_count:
             if test_timer.isover():
                 BasicEnemy.spawn('midbottom', pygame.Vector2(random.randint(0 + 50, 960 - 50), -20))

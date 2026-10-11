@@ -273,7 +273,6 @@ class Upgrade:
                         result.append((f"Your dash lasts even longer (50% more)", {'pos' : None, 'anchor' : 'top'}))
                     case 5:
                         result.append((f"You can now dash a third time before the ability goes on cooldown", {'pos' : None, 'anchor' : 'top'}))
-
             case 'Overcharge':
                 match self.rank:
                     case 1:
@@ -287,13 +286,37 @@ class Upgrade:
             case 'DamageChain':
                 match self.rank:
                     case 1:
-                        result.append((f"Every hit, your chain goes up... Every miss, chain gets reset... Higher chain, higher damage...", 
+                        result.append((f"Every consecutive hit, your damage increases by 5%, up to 50%. Missing resets the bonus, and it decays over time.", 
                                        {'pos' : None, 'anchor' : 'top'}))
+                    case 2:
+                        result.append((f"The damage increases by 7.5% on hit instead.", 
+                                        {'pos' : None, 'anchor' : 'top'}))
+                    case 3:
+                        result.append((f"The damage bonus increases by 10% on hit and the maximum 100%.", 
+                                        {'pos' : None, 'anchor' : 'top'}))    
+                    case 4:
+                        result.append((f"The maximum damage bonus is increased to 150% and missing now only removes half of the maximum bonus.", 
+                                        {'pos' : None, 'anchor' : 'top'}))
+                    case 5:
+                        result.append((f"The damage increases by 12.5% on hit instead and decays slower.", 
+                                        {'pos' : None, 'anchor' : 'top'}))                    
             case 'AbilityLeech':
                 match self.rank:
                     case 1:
-                        result.append((f"Every time you kill an enemy, progress your ability cooldown by 5%",
+                        result.append((f"Every time you kill an enemy, your ability cooldown progresses by 4%.",
                                        {'pos' : None, 'anchor' : 'top'}))
+                    case 2:
+                        result.append((f"Any hit progresses the ability cooldown by 1%.",
+                                        {'pos' : None, 'anchor' : 'top'}))
+                    case 3:
+                        result.append((f"Kills progress the ability cooldown by 6% instead of 4%",
+                                        {'pos' : None, 'anchor' : 'top'}))
+                    case 4:
+                        result.append((f"Any hit progresses the ability cooldown by 2% instead of 1%.",
+                                        {'pos' : None, 'anchor' : 'top'}))
+                    case 5:
+                        result.append((f"Kills progress the ability cooldown by 8% instead of 6%.",
+                                        {'pos' : None, 'anchor' : 'top'}))
             case _:
                 result = [(f"{self.name} {to_roman(self.rank)} (type : {self.upgrade_type}), T{self.rarity_tier}", {'pos' : None, 'anchor' : 'top'})]
 
@@ -547,8 +570,8 @@ MAX_RANK : dict[PerkName|AbilityName|SecondaryFireName, int] = {
     'Overcharge' : 4,
 
 
-    'DamageChain' : 2,
-    'AbilityLeech' : 1,
+    'DamageChain' : 5,
+    'AbilityLeech' : 5,
 
 
     'LazerShot' : 3,

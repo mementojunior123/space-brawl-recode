@@ -48,9 +48,38 @@ class DamageChainPerk(Perk):
         self.relevant_events = {BaseProjectile.PROJECTILE_HIT : False, BaseProjectile.PROJECTILE_MISSED : False}
         self.accumulated_damage_bonus : float = 0
         self.frame_timer : Timer = Timer(-1, core_object.game_tsource)
-        self.damage_bonus_cap : float = 0.5
-        self.decay_per_sec : float = 0.07
-        self.hit_bonus : float = 0.05
+
+        self.damage_bonus_cap : float
+        self.decay_per_sec : float
+        self.hit_bonus : float
+        self.miss_penalty : float
+
+        if self.rank <= 1:
+            self.damage_bonus_cap = 0.5
+            self.decay_per_sec = 0.10
+            self.hit_bonus = 0.05
+            self.miss_penalty = 1.0
+        elif self.rank == 2:
+            self.damage_bonus_cap = 0.5
+            self.decay_per_sec = 0.10
+            self.hit_bonus = 0.075
+            self.miss_penalty = 1.0
+        elif self.rank == 3:
+            self.damage_bonus_cap = 1.0
+            self.decay_per_sec = 0.10
+            self.hit_bonus = 0.10
+            self.miss_penalty = 1.0
+        elif self.rank == 4:
+            self.damage_bonus_cap = 1.5
+            self.decay_per_sec = 0.10
+            self.hit_bonus = 0.10
+            self.miss_penalty = 0.5
+        elif self.rank >= 5:
+            self.damage_bonus_cap = 1.5
+            self.decay_per_sec = 0.07
+            self.hit_bonus = 0.125
+            self.miss_penalty = 0.5
+
         self.mult_bar : ProgressBar = ProgressBar(BaseDrawableInfo(UiPosition.from_normal_coords((0.5, 0.5), 'center', (7, 52))),
                                                   (5, 50), (0, 0, 0, 0), 'Orange', 'up', 0, True)
         bg_image : pygame.Surface = pygame.Surface((5 + 2, 50 + 2), pygame.SRCALPHA)
@@ -79,7 +108,7 @@ class DamageChainPerk(Perk):
             return
         
         elif event.type == BaseProjectile.PROJECTILE_MISSED:
-            self.accumulated_damage_bonus = 0 # Make this a penalty
+            self.accumulated_damage_bonus = max(self.accumulated_damage_bonus - self.damage_bonus_cap * self.miss_penalty, 0)
             self.update_damage_mult()
 
     def update_damage_mult(self):
@@ -97,8 +126,24 @@ class AbilityLeechPerk(Perk):
     def __init__(self, player : 'Player', rank : int, original_upgrade : Upgrade) -> None:
         super().__init__(player, 'AbilityLeech', rank, original_upgrade)
         self.relevant_events = {BaseProjectile.PROJECTILE_HIT : False, BaseEnemy.ENEMY_KILLED : False}
-        self.hit_bonus : float = 0.00
-        self.kill_bonus : float = 0.05
+        self.hit_bonus : float
+        self.kill_bonus : float
+
+        if self.rank <= 1:
+            self.hit_bonus = 0.00
+            self.kill_bonus = 0.04
+        elif self.rank == 2:
+            self.hit_bonus = 0.01
+            self.kill_bonus = 0.04
+        elif self.rank == 3:
+            self.hit_bonus = 0.01
+            self.kill_bonus = 0.06
+        elif self.rank == 4:
+            self.hit_bonus = 0.02
+            self.kill_bonus = 0.06
+        elif self.rank >= 5:
+            self.hit_bonus = 0.02
+            self.kill_bonus = 0.08
 
     def on_event(self, event: pygame.Event):
         if event.type == BaseProjectile.PROJECTILE_HIT:
