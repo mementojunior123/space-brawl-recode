@@ -140,7 +140,8 @@ class MissileSecondaryFire(SecondaryFire):
                                       None, None, 0,
         BaseProjectile.rocket_image, homing_range=300, homing_rate=3,
         homing_targets=BaseEnemy, team=Teams.ALLIED, can_destroy=True, damage=self.player.upgrades.alt_fire_damage, die_after_destroying=False,
-        explosion_damage=self.player.upgrades.alt_fire_damage * aoe_fraction, explosive_range=explosive_range)
+        explosion_damage=self.player.upgrades.alt_fire_damage * aoe_fraction, explosive_range=explosive_range,
+        track_hits=True, track_misses=True)
 
 def runtime_imports3():
     global Player

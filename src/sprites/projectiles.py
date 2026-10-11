@@ -322,6 +322,8 @@ class HomingProjectile(BaseProjectile, sprite_count = 50):
         targets.sort(key=lambda sprite : (self.position - sprite.position).magnitude())
         if (self.position - targets[0].position).magnitude() > self.homing_range:
             return None
+        if not targets:
+            return None
         return targets[0]
     
     def update_orientation_half(self, delta : float):
