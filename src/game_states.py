@@ -148,6 +148,9 @@ class WaveControlScript(CoroutineScript[float, str|None]):
                 BasicEnemy.spawn('midbottom', pygame.Vector2(random.randint(0 + 50, 960 - 50), -20))
                 test_timer.set_duration(base_cooldown + base_enemy_penalty * len(BaseEnemy.active_elements))
                 spawned += 1
+            pressed = pygame.key.get_pressed()
+            if pressed[pygame.K_CAPSLOCK] and pressed[pygame.K_o]:
+                target_spawn_count = 0
             delta = yield
         while len(BaseEnemy.active_elements) > 0:
             delta = yield
