@@ -474,40 +474,11 @@ class ShopGameState(NormalGameState):
 
         return selected
 
-
-    def valid_random_upgrade_of_type_exsists(self, upgrade_type : 'UpgradeType', target_tier : int, 
+    def get_upgrade_possibilities(self, upgrade_type : 'UpgradeType', target_tier : int, 
                                       rarity_bonus_tier : int = 0,
                                       already_selected : list['UpgradeName']| None = None,
-                                      debug : bool = False) -> bool:
-        if already_selected is None: already_selected = []
-        eligible : list[UpgradeName] = Upgrade.get_list_of_all(upgrade_type)
-        if upgrade_type in (UpgradeType.ABILITY, UpgradeType.PERK, UpgradeType.SECONDARY_FIRE): # getting upgrades you already have was already handled
-            eligible = [x for x in filter(
-                lambda name : all(upg.name != name for upg in self.player.upgrades.upgrades) 
-                and name not in already_selected, eligible
-            )]
+                                      debug : bool = False) -> dict[tuple['UpgradeName', int], float]:
 
-        possibilites : dict[tuple[UpgradeName, int], float] = {}
-
-        for upgrade_name in eligible:
-            weight_info = src.upgrades.BASE_WEIGHTS[upgrade_name]
-            weight_set, ignore_rarity_tier = weight_info
-            for rank, weight in weight_set.items():
-                rarity_tier, individual_weight = weight
-
-                result : float = individual_weight
-                if not ignore_rarity_tier:
-                    result *= self.calculate_rarity_tier_modifier(rarity_tier, target_tier, rarity_bonus_tier)
-                if result <= 0:
-                    continue
-                possibilites[(upgrade_name, rank)] = result
-        if debug: core_object.log(eligible, "-->", possibilites)
-        return bool(possibilites)
-    
-    def select_random_upgrade_of_type(self, upgrade_type : 'UpgradeType', target_tier : int, 
-                                      rarity_bonus_tier : int = 0,
-                                      already_selected : list['UpgradeName']| None = None,
-                                      debug : bool = False) -> tuple['UpgradeName', int]|None:
         if already_selected is None: already_selected = []
         eligible : list[UpgradeName] = Upgrade.get_list_of_all(upgrade_type)
         filter_func = lambda name : (all(upg.name != name for upg in self.player.upgrades.upgrades) and (name not in already_selected))
@@ -535,6 +506,23 @@ class ShopGameState(NormalGameState):
                     continue
                 possibilites[(upgrade_name, rank)] = result
         if debug: core_object.log(eligible, "-->", possibilites)
+        return possibilites
+
+
+    def valid_random_upgrade_of_type_exsists(self, upgrade_type : 'UpgradeType', target_tier : int, 
+                                      rarity_bonus_tier : int = 0,
+                                      already_selected : list['UpgradeName']| None = None,
+                                      debug : bool = False) -> bool:
+        return bool(self.get_upgrade_possibilities(upgrade_type, target_tier, rarity_bonus_tier, already_selected, debug))
+    
+    def select_random_upgrade_of_type(self, upgrade_type : 'UpgradeType', target_tier : int, 
+                                      rarity_bonus_tier : int = 0,
+                                      already_selected : list['UpgradeName']| None = None,
+                                      debug : bool = False) -> tuple['UpgradeName', int]|None:
+
+        possibilites : dict[tuple[UpgradeName, int], float] = self.get_upgrade_possibilities(upgrade_type, target_tier, 
+                                                                                             rarity_bonus_tier, already_selected, debug)
+
         if not possibilites:
             return None
 
