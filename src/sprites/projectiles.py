@@ -352,7 +352,6 @@ class HomingProjectile(BaseProjectile, sprite_count = 50):
         del self.homing_range
         del self.homing_rate
         del self.homing_targets
-        del self.dynamic_mask
         del self.angle_offset
         del self.explosive_range
         del self.explosive_damage

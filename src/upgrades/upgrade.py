@@ -282,7 +282,7 @@ class Upgrade:
                     case 3:
                         result.append((f"Your secondary fire deals 50% more damage...", {'pos' : None, 'anchor' : 'top'}))
                     case 4:
-                        result.append((f"Your secondary fire has double firerate and double firerate instead", {'pos' : None, 'anchor' : 'top'}))
+                        result.append((f"Your secondary fire has double firerate and double damage instead", {'pos' : None, 'anchor' : 'top'}))
             case 'DamageChain':
                 match self.rank:
                     case 1:
@@ -555,13 +555,13 @@ BASE_WEIGHTS : dict[UpgradeName, tuple[dict[int, tuple[int, float]], bool]] = {
                     3 : (3, 1.0)},
                     True),
 
-    'ShotgunShot' : ({0 : (1, 1.0),
-                    1 : (2, 1.0), 
-                    2 : (3, 1.0)},
+    'ShotgunShot' : ({1 : (1, 1.0),
+                    2 : (2, 1.0), 
+                    3 : (3, 1.0)},
                     True),
 
-    'MissileShot' : ({0 : (2, 1.0),
-                    1 : (3, 1.0)},
+    'MissileShot' : ({2 : (2, 1.0),
+                    3 : (3, 1.0)},
                     True),
 }
 
