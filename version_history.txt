@@ -22,3 +22,7 @@ Version R06-2 (10-10-2026, 20:05):
 Version R06-3 (10-10-2026, 20:22):
     -Fixed another bug
     -Added a debug bind
+
+Version R07 (11-10-2026, 23:05):
+    -Fixed some more bugs
+    -Added more upgrades
