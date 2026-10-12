@@ -26,3 +26,6 @@ Version R06-3 (10-10-2026, 20:22):
 Version R07 (11-10-2026, 23:05):
     -Fixed some more bugs
     -Added more upgrades
+
+Version R07-2 (11-10-2206, 23:23):
+    -Fixed a few more bugs
