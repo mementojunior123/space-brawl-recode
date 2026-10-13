@@ -9,7 +9,7 @@ from framework.utils.helpers import AnchorStr
 from framework.ui import RowLayout, BaseDrawableInfo, BaseUiFrameInfo, UiSprite, UiPosition, ProgressBar, UiFrame
 from framework.utils.base_particle_effects import ParticleEffect
 from src.sprites.projectiles import BaseProjectile
-from src.sprites.enemy import BaseEnemy
+from src.sprites.base_enemy import BaseEnemy
 import src.particle_effects
 
 from .upgrade import PerkName, Upgrade, UpgradeType, PlayerStatsModifiers, BaseInteractibleUpgrade

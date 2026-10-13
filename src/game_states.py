@@ -913,10 +913,13 @@ def runtime_imports():
     src.sprites.projectiles.runtime_imports()
 
     global EnemyType, BossType, ENEMY_WEIGHT_DICT, BaseEnemy, BaseNormalEnemy
+    from src.sprites.base_enemy import EnemyType, BossType, ENEMY_WEIGHT_DICT, BaseEnemy, BaseNormalEnemy
+    import src.sprites.base_enemy
+
     global BasicEnemy, EliteEnemy, GunnerEnemy, RunnerEnemy
-    from src.sprites.enemy import EnemyType, BossType, ENEMY_WEIGHT_DICT, BaseEnemy, BaseNormalEnemy
     from src.sprites.enemy import BasicEnemy, EliteEnemy, GunnerEnemy, RunnerEnemy
     import src.sprites.enemy
+    
     src.sprites.enemy.runtime_imports()
 
     global Player

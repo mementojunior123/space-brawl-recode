@@ -11,7 +11,7 @@ from framework.utils.base_particle_effects import ParticleEffect
 import src.particle_effects
 
 from src.sprites.projectiles import BaseProjectile, NormalProjectile, Teams
-from src.sprites.enemy import BaseNormalEnemy, BaseEnemy
+from src.sprites.base_enemy import BaseNormalEnemy, BaseEnemy
 
 from src.upgrades import PlayerUpgrades
 

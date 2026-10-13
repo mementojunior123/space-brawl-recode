@@ -512,8 +512,8 @@ class ScatterProjectile(BaseProjectile, sprite_count = 50):
 def runtime_imports():
     global src
     global BaseEnemy, BaseNormalEnemy
-    import src.sprites.enemy
-    from src.sprites.enemy import BaseEnemy, BaseNormalEnemy
+    import src.sprites.base_enemy
+    from src.sprites.base_enemy import BaseEnemy, BaseNormalEnemy
 
     global Player
     import src.sprites.player

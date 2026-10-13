@@ -19,7 +19,7 @@ from .perk import Perk
 from .secondary_fire import SecondaryFire
 
 from src.sprites.projectiles import BaseProjectile
-from src.sprites.enemy import BaseEnemy
+from src.sprites.base_enemy import BaseEnemy
 
 class PlayerUpgrades:
     def __init__(self, player : 'Player'):

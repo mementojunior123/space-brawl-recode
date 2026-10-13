@@ -13,7 +13,7 @@ import src.particle_effects
 from .upgrade import SecondaryFireName, Upgrade, UpgradeType, PlayerStatsModifiers, BaseInteractibleUpgrade
 
 from src.sprites.projectiles import BaseProjectile, ScatterProjectile, NormalProjectile, HomingProjectile, Teams
-from src.sprites.enemy import BaseEnemy
+from src.sprites.base_enemy import BaseEnemy
 
 class SecondaryFire(BaseInteractibleUpgrade):
     BASE_COOLDOWN : float = 1
