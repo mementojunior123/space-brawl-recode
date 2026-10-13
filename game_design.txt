@@ -16,22 +16,23 @@
 ---Enemies---
 
 -Regular:
-    -Basic (T1) --> The normal enemy [jam]
-    -Elite (T2):
+    -Basic (T0) --> The normal enemy [done]
+    -Elite (T1) [done]:
         Has more health, shoots more often and moves faster than a basic enemy.
-        Resistant to primary fire.
-    -Gunner (T2) --> shoots more often [jam]
-    -Runner (T2) --> slides down the side of the screen, but does not shoot [jam]
-    -Divebomber (T3):
+        Resistant to primary fire (annoying?).
+    -Gunner (T1) --> shoots more often [done]
+    -Runner (T1) --> slides down the side of the screen, but does not shoot [done]
+    -Tank (T2) --> Way more tanky than a regular enemy, but is slower.
+    -Divebomber (T2):
         When killed, attempts to throw itself at the player. 
         When killed again, fires projectiles in all directions that hurt both players and enemies
+    -Slingshoter (T2):
+        Moves around at the back before charging torwards the player. Goes back up slowly after doing so
     -Guardian (T3):
         Has a shield that must be broken before it can take damage.
         This shield reflects projectiles.
     -Grenadier (T3):
         Throws grenades at you
-    -Slingshoter (T3):
-        Moves around at the back before charging torwards the player. Goes back up slowly after doing so
     -Camouflager (T3):
         Becomes visible and invisible periodically (when it hits a wall).
         Can randomly double-back when it goes to the middle of the screen
@@ -64,7 +65,7 @@
     -You can do it once fof free.
     -Every subsequent reroll increases the cost by 1 health. Ex : 1st reroll free, 2nd reroll 1 hp, 3rd reroll 2 hp...
 
--Specilization carryover:
+-Specilization carryover [done]:
     -When getting a new weapon, you will automatically get specilization of equivalent tier minus 1 level.
 
 Wave 1~2 : Mostly minor upgrades (like 2/3)
@@ -79,16 +80,16 @@ Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
 -Upgrade catalog:
     -Minor/Major:
         -Offensive:
-            Primary damage [jam]
-            Primary firerate [jam]
-            Universal firerate [jam]
-            Alt damage [jam]
-            Alt firerate [jam]
-            Universal firerate [jam]
+            Primary damage [done]
+            Primary firerate [done]
+            Universal firerate [done]
+            Alt damage [done]
+            Alt firerate [done]
+            Universal firerate [done]
         -Defensive:
-            Max health bonus (rare, Major) [jam]
+            Max health bonus (rare, Major) [done]
         -Utility:
-            Ability recharge rate [jam]
+            Ability recharge rate [done]
     -Perk:
         Rarer cards (rare):
             I --> Common cards appear less often
@@ -110,12 +111,12 @@ Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
             II --> Lower cooldown and higher health.
             III --> Lower cooldown and higher health.
             IV --> Projectiles are now reflected instead of blocked
-        Ability leech:
+        Ability leech [done, changed]:
             I --> Every time an enemy is hit, progress ability cooldown by 1%.
             II --> 2% instead of 1%
             III --> 3% instead of 2%
             IV --> 4% instead of 3%
-        Damage chain:
+        Damage chain [done, changed]:
             I --> Every hit increases damage by 2.5%. Missing a shot resets the chain (or just a penalty?), and it decays over time.
             II --> 5% instead of 2.5%
             III --> Slower decay
@@ -131,7 +132,7 @@ Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
             I --> When you take lethal damage, you have a chance to negate it entirely.
             ...
     -Ability:
-        -Dash:
+        -Dash [done]:
             I (default) --> Quickly move in one direction [jam]
             II (T1) --> Dash is longer
             III (T2) --> Now has two uses before going on cooldown
@@ -142,7 +143,7 @@ Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
             II (T3) --> Make slow-down longer
             III (T4) --> Player keeps regular speed
             IV (T5) --> Time freeze
-        -Overcharge:
+        -Overcharge [done]:
             I (T2) --> Temporarly increase alternate fire firerate
             II (T3) --> Makes the ability longer
             III (T4) --> Now increases alternate damage while active
@@ -162,19 +163,19 @@ Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
             Full heal (conditional, rare, no tier rarity scaling) [jam]
 
     -Specilization:
-        -Lazer Specialist [jam]:
-            Base (default) --> Fire a single high damage lazer. [jam]
-            I (T1) --> On hit, the lazer splits in four projectiles that deal half damage. [jam]
-            II (T2) --> The lazer now splits one more time, conserving 50% of the damage each split. [jam]
-            III (T3) --> The lazer no longer loses damage each split. [jam]
-        -Shotgun Specialist [jam]:
-            Base (T1) --> A shotgun that fires 5 pellets. [jam]
-            I (T2) --> On hit, the shotgun shells split in three, dealing more damage. [jam]
-            II (T3) --> The shotgun shells split one more time, dealing even more damage. [jam]
-            III (T4) --> The shotgun shells now bounce of the edges of the screen twice before exiting the screen. [jam]
-        -Rocket Specialist [jam]:
-            Base (T2) --> A heat-seeking missile that deals 50% of its damage as AOE damage on hit. [jam]
-            I (T3) --> The rocket now has an increased explosive range and deals more AOE damage. [jam]
+        -Lazer Specialist [done]:
+            Base (default) --> Fire a single high damage lazer. [done]
+            I (T1) --> On hit, the lazer splits in four projectiles that deal half damage. [done]
+            II (T2) --> The lazer now splits one more time, conserving 50% of the damage each split. [done]
+            III (T3) --> The lazer no longer loses damage each split. [done]
+        -Shotgun Specialist []:
+            Base (T1) --> A shotgun that fires 5 pellets. [done]
+            I (T2) --> On hit, the shotgun shells split in three, dealing more damage. [done]
+            II (T3) --> The shotgun shells now bounce of the edges of the screen twice before exiting the screen. [done]
+            III (T4) --> The shotgun shells split one more time, dealing even more damage.
+        -Rocket Specialist [done]:
+            Base (T2) --> A heat-seeking missile that deals 50% of its damage as AOE damage on hit. [done]
+            I (T3) --> The rocket now has an increased explosive range and deals more AOE damage. [done]
         -Boomerang
             Base (T1) --> High damage, high cooldown slow projectile. If you catch it after it bounces, recharge cooldown by x%
             I (T2?) -->

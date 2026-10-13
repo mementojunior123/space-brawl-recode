@@ -1,14 +1,13 @@
 ---Now---
--Some normal enemies
--Basic wave implementation
----Soon---
 -Some bosses
--Full normal enemy implementation
+-Some more enemies
 -Reroll
--Upgrade preview feature
 -Some more upgrades
+---Soon---
+-Upgrade preview feature
 -More visuals to distinguish upgrade types
 -Some sounds?
+-Full normal enemy implementation
 ---Later---
 -Complete upgrade selection
 -Tutorial

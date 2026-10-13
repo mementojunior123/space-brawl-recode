@@ -156,7 +156,7 @@ class DashAbility(Ability):
             else:
                 self.dash_track.origin = self.player.position
 
-class OverchargeAbility(Ability): # TODO : Add ability visual
+class OverchargeAbility(Ability):
     BASE_COOLDOWN : float = 20
     dash_effect : ParticleEffect = cast(ParticleEffect, ParticleEffect.load_effect('dash_effect', persistance=True))
 

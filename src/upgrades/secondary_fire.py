@@ -60,7 +60,7 @@ class SecondaryFire(BaseInteractibleUpgrade):
 core_object.asset_manager.load_sound("assets/audio/sfx/lazer.ogg", 'lazer_shot_sfx', 0.4)
 
 class LazerSecondaryFire(SecondaryFire):
-    BASE_COOLDOWN = 1 / 0.9
+    BASE_COOLDOWN = 1 / 0.8
     BASE_DAMAGE = 4
 
     def __init__(self, player : 'Player', rank : int, original_upgrade: Upgrade) -> None:
@@ -98,7 +98,7 @@ class LazerSecondaryFire(SecondaryFire):
 core_object.asset_manager.load_sound("assets/audio/sfx/shotgun_shot.ogg", 'shotgun_shot_sfx', 0.4)
 
 class ShotgunSecondaryFire(SecondaryFire):
-    BASE_COOLDOWN = 1 / 0.5
+    BASE_COOLDOWN = 1 / 0.42
     BASE_DAMAGE = 1.5
 
     def __init__(self, player : 'Player', rank : int, original_upgrade: Upgrade) -> None:
@@ -124,7 +124,7 @@ class ShotgunSecondaryFire(SecondaryFire):
 core_object.asset_manager.load_sound("assets/audio/sfx/rocket_shot.ogg", 'rocket_shot_sfx', 0.4)
 
 class MissileSecondaryFire(SecondaryFire):
-    BASE_COOLDOWN = 1 / 0.35
+    BASE_COOLDOWN = 1 / 0.3
     BASE_DAMAGE = 4
 
     def __init__(self, player : 'Player', rank : int, original_upgrade: Upgrade) -> None:

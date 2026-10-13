@@ -1,5 +1,5 @@
 import pygame
-from typing import Any, Generator, cast, Literal
+from typing import Any, Generator, cast, Literal, TypedDict
 from math import floor, sin, pi
 from random import shuffle, choice
 import random
@@ -62,6 +62,233 @@ class NormalGameState(GameState):
 
 SCORE_EVENT : int = pygame.event.custom_type()
 
+class WaveDataDict(TypedDict):
+    spawn_cooldown : float
+    enemy_cooldown_penalty : float
+    enemies : dict['EnemyType|BossType', int]
+    bosses : list['BossType']
+
+WAVES : dict[int, WaveDataDict] = {
+    1 : {
+        'spawn_cooldown' : 2.5,
+        'enemy_cooldown_penalty' : 0.8,
+        'enemies' : {'basic' : 3},
+        'bosses' : []
+    },
+
+    2 : {
+        'spawn_cooldown' : 2.45,
+        'enemy_cooldown_penalty' : 0.8,
+        'enemies' : {'basic' : 4},
+        'bosses' : []
+    },
+
+    3 : {
+        'spawn_cooldown' : 2.4,
+        'enemy_cooldown_penalty' : 0.8,
+        'enemies' : {'basic' : 4, 'elite' : 1},
+        'bosses' : []
+    },
+
+    4 : {
+        'spawn_cooldown' : 2.35,
+        'enemy_cooldown_penalty' : 0.8,
+        'enemies' : {'basic' : 3, 'elite' : 2},
+        'bosses' : []
+    },
+
+    5 : {
+        'spawn_cooldown' : 2.3,
+        'enemy_cooldown_penalty' : 0.8,
+        'enemies' : {'basic' : 3, 'elite' : 2, 'gunner' : 1},
+        'bosses' : []
+    },
+
+    6 : {
+        'spawn_cooldown' : 2.25,
+        'enemy_cooldown_penalty' : 0.7,
+        'enemies' : {'basic' : 3, 'elite' : 2, 'gunner' : 2},
+        'bosses' : []
+    },
+
+    7 : {
+        'spawn_cooldown' : 2.2,
+        'enemy_cooldown_penalty' : 0.7,
+        'enemies' : {'basic' : 4, 'elite' : 2, 'gunner' : 2, 'runner' : 1},
+        'bosses' : []
+    },
+
+    8 : {
+        'spawn_cooldown' : 2.15,
+        'enemy_cooldown_penalty' : 0.7,
+        'enemies' : {'basic' : 4, 'elite' : 2, 'gunner' : 2, 'runner' : 2},
+        'bosses' : []
+    },
+
+    9 : {
+        'spawn_cooldown' : 2.1,
+        'enemy_cooldown_penalty' : 0.7,
+        'enemies' : {'basic' : 4, 'elite' : 3, 'gunner' : 2, 'runner' : 2},
+        'bosses' : []
+    },
+
+    10 : {
+        'spawn_cooldown' : 2.05,
+        'enemy_cooldown_penalty' : 0.7,
+        'enemies' : {'basic' : 5, 'elite' : 3, 'gunner' : 3, 'runner' : 2},
+        'bosses' : []
+    },
+
+    11 : {
+        'spawn_cooldown' : 2.0,
+        'enemy_cooldown_penalty' : 0.6,
+        'enemies' : {'basic' : 5, 'elite' : 4, 'gunner' : 3, 'runner' : 2},
+        'bosses' : []
+    },
+
+    12 : {
+        'spawn_cooldown' : 2.0,
+        'enemy_cooldown_penalty' : 0.6,
+        'enemies' : {'basic' : 6, 'elite' : 4, 'gunner' : 4, 'runner' : 2},
+        'bosses' : []
+    },
+
+    13 : {
+        'spawn_cooldown' : 1.95,
+        'enemy_cooldown_penalty' : 0.6,
+        'enemies' : {'basic' : 6, 'elite' : 4, 'gunner' : 4, 'runner' : 3},
+        'bosses' : []
+    },
+
+    14 : {
+        'spawn_cooldown' : 1.95,
+        'enemy_cooldown_penalty' : 0.6,
+        'enemies' : {'basic' : 6, 'elite' : 5, 'gunner' : 4, 'runner' : 3},
+        'bosses' : []
+    },
+
+    15 : {
+        'spawn_cooldown' : 1.9,
+        'enemy_cooldown_penalty' : 0.6,
+        'enemies' : {'basic' : 6, 'elite' : 5, 'gunner' : 5, 'runner' : 4},
+        'bosses' : []
+    },
+
+    16 : {
+        'spawn_cooldown' : 1.9,
+        'enemy_cooldown_penalty' : 0.5,
+        'enemies' : {'basic' : 6, 'elite' : 6, 'gunner' : 5, 'runner' : 4},
+        'bosses' : []
+    },
+
+    17 : {
+        'spawn_cooldown' : 1.85,
+        'enemy_cooldown_penalty' : 0.4,
+        'enemies' : {'basic' : 6, 'elite' : 6, 'gunner' : 6, 'runner' : 5},
+        'bosses' : []
+    },
+
+    18 : {
+        'spawn_cooldown' : 1.85,
+        'enemy_cooldown_penalty' : 0.4,
+        'enemies' : {'basic' : 5, 'elite' : 7, 'gunner' : 7, 'runner' : 5},
+        'bosses' : []
+    },
+
+    19 : {
+        'spawn_cooldown' : 1.8,
+        'enemy_cooldown_penalty' : 0.4,
+        'enemies' : {'basic' : 5, 'elite' : 8, 'gunner' : 7, 'runner' : 5},
+        'bosses' : []
+    },
+
+    20 : {
+        'spawn_cooldown' : 1.8,
+        'enemy_cooldown_penalty' : 0.4,
+        'enemies' : {'basic' : 5, 'elite' : 8, 'gunner' : 8, 'runner' : 5},
+        'bosses' : []
+    },
+
+    21 : {
+        'spawn_cooldown' : 1.75,
+        'enemy_cooldown_penalty' : 0.35,
+        'enemies' : {'basic' : 5, 'elite' : 9, 'gunner' : 9, 'runner' : 6},
+        'bosses' : []
+    },
+
+    22 : {
+        'spawn_cooldown' : 1.75,
+        'enemy_cooldown_penalty' : 0.35,
+        'enemies' : {'basic' : 6, 'elite' : 9, 'gunner' : 9, 'runner' : 7},
+        'bosses' : []
+    },
+
+    23 : {
+        'spawn_cooldown' : 1.7,
+        'enemy_cooldown_penalty' : 0.35,
+        'enemies' : {'basic' : 6, 'elite' : 10, 'gunner' : 10, 'runner' : 6},
+        'bosses' : []
+    },
+
+    24 : {
+        'spawn_cooldown' : 1.7,
+        'enemy_cooldown_penalty' : 0.35,
+        'enemies' : {'basic' : 6, 'elite' : 11, 'gunner' : 10, 'runner' : 7},
+        'bosses' : []
+    },
+
+    25 : {
+        'spawn_cooldown' : 1.65,
+        'enemy_cooldown_penalty' : 0.35,
+        'enemies' : {'basic' : 6, 'elite' : 11, 'gunner' : 11, 'runner' : 7},
+        'bosses' : []
+    },
+
+    26 : {
+        'spawn_cooldown' : 1.65,
+        'enemy_cooldown_penalty' : 0.3,
+        'enemies' : {'basic' : 7, 'elite' : 12, 'gunner' : 11, 'runner' : 7},
+        'bosses' : []
+    },
+
+    27 : {
+        'spawn_cooldown' : 1.6,
+        'enemy_cooldown_penalty' : 0.3,
+        'enemies' : {'basic' : 7, 'elite' : 12, 'gunner' : 12, 'runner' : 8},
+        'bosses' : []
+    },
+
+    28 : {
+        'spawn_cooldown' : 1.6,
+        'enemy_cooldown_penalty' : 0.3,
+        'enemies' : {'basic' : 8, 'elite' : 13, 'gunner' : 13, 'runner' : 8},
+        'bosses' : []
+    },
+
+    29 : {
+        'spawn_cooldown' : 1.55,
+        'enemy_cooldown_penalty' : 0.3,
+        'enemies' : {'basic' : 8, 'elite' : 14, 'gunner' : 13, 'runner' : 8},
+        'bosses' : []
+    },
+
+    30 : {
+        'spawn_cooldown' : 1.5,
+        'enemy_cooldown_penalty' : 0.3,
+        'enemies' : {'basic' : 9, 'elite' : 15, 'gunner' : 15, 'runner' : 9},
+        'bosses' : []
+    },
+
+
+}
+
+DEFAULT_WAVE : WaveDataDict = {
+        'spawn_cooldown' : 1,
+        'enemy_cooldown_penalty' : 0.05,
+        'enemies' : {'basic' : 10, 'elite' : 20, 'gunner' : 20, 'runner' : 12},
+        'bosses' : []
+    }
+
 class ActiveWaveGameState(NormalGameState):
     FIRST_WAVE : int = 1
     def __init__(self, game_object : 'Game', prev : 'ShopGameState|None' = None):
@@ -89,7 +316,13 @@ class ActiveWaveGameState(NormalGameState):
             prev.prev_state.deactivate()
 
         self.control_script : WaveControlScript = WaveControlScript()
-        self.control_script.initialize(self, core_object.game_tsource or Timer.base_time_source)
+        wave_data : WaveDataDict
+        if self.curr_wave in WAVES:
+            wave_data = WAVES[self.curr_wave]
+        else:
+            wave_data = DEFAULT_WAVE
+            self.game.alert_player(f"Could not load wave data for wave {self.curr_wave}!", 0.35)
+        self.control_script.initialize(self, core_object.game_tsource or Timer.base_time_source, wave_data)
 
         self.game.alert_player(f'Wave {self.curr_wave} start')
         self.make_connections()
@@ -131,32 +364,97 @@ class ActiveWaveGameState(NormalGameState):
         self.remove_connections()
 
 class WaveControlScript(CoroutineScript[float, str|None]):
-    def initialize(self, state : ActiveWaveGameState, time_source : TimeSource, wave_data : dict|None = None):
+    def initialize(self, state : ActiveWaveGameState, time_source : TimeSource, wave_data : WaveDataDict):
         return super().initialize(state, time_source, wave_data)
 
     @staticmethod
-    def corou(state : ActiveWaveGameState, time_source : TimeSource, wave_data : dict|None = None):
-        base_cooldown : float = max(2.5 - state.curr_wave / 10, 0.5)
-        base_enemy_penalty : float = 0.07
-        test_timer : Timer = Timer(base_cooldown, time_source)
-        test_timer.start_time -= base_cooldown
-        spawned : int = 0
-        target_spawn_count : int = 3 + int(state.curr_wave //2.5)
+    def corou(state : ActiveWaveGameState, time_source : TimeSource, wave_data : WaveDataDict):
+        base_cooldown : float = wave_data['spawn_cooldown']
+        base_enemy_penalty : float = wave_data['enemy_cooldown_penalty']
+        enemies_left : dict[EnemyType|BossType, int] = wave_data['enemies'].copy()
+        initial_avg_weight : float = WaveControlScript.calculate_average_weight(enemies_left)
+        spawn_timer : Timer = Timer(base_cooldown, time_source)
+        spawn_timer.start_time -= base_cooldown
         delta = yield
-        if (pressed := pygame.key.get_pressed())[pygame.K_CAPSLOCK] and pressed[pygame.K_o]:
-            return 'Done'
-        while spawned < target_spawn_count:
-            if test_timer.isover():
-                BasicEnemy.spawn('midbottom', pygame.Vector2(random.randint(0 + 50, 960 - 50), -20))
-                test_timer.set_duration(base_cooldown + base_enemy_penalty * len(BaseEnemy.active_elements))
-                spawned += 1
-            pressed = pygame.key.get_pressed()
+        
+        while any(val > 0 for val in enemies_left.values()):
+            pressed = pygame.key.get_pressed() # debug
             if pressed[pygame.K_CAPSLOCK] and pressed[pygame.K_o]:
-                target_spawn_count = 0
+                enemies_left.clear()
+
+            if spawn_timer.isover():
+                chosen_enemy_type : EnemyType|BossType|None = WaveControlScript.select_enemy_to_spawn(enemies_left, initial_avg_weight)
+                if chosen_enemy_type is None:
+                    enemies_left.clear()
+                else:
+                    WaveControlScript.spawn_enemy(chosen_enemy_type)
+                    enemies_left[chosen_enemy_type] -= 1
+                spawn_timer.set_duration(base_cooldown + base_enemy_penalty * len(BaseEnemy.active_elements))
             delta = yield
+
         while len(BaseEnemy.active_elements) > 0:
             delta = yield
         return 'Done'
+
+    @staticmethod
+    def select_enemy_to_spawn(enemies_left : dict['EnemyType|BossType', int], init_weight : float) -> 'EnemyType|BossType|None':
+        weights_left : float = WaveControlScript.calculate_average_weight(enemies_left) # TODO : Better logic
+        if weights_left == 0:
+            if not any(val > 0 for val in enemies_left.values()):
+                return None
+            return random.choices(list(enemies_left.keys()), list(enemies_left.values()), k=1)[0]
+        weight_ratio : float = init_weight / weights_left
+        enemy_chances : dict['EnemyType|BossType', float] = {}
+        for enemy_type in enemies_left:
+            if enemies_left[enemy_type] <= 0:
+                continue
+            enemy_base_weight : float = ENEMY_WEIGHT_DICT[enemy_type]
+            if weight_ratio < 1: # if the wave is too easy
+                if enemy_base_weight < weights_left:
+                    enemy_chances[enemy_type] = weight_ratio ** 2
+                elif enemy_base_weight < init_weight:
+                    enemy_chances[enemy_type] = weight_ratio
+                elif enemy_base_weight < (init_weight + abs(init_weight - weights_left)):
+                    enemy_chances[enemy_type] = 1 / weight_ratio
+                else:
+                    enemy_chances[enemy_type] = 1 / (weight_ratio ** 2)
+            else: # if the wave is too hard
+                if enemy_base_weight > weights_left:
+                    enemy_chances[enemy_type] = (1 / weight_ratio) ** 2
+                elif enemy_base_weight > init_weight:
+                    enemy_chances[enemy_type] = (1 / weight_ratio)
+                elif enemy_base_weight > (init_weight - abs(weights_left - init_weight)):
+                    enemy_chances[enemy_type] = weight_ratio
+                else:
+                    enemy_chances[enemy_type] = weight_ratio ** 2
+
+            enemy_chances[enemy_type] *= enemies_left[enemy_type]
+
+        if not enemy_chances:
+            return None
+        return random.choices(list(enemy_chances.keys()), list(enemy_chances.values()), k=1)[0]
+
+
+    @staticmethod
+    def calculate_average_weight(enemies : dict['EnemyType|BossType', int]):
+        if any(val > 0 for val in enemies.values()):
+            return sum(ENEMY_WEIGHT_DICT[k] * enemies[k] for k in enemies) / sum(enemies[k] for k in enemies)
+        else:
+           return 0
+
+    @staticmethod
+    def spawn_enemy(enemy_type : 'EnemyType|BossType') -> 'BaseEnemy':
+        match enemy_type:
+            case 'basic':
+                return BasicEnemy.spawn('midbottom', pygame.Vector2(random.randint(0 + 50, 960 - 50), -20))
+            case 'elite':
+                return EliteEnemy.spawn('midbottom', pygame.Vector2(random.randint(0 + 50, 960 - 50), -20))
+            case 'gunner':
+                return GunnerEnemy.spawn('midbottom', pygame.Vector2(random.randint(0 + 50, 960 - 50), -20))
+            case 'runner':
+                return RunnerEnemy.spawn('midbottom', pygame.Vector2(random.randint(0 + 50, 960 - 50), -20))
+            case _:
+                raise ValueError(f"Cannot spawn enemy type {enemy_type}")
 
 class UpgradeCard(UiFrame):
     CARD_SIZE : tuple[int, int] = (180, 250)
@@ -702,8 +1000,10 @@ def runtime_imports():
     import src.sprites.projectiles
     src.sprites.projectiles.runtime_imports()
 
-    global BaseEnemy, BasicEnemy
-    from src.sprites.enemy import BaseEnemy, BasicEnemy
+    global EnemyType, BossType, ENEMY_WEIGHT_DICT, BaseEnemy, BaseNormalEnemy
+    global BasicEnemy, EliteEnemy, GunnerEnemy, RunnerEnemy
+    from src.sprites.enemy import EnemyType, BossType, ENEMY_WEIGHT_DICT, BaseEnemy, BaseNormalEnemy
+    from src.sprites.enemy import BasicEnemy, EliteEnemy, GunnerEnemy, RunnerEnemy
     import src.sprites.enemy
     src.sprites.enemy.runtime_imports()
 

@@ -555,13 +555,13 @@ BASE_WEIGHTS : dict[UpgradeName, tuple[dict[int, tuple[int, float]], bool]] = {
                     3 : (3, 1.0)},
                     True),
 
-    'ShotgunShot' : ({1 : (1, 1.0),
-                    2 : (2, 1.0), 
-                    3 : (3, 1.0)},
+    'ShotgunShot' : ({0 : (1, 1.0),
+                    1 : (2, 1.0), 
+                    2 : (3, 1.0)},
                     True),
 
-    'MissileShot' : ({2 : (2, 1.0),
-                    3 : (3, 1.0)},
+    'MissileShot' : ({0 : (2, 1.0),
+                    1 : (3, 1.0)},
                     True),
 }
 

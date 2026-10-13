@@ -96,7 +96,7 @@ class PlayerUpgrades:
             case UpgradeType.ABILITY:
                 new_ability : Ability|None = Ability.get_ability_from_upgrade(self.player, upgrade)
                 if new_ability is None:
-                    core_object.log(f"Could not create ability '{upgrade.name}'!")  # TODO : Remember to delete old Upgrades
+                    core_object.log(f"Could not create ability '{upgrade.name}'!")
                     return False
                 
                 self.curr_ability.cleanup()

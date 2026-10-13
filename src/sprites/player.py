@@ -102,7 +102,7 @@ class Player(Sprite, sprite_count=1):
     FRICTION : float = 0.3
     MIN_VELOCITY : float = 0.1
     MAX_VELOCITY : float = 30
-    BASE_SHOT_FIRERATE : float = 3
+    BASE_SHOT_FIRERATE : float = 2.5
     BASE_HEALTH : int = 3
 
     PRIMARY_FIRE_BIND = pygame.K_SPACE
@@ -126,7 +126,7 @@ class Player(Sprite, sprite_count=1):
         self.upgrades : PlayerUpgrades
 
         self.ability_cooldown_timer : Timer
-        self.alt_fire_cooldown_timer : Timer # TODO : Remember to refresh cooldowns on wave start
+        self.alt_fire_cooldown_timer : Timer
 
         self.ability_cooldown_bar : ProgressBar
         self.alt_fire_cooldown_bar : ProgressBar
@@ -320,7 +320,7 @@ class Player(Sprite, sprite_count=1):
         return NormalProjectile.spawn(self.position + pygame.Vector2(0, -30), pygame.Vector2(0, -10), None, None, 0,
             Player.normal_projectile_image, team=Teams.ALLIED,
             damage = self.upgrades.normal_damage, can_destroy=True,
-            track_hits=True, track_misses=True)
+            track_hits=True, track_misses=True, is_player_regular_fire=True)
 
     def draw(self, display : pygame.Surface):
         if not self.visible:

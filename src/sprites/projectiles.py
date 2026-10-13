@@ -59,6 +59,7 @@ class BaseProjectile(Sprite):
         self.mask : pygame.Mask #type: ignore
         self.track_misses : bool
         self.track_hits : bool
+        self.is_player_regular_fire : bool
 
     @classmethod
     def spawn(cls, *args, **kwargs):
@@ -128,6 +129,7 @@ class BaseProjectile(Sprite):
         del self.can_destroy
         del self.track_misses
         del self.track_hits
+        del self.is_player_regular_fire
 
 class NormalProjectile(BaseProjectile, sprite_count = 200):
     
@@ -139,7 +141,8 @@ class NormalProjectile(BaseProjectile, sprite_count = 200):
               custom_image : pygame.Surface, team : Teams = Teams.PACIFIST, 
               projectile_type : str = "", pivot_offset : pygame.Vector2|None = None,
               zindex : int = 0, damage : float = 1, can_destroy : bool = False, destructible : bool = False, 
-              die_after_destroying : bool = True, track_misses : bool = False, track_hits : bool = False):
+              die_after_destroying : bool = True, track_misses : bool = False, track_hits : bool = False, is_player_regular_fire : bool = False
+              ):
         element = cls.inactive_elements[0]
 
         element.image = custom_image
@@ -167,6 +170,7 @@ class NormalProjectile(BaseProjectile, sprite_count = 200):
 
         element.track_misses = track_misses
         element.track_hits = track_hits
+        element.is_player_regular_fire = is_player_regular_fire
 
         cls.unpool(element)
         return element
@@ -258,6 +262,7 @@ class HomingProjectile(BaseProjectile, sprite_count = 50):
 
         element.track_hits = track_hits
         element.track_misses = track_misses
+        element.is_player_regular_fire = False
 
         cls.unpool(element)
         return element
@@ -415,6 +420,7 @@ class ScatterProjectile(BaseProjectile, sprite_count = 50):
 
         element.track_hits = track_hits
         element.track_misses = track_misses
+        element.is_player_regular_fire = False
 
         cls.unpool(element)
         return element
