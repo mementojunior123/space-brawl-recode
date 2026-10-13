@@ -353,8 +353,19 @@ class Upgrade:
     def get_shop_border_info(self) -> tuple[pygame.typing.ColorLike, int]:
         color : pygame.typing.ColorLike
         match self.upgrade_type:
+            case UpgradeType.SECONDARY_FIRE:
+                color = "#F21000"
+            case UpgradeType.ABILITY:
+                color = "#0069F2"
+            case UpgradeType.PERK:
+                color = "#FFE602"
+            case UpgradeType.MINOR:
+                color = "#7C7C7C"
+            case UpgradeType.MAJOR:
+                color = "#078D43"
             case _:
                 color = (130,160,210)
+
         return (color, 10)
 
     def get_clean_name(self) -> str:
@@ -366,22 +377,22 @@ class Upgrade:
         match name:          
             case 'BonusNormalDamage':
                 return Upgrade(UpgradeType.MINOR, name, rank, rarity_tier=rank, 
-                               modifiers=PlayerStatsModifiers(normal_damage_mult=0.1 + ((rank - 1) * 0.05)))
+                               modifiers=PlayerStatsModifiers(normal_damage_mult=0.2 + ((rank - 1) * 0.05)))
             case 'BonusAltDamage':
                 return Upgrade(UpgradeType.MINOR, name, rank, rarity_tier=rank, 
-                               modifiers=PlayerStatsModifiers(alt_damage_mult=0.1 + ((rank - 1) * 0.05)))
+                               modifiers=PlayerStatsModifiers(alt_damage_mult=0.2 + ((rank - 1) * 0.05)))
             case 'BonusGlobalDamage':
                     return Upgrade(UpgradeType.MINOR, name, rank, rarity_tier=rank, 
-                                   modifiers=PlayerStatsModifiers(global_damage_mult=0.1 + ((rank - 1) * 0.05)))
+                                   modifiers=PlayerStatsModifiers(global_damage_mult=0.15 + ((rank - 1) * 0.05)))
             case 'BonusNormalFirerate':
                 return Upgrade(UpgradeType.MINOR, name, rank, rarity_tier=rank, 
-                               modifiers=PlayerStatsModifiers(normal_firerate_mult=0.1 + ((rank - 1) * 0.05)))
+                               modifiers=PlayerStatsModifiers(normal_firerate_mult=0.2 + ((rank - 1) * 0.05)))
             case 'BonusAltFirerate':
                 return Upgrade(UpgradeType.MINOR, name, rank, rarity_tier=rank, 
-                               modifiers=PlayerStatsModifiers(alt_firerate_mult=0.1 + ((rank - 1) * 0.05)))
+                               modifiers=PlayerStatsModifiers(alt_firerate_mult=0.2 + ((rank - 1) * 0.05)))
             case 'BonusGlobalFirerate':
                     return Upgrade(UpgradeType.MINOR, name, rank, rarity_tier=rank, 
-                                   modifiers=PlayerStatsModifiers(global_firerate_mult=0.1 + ((rank - 1) * 0.05)))
+                                   modifiers=PlayerStatsModifiers(global_firerate_mult=0.15 + ((rank - 1) * 0.05)))
             case 'BonusAbilityRechargeRate':
                 return Upgrade(UpgradeType.MINOR, name, rank, rarity_tier=rank, 
                                modifiers=PlayerStatsModifiers(ability_recharge_rate=0.25 + ((rank - 1) * 0.025)))
@@ -583,14 +594,7 @@ class PlayerUpgradeHooks:
     @staticmethod
     def update_max_health(player_upgrades : 'PlayerUpgrades', upgrade : Upgrade):
         new_max_hp : int = player_upgrades.max_hp
-        old_max_hp : int = player_upgrades.player.max_hp
-        hp_diff : int = new_max_hp - old_max_hp
-
-        player_upgrades.player.max_hp = new_max_hp
-        player_upgrades.player.current_hp += hp_diff
-
-        player_upgrades.player.healthbar.heart_count = new_max_hp
-        player_upgrades.player.healthbar.health = player_upgrades.player.current_hp
+        player_upgrades.player.set_max_hp(new_max_hp)
         
 
 PRE_UPGRADE_HOOKS : dict[UpgradeName, PreUpgradeApplicationCallback] = defaultdict(lambda : (lambda p, u : None))

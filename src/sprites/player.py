@@ -286,6 +286,24 @@ class Player(Sprite, sprite_count=1):
         self.healthbar.health = self.current_hp
         return True
 
+    def heal(self, health : float) -> bool:
+        if self.current_hp >= self.max_hp or health <= 0:
+            return False
+        self.current_hp = min(round(self.current_hp + health), self.max_hp)
+        self.healthbar.health = self.current_hp
+        return True
+
+    def heal_to_max(self):
+        self.current_hp = self.max_hp
+        self.healthbar.health = self.current_hp
+
+    def set_max_hp(self, max_hp : float):
+        new_max_hp : int = round(max_hp)
+        max_hp_diff : int = new_max_hp - self.max_hp
+        self.max_hp = new_max_hp
+        self.healthbar.heart_count = self.max_hp
+        self.heal(max_hp_diff)
+
     def check_input(self):
         pressed = pygame.key.get_pressed()
         if pressed[Player.PRIMARY_FIRE_BIND]:

@@ -288,6 +288,12 @@ class WaveControlScript(CoroutineScript[float, str|None]):
 
         while len(BaseEnemy.active_elements) > 0:
             delta = yield
+
+        if state.curr_wave % 5 == 0:
+            spawn_timer.set_duration(2.0)
+            while not spawn_timer.isover():
+                delta = yield
+            state.player.heal_to_max()
         return 'Done'
 
     @staticmethod
@@ -580,7 +586,7 @@ class ShopGameState(NormalGameState):
                 guaranteed = {UpgradeType.MINOR : 1}
                 random_given = [(
                     UpgradeType.PERK if random_list[i] <= 400 
-                    else UpgradeType.ABILITY if random_list[i] <= 600
+                    else UpgradeType.ABILITY if random_list[i] <= 800
                     else UpgradeType.MAJOR if random_list[i] <= 1000
                     else UpgradeType.MINOR
                 ) for i in range(amount - sum(guaranteed.values()))]
@@ -589,14 +595,14 @@ class ShopGameState(NormalGameState):
                 random_given = [(
                     UpgradeType.PERK if random_list[i] <= 250 
                     else UpgradeType.ABILITY if random_list[i] <= 450
-                    else UpgradeType.MAJOR if random_list[i] <= 650
+                    else UpgradeType.MAJOR if random_list[i] <= 550
                     else UpgradeType.MINOR
                 ) for i in range(amount - sum(guaranteed.values()))]
             case 0:
                 guaranteed = {UpgradeType.SECONDARY_FIRE : 2}
                 random_given = [(
                     UpgradeType.PERK if random_list[i] <= 400 
-                    else UpgradeType.ABILITY if random_list[i] <= 600
+                    else UpgradeType.ABILITY if random_list[i] <= 800
                     else UpgradeType.MAJOR if random_list[i] <= 1000
                     else UpgradeType.MINOR
                 ) for i in range(amount - sum(guaranteed.values()))]
@@ -624,7 +630,7 @@ class ShopGameState(NormalGameState):
 
         if (type_distribution[UpgradeType.ABILITY] > 0
             and self.player.upgrades.curr_ability.rank < src.upgrades.MAX_RANK[self.player.upgrades.curr_ability.name]
-            and (random.random() <= 0.5
+            and (random.random() <= 0.65
                   or not self.valid_random_upgrade_of_type_exsists(UpgradeType.ABILITY, target_tier, rarity_bonus_tier, 
                                                                    [s[0] for s in selected]))):
 
@@ -635,7 +641,7 @@ class ShopGameState(NormalGameState):
         perks_left : int = type_distribution[UpgradeType.PERK]
         if perks_left:
             for _ in range(perks_left):
-                if random.random() <= 0.5 or not self.valid_random_upgrade_of_type_exsists(UpgradeType.PERK, target_tier, rarity_bonus_tier, 
+                if random.random() <= 0.65 or not self.valid_random_upgrade_of_type_exsists(UpgradeType.PERK, target_tier, rarity_bonus_tier, 
                                                                    [s[0] for s in selected]):
                     eligible_existing_perks : list[tuple[UpgradeName, int]] = [
                         (perk.name, perk.rank + 1) for perk in 
@@ -755,12 +761,14 @@ class ShopControlScript(CoroutineScript[float, Literal['Done']|None]):
 
     @staticmethod
     def corou(state : ShopGameState):
-        state.transition_cards_in()
         delta : float = core_object.dt
+        did_reroll : bool = False
         yield
         while True:
+            state.transition_cards_in()
             while True:
                 if state.selected_upgrade is not None and all(card.transition_done for card in state.upgrade_cards):
+                    did_reroll = False
                     break
                 hit_card : UpgradeCard|None = state.check_collisions()
                 if hit_card:
@@ -770,26 +778,33 @@ class ShopControlScript(CoroutineScript[float, Literal['Done']|None]):
                 delta = yield
 
             state.clear_cards()
-            tranfser_rank : int|None = None
-            if state.selected_upgrade.upgrade_type == UpgradeType.SECONDARY_FIRE:
-                tranfser_rank = state.player.upgrades.get_rank_transfer(cast(SecondaryFireName, state.selected_upgrade.name))
+            if not did_reroll:
+                tranfser_rank : int|None = None
+                if state.selected_upgrade.upgrade_type == UpgradeType.SECONDARY_FIRE:
+                    tranfser_rank = state.player.upgrades.get_rank_transfer(cast(SecondaryFireName, state.selected_upgrade.name))
 
-            if tranfser_rank is not None and tranfser_rank != 0:
-                upgrade_list : list[Upgrade] = []
-                for i in range(1, tranfser_rank + 1):
-                    new_upgrade : Upgrade|None = Upgrade.from_name_and_rank(state.selected_upgrade.name, i)
-                    if new_upgrade is not None:
-                        upgrade_list.append(new_upgrade)
-                state.upgrade_cards = state.generate_card_list(upgrade_list)
-                core_object.main_ui.add_multiple(state.upgrade_cards)
-                state.transition_cards_in()
-                state.game.alert_player("And here are a few bonuses...")
-                card_show_timer : Timer = Timer(5, core_object.game_tsource)
-                while not card_show_timer.isover():
+                if tranfser_rank is not None and tranfser_rank != 0:
+                    upgrade_list : list[Upgrade] = []
+                    for i in range(1, tranfser_rank + 1):
+                        new_upgrade : Upgrade|None = Upgrade.from_name_and_rank(state.selected_upgrade.name, i)
+                        if new_upgrade is not None:
+                            upgrade_list.append(new_upgrade)
+                    state.upgrade_cards = state.generate_card_list(upgrade_list)
+                    core_object.main_ui.add_multiple(state.upgrade_cards)
+                    state.transition_cards_in()
+                    state.game.alert_player("And here are a few bonuses...")
+                    card_show_timer : Timer = Timer(5, core_object.game_tsource)
+                    while not card_show_timer.isover():
+                        delta = yield
+                    state.transition_cards_out()
+                    while any(not card.transition_done for card in state.upgrade_cards):
+                        delta = yield
+            else:
+                wait_reroll_timer : Timer = Timer(0.5, core_object.game_tsource)
+                while not wait_reroll_timer.isover():
                     delta = yield
-                state.transition_cards_out()
-                while any(not card.transition_done for card in state.upgrade_cards):
-                    delta = yield
+                # Reroll logic goes here
+                continue
 
             delay_timer : Timer = Timer(0.5, core_object.game_tsource)
             while not delay_timer.isover():
