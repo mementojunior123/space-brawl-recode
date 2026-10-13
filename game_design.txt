@@ -26,9 +26,9 @@
     -Divebomber (T2):
         When killed, attempts to throw itself at the player. 
         When killed again, fires projectiles in all directions that hurt both players and enemies
-    -Slingshoter (T2):
+    -Slingshoter (T2/3):
         Moves around at the back before charging torwards the player. Goes back up slowly after doing so
-    -Guardian (T3):
+    -Guardian (T2/3):
         Has a shield that must be broken before it can take damage.
         This shield reflects projectiles.
     -Grenadier (T3):
