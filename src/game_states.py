@@ -77,209 +77,103 @@ WAVES : dict[int, WaveDataDict] = {
     },
 
     2 : {
-        'spawn_cooldown' : 2.45,
-        'enemy_cooldown_penalty' : 0.8,
-        'enemies' : {'basic' : 4},
-        'bosses' : []
-    },
-
-    3 : {
         'spawn_cooldown' : 2.4,
         'enemy_cooldown_penalty' : 0.8,
         'enemies' : {'basic' : 4, 'elite' : 1},
         'bosses' : []
     },
 
-    4 : {
-        'spawn_cooldown' : 2.35,
+    3 : {
+        'spawn_cooldown' : 2.3,
         'enemy_cooldown_penalty' : 0.8,
-        'enemies' : {'basic' : 3, 'elite' : 2},
+        'enemies' : {'basic' : 4, 'elite' : 1, 'gunner' : 1},
+        'bosses' : []
+    },
+
+    4 : {
+        'spawn_cooldown' : 2.2,
+        'enemy_cooldown_penalty' : 0.8,
+        'enemies' : {'basic' : 3, 'elite' : 2, 'gunner' : 2, 'runner' : 1},
         'bosses' : []
     },
 
     5 : {
-        'spawn_cooldown' : 2.3,
+        'spawn_cooldown' : 2.1,
         'enemy_cooldown_penalty' : 0.8,
-        'enemies' : {'basic' : 3, 'elite' : 2, 'gunner' : 1},
-        'bosses' : []
-    },
-
-    6 : {
-        'spawn_cooldown' : 2.25,
-        'enemy_cooldown_penalty' : 0.7,
-        'enemies' : {'basic' : 3, 'elite' : 2, 'gunner' : 2},
-        'bosses' : []
-    },
-
-    7 : {
-        'spawn_cooldown' : 2.2,
-        'enemy_cooldown_penalty' : 0.7,
-        'enemies' : {'basic' : 4, 'elite' : 2, 'gunner' : 2, 'runner' : 1},
-        'bosses' : []
-    },
-
-    8 : {
-        'spawn_cooldown' : 2.15,
-        'enemy_cooldown_penalty' : 0.7,
         'enemies' : {'basic' : 4, 'elite' : 2, 'gunner' : 2, 'runner' : 2},
         'bosses' : []
     },
 
+    6 : {
+        'spawn_cooldown' : 2.0,
+        'enemy_cooldown_penalty' : 0.6,
+        'enemies' : {'basic' : 4, 'elite' : 4, 'gunner' : 3, 'runner' : 2},
+        'bosses' : []
+    },
+
+    7 : {
+        'spawn_cooldown' : 1.9,
+        'enemy_cooldown_penalty' : 0.6,
+        'enemies' : {'basic' : 5, 'elite' : 4, 'gunner' : 4, 'runner' : 3},
+        'bosses' : []
+    },
+
+    8 : {
+        'spawn_cooldown' : 1.8,
+        'enemy_cooldown_penalty' : 0.6,
+        'enemies' : {'basic' : 5, 'elite' : 5, 'gunner' : 5, 'runner' : 3},
+        'bosses' : []
+    },
+
     9 : {
-        'spawn_cooldown' : 2.1,
-        'enemy_cooldown_penalty' : 0.7,
-        'enemies' : {'basic' : 4, 'elite' : 3, 'gunner' : 2, 'runner' : 2},
+        'spawn_cooldown' : 1.7,
+        'enemy_cooldown_penalty' : 0.6,
+        'enemies' : {'basic' : 5, 'elite' : 6, 'gunner' : 5, 'runner' : 3},
         'bosses' : []
     },
 
     10 : {
-        'spawn_cooldown' : 2.05,
-        'enemy_cooldown_penalty' : 0.7,
-        'enemies' : {'basic' : 5, 'elite' : 3, 'gunner' : 3, 'runner' : 2},
+        'spawn_cooldown' : 1.6,
+        'enemy_cooldown_penalty' : 0.6,
+        'enemies' : {'basic' : 5, 'elite' : 6, 'gunner' : 6, 'runner' : 4},
         'bosses' : []
     },
 
+
     11 : {
-        'spawn_cooldown' : 2.0,
-        'enemy_cooldown_penalty' : 0.6,
-        'enemies' : {'basic' : 5, 'elite' : 4, 'gunner' : 3, 'runner' : 2},
+        'spawn_cooldown' : 1.5,
+        'enemy_cooldown_penalty' : 0.4,
+        'enemies' : {'basic' : 6, 'elite' : 8, 'gunner' : 7, 'runner' : 5},
         'bosses' : []
     },
 
     12 : {
-        'spawn_cooldown' : 2.0,
-        'enemy_cooldown_penalty' : 0.6,
-        'enemies' : {'basic' : 6, 'elite' : 4, 'gunner' : 4, 'runner' : 2},
+        'spawn_cooldown' : 1.4,
+        'enemy_cooldown_penalty' : 0.4,
+        'enemies' : {'basic' : 6, 'elite' : 8, 'gunner' : 8, 'runner' : 6},
         'bosses' : []
     },
 
     13 : {
-        'spawn_cooldown' : 1.95,
-        'enemy_cooldown_penalty' : 0.6,
-        'enemies' : {'basic' : 6, 'elite' : 4, 'gunner' : 4, 'runner' : 3},
+        'spawn_cooldown' : 1.3,
+        'enemy_cooldown_penalty' : 0.4,
+        'enemies' : {'basic' : 7, 'elite' : 9, 'gunner' : 9, 'runner' : 6},
         'bosses' : []
     },
 
     14 : {
-        'spawn_cooldown' : 1.95,
-        'enemy_cooldown_penalty' : 0.6,
-        'enemies' : {'basic' : 6, 'elite' : 5, 'gunner' : 4, 'runner' : 3},
+        'spawn_cooldown' : 1.2,
+        'enemy_cooldown_penalty' : 0.4,
+        'enemies' : {'basic' : 7, 'elite' : 9, 'gunner' : 9, 'runner' : 7},
         'bosses' : []
     },
 
     15 : {
-        'spawn_cooldown' : 1.9,
-        'enemy_cooldown_penalty' : 0.6,
-        'enemies' : {'basic' : 6, 'elite' : 5, 'gunner' : 5, 'runner' : 4},
-        'bosses' : []
-    },
-
-    16 : {
-        'spawn_cooldown' : 1.9,
-        'enemy_cooldown_penalty' : 0.5,
-        'enemies' : {'basic' : 6, 'elite' : 6, 'gunner' : 5, 'runner' : 4},
-        'bosses' : []
-    },
-
-    17 : {
-        'spawn_cooldown' : 1.85,
+        'spawn_cooldown' : 1.1,
         'enemy_cooldown_penalty' : 0.4,
-        'enemies' : {'basic' : 6, 'elite' : 6, 'gunner' : 6, 'runner' : 5},
+        'enemies' : {'basic' : 7, 'elite' : 10, 'gunner' : 10, 'runner' : 7},
         'bosses' : []
     },
-
-    18 : {
-        'spawn_cooldown' : 1.85,
-        'enemy_cooldown_penalty' : 0.4,
-        'enemies' : {'basic' : 5, 'elite' : 7, 'gunner' : 7, 'runner' : 5},
-        'bosses' : []
-    },
-
-    19 : {
-        'spawn_cooldown' : 1.8,
-        'enemy_cooldown_penalty' : 0.4,
-        'enemies' : {'basic' : 5, 'elite' : 8, 'gunner' : 7, 'runner' : 5},
-        'bosses' : []
-    },
-
-    20 : {
-        'spawn_cooldown' : 1.8,
-        'enemy_cooldown_penalty' : 0.4,
-        'enemies' : {'basic' : 5, 'elite' : 8, 'gunner' : 8, 'runner' : 5},
-        'bosses' : []
-    },
-
-    21 : {
-        'spawn_cooldown' : 1.75,
-        'enemy_cooldown_penalty' : 0.35,
-        'enemies' : {'basic' : 5, 'elite' : 9, 'gunner' : 9, 'runner' : 6},
-        'bosses' : []
-    },
-
-    22 : {
-        'spawn_cooldown' : 1.75,
-        'enemy_cooldown_penalty' : 0.35,
-        'enemies' : {'basic' : 6, 'elite' : 9, 'gunner' : 9, 'runner' : 7},
-        'bosses' : []
-    },
-
-    23 : {
-        'spawn_cooldown' : 1.7,
-        'enemy_cooldown_penalty' : 0.35,
-        'enemies' : {'basic' : 6, 'elite' : 10, 'gunner' : 10, 'runner' : 6},
-        'bosses' : []
-    },
-
-    24 : {
-        'spawn_cooldown' : 1.7,
-        'enemy_cooldown_penalty' : 0.35,
-        'enemies' : {'basic' : 6, 'elite' : 11, 'gunner' : 10, 'runner' : 7},
-        'bosses' : []
-    },
-
-    25 : {
-        'spawn_cooldown' : 1.65,
-        'enemy_cooldown_penalty' : 0.35,
-        'enemies' : {'basic' : 6, 'elite' : 11, 'gunner' : 11, 'runner' : 7},
-        'bosses' : []
-    },
-
-    26 : {
-        'spawn_cooldown' : 1.65,
-        'enemy_cooldown_penalty' : 0.3,
-        'enemies' : {'basic' : 7, 'elite' : 12, 'gunner' : 11, 'runner' : 7},
-        'bosses' : []
-    },
-
-    27 : {
-        'spawn_cooldown' : 1.6,
-        'enemy_cooldown_penalty' : 0.3,
-        'enemies' : {'basic' : 7, 'elite' : 12, 'gunner' : 12, 'runner' : 8},
-        'bosses' : []
-    },
-
-    28 : {
-        'spawn_cooldown' : 1.6,
-        'enemy_cooldown_penalty' : 0.3,
-        'enemies' : {'basic' : 8, 'elite' : 13, 'gunner' : 13, 'runner' : 8},
-        'bosses' : []
-    },
-
-    29 : {
-        'spawn_cooldown' : 1.55,
-        'enemy_cooldown_penalty' : 0.3,
-        'enemies' : {'basic' : 8, 'elite' : 14, 'gunner' : 13, 'runner' : 8},
-        'bosses' : []
-    },
-
-    30 : {
-        'spawn_cooldown' : 1.5,
-        'enemy_cooldown_penalty' : 0.3,
-        'enemies' : {'basic' : 9, 'elite' : 15, 'gunner' : 15, 'runner' : 9},
-        'bosses' : []
-    },
-
-
 }
 
 DEFAULT_WAVE : WaveDataDict = {
@@ -670,27 +564,19 @@ class ShopGameState(NormalGameState):
         random_list : list[int] = [random.randint(1, 1000) for _ in range(amount)]
         guaranteed : dict[UpgradeType, int]
         random_given : list[UpgradeType]
-        match wave_num % 10:
+        match wave_num % 5:
             case 1:
                 guaranteed = {UpgradeType.MINOR : amount}
                 random_given = []
-            case 2|4:
+            case 2:
                 guaranteed = {UpgradeType.MINOR : 1}
                 random_given = [(
-                    UpgradeType.PERK if random_list[i] <= 100 
-                    else UpgradeType.ABILITY if random_list[i] <= 200
-                    else UpgradeType.MAJOR if random_list[i] <= 300
+                    UpgradeType.PERK if random_list[i] <= 150 
+                    else UpgradeType.ABILITY if random_list[i] <= 300
+                    else UpgradeType.MAJOR if random_list[i] <= 450
                     else UpgradeType.MINOR
                 ) for i in range(amount - sum(guaranteed.values()))]
             case 3:
-                guaranteed = {}
-                random_given = [(
-                    UpgradeType.PERK if random_list[i] <= 100 
-                    else UpgradeType.ABILITY if random_list[i] <= 200
-                    else UpgradeType.MAJOR if random_list[i] <= 360
-                    else UpgradeType.MINOR
-                ) for i in range(amount - sum(guaranteed.values()))]
-            case 5:
                 guaranteed = {UpgradeType.MINOR : 1}
                 random_given = [(
                     UpgradeType.PERK if random_list[i] <= 400 
@@ -698,20 +584,12 @@ class ShopGameState(NormalGameState):
                     else UpgradeType.MAJOR if random_list[i] <= 1000
                     else UpgradeType.MINOR
                 ) for i in range(amount - sum(guaranteed.values()))]
-            case 6|7|9:
-                guaranteed = {UpgradeType.MINOR : 1}
+            case 4:
+                guaranteed = {UpgradeType.MINOR : 1, UpgradeType.ABILITY : 1}
                 random_given = [(
-                    UpgradeType.PERK if random_list[i] <= 120 
-                    else UpgradeType.ABILITY if random_list[i] <= 240
-                    else UpgradeType.MAJOR if random_list[i] <= 360
-                    else UpgradeType.MINOR
-                ) for i in range(amount - sum(guaranteed.values()))]
-            case 8:
-                guaranteed = {}
-                random_given = [(
-                    UpgradeType.PERK if random_list[i] <= 120 
-                    else UpgradeType.ABILITY if random_list[i] <= 220
-                    else UpgradeType.MAJOR if random_list[i] <= 440
+                    UpgradeType.PERK if random_list[i] <= 250 
+                    else UpgradeType.ABILITY if random_list[i] <= 450
+                    else UpgradeType.MAJOR if random_list[i] <= 650
                     else UpgradeType.MINOR
                 ) for i in range(amount - sum(guaranteed.values()))]
             case 0:
@@ -725,6 +603,9 @@ class ShopGameState(NormalGameState):
             case _:
                 guaranteed = {}
                 random_given = []
+        locked_out : bool = True
+        if type_distribution[UpgradeType.MINOR] >= 0 or type_distribution[UpgradeType.MAJOR] >= 0 or type_distribution[UpgradeType.PERK] >= 0:
+            locked_out = False
         for upgrade_type in UpgradeType:
             type_distribution[upgrade_type] += random_given.count(upgrade_type)
             if upgrade_type in guaranteed:
@@ -739,6 +620,7 @@ class ShopGameState(NormalGameState):
 
             type_distribution[UpgradeType.SECONDARY_FIRE] -= 1
             selected.append((self.player.upgrades.curr_alt_fire.name, self.player.upgrades.curr_alt_fire.rank + 1))
+            locked_out = False
 
         if (type_distribution[UpgradeType.ABILITY] > 0
             and self.player.upgrades.curr_ability.rank < src.upgrades.MAX_RANK[self.player.upgrades.curr_ability.name]
@@ -748,6 +630,7 @@ class ShopGameState(NormalGameState):
 
             type_distribution[UpgradeType.ABILITY] -= 1
             selected.append((self.player.upgrades.curr_ability.name, self.player.upgrades.curr_ability.rank + 1))
+            locked_out = False
 
         perks_left : int = type_distribution[UpgradeType.PERK]
         if perks_left:
@@ -763,6 +646,20 @@ class ShopGameState(NormalGameState):
                     selected.append(random.choice(eligible_existing_perks))
                     type_distribution[UpgradeType.PERK] -= 1
 
+        if locked_out:
+            core_object.log('Lock out detected')
+            if type_distribution[UpgradeType.ABILITY] > 0:
+                type_distribution[UpgradeType.ABILITY] -= 1
+                type_distribution[UpgradeType.MAJOR] += 1
+                core_object.log('Replaced an ability by a major perk')
+            elif type_distribution[UpgradeType.SECONDARY_FIRE] > 0:
+                type_distribution[UpgradeType.SECONDARY_FIRE] -= 1
+                type_distribution[UpgradeType.MAJOR] += 1
+                core_object.log('Replaced a secondary fire by a major perk')
+            else:
+                core_object.log('False alarm?')
+                
+        
         for upgrade_type in type_distribution:
             for _ in range(type_distribution[upgrade_type]):
                 result = self.select_random_upgrade_of_type(upgrade_type, target_tier, rarity_bonus_tier, 
@@ -1011,8 +908,8 @@ def runtime_imports():
     from src.sprites.player import Player
     import src.sprites.player
 
-    global Upgrade, PlayerUpgrades, UpgradeType, UpgradeName, ShopTextOptions, SecondaryFireName
-    from src.upgrades import Upgrade, PlayerUpgrades, UpgradeType, UpgradeName, ShopTextOptions, SecondaryFireName
+    global Upgrade, PlayerUpgrades, UpgradeType, UpgradeName, ShopTextOptions, SecondaryFireName, MAX_RANK
+    from src.upgrades import Upgrade, PlayerUpgrades, UpgradeType, UpgradeName, ShopTextOptions, SecondaryFireName, MAX_RANK
     import src.upgrades
     src.upgrades.runtime_imports()
 
