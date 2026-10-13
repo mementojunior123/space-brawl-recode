@@ -184,8 +184,8 @@ class OverchargeAbility(Ability):
             self.firerate_bonus = 0.5
             self.duration = 5
         elif self.rank >= 4:
-            self.damage_bonus = 1
-            self.firerate_bonus = 1
+            self.damage_bonus = 0.75
+            self.firerate_bonus = 0.75
             self.duration = 5
 
     @property

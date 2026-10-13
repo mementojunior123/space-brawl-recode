@@ -207,14 +207,24 @@ class Upgrade:
     def get_shop_description(self, already_present_upgrades : list['Upgrade']) -> list[tuple[str, ShopTextOptions]]:
         result : list[tuple[str, ShopTextOptions]] = []
         title_text : str
+        header_text : str|None = None
         if self.upgrade_type in (UpgradeType.ABILITY, UpgradeType.PERK):
-            title_text = (f"{self.get_clean_name()} {to_roman(self.rank)}" if self.rank >= 1 
-                          else f"New {'ability' if self.upgrade_type == UpgradeType.ABILITY else 'perk'} {self.get_clean_name()}")
+            if self.rank >= 2:
+                title_text = f"{self.get_clean_name()} {to_roman(self.rank)}"
+            else:
+                title_text = f"New {'ability' if self.upgrade_type == UpgradeType.ABILITY else 'perk'}"
+                header_text = self.get_clean_name()
         elif self.upgrade_type == UpgradeType.SECONDARY_FIRE:
-            title_text = f"New weapon : {self.get_clean_name()}" if self.rank == 0 else f"{self.get_clean_name()} {to_roman(self.rank)}"
+            if self.rank == 0:
+                title_text = f"New weapon :"
+                header_text = self.get_clean_name()
+            else:
+                title_text = f"{self.get_clean_name()} Specialist {to_roman(self.rank)}"
         else:
             title_text = f"{self.get_clean_name()}"
         result.append((title_text, {'pos' : None, 'anchor' : 'top'}))
+        if header_text is not None:
+            result.append((header_text, {'pos' : None, 'anchor' : 'top'}))
         match self.name:
             case 'BonusNormalDamage':
                 result.append((f"Increase regular shot damage by {self.modifiers.normal_damage_mult:.0%}", {'pos' : None, 'anchor' : 'top'}))
@@ -276,13 +286,15 @@ class Upgrade:
             case 'Overcharge':
                 match self.rank:
                     case 1:
-                        result.append((f"Your secondary fire becomes more dangerous...\n(+50% firerate)", {'pos' : None, 'anchor' : 'top'}))
+                        result.append((f"Your secondary fire becomes more dangerous for a short period of time...\n(+50% firerate)", 
+                                       {'pos' : None, 'anchor' : 'top'}))
                     case 2:
                         result.append((f"This ability lasts longer...\n(3s --> 5s)", {'pos' : None, 'anchor' : 'top'}))
                     case 3:
                         result.append((f"Your secondary fire deals 50% more damage...", {'pos' : None, 'anchor' : 'top'}))
                     case 4:
-                        result.append((f"Your secondary fire has double firerate and double damage instead", {'pos' : None, 'anchor' : 'top'}))
+                        result.append((f"Your secondary fire has +75% firerate and +75% damage instead", 
+                                       {'pos' : None, 'anchor' : 'top'}))
             case 'DamageChain':
                 match self.rank:
                     case 1:
