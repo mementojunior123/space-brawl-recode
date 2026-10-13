@@ -29,3 +29,8 @@ Version R07 (11-10-2026, 23:05):
 
 Version R07-2 (11-10-2206, 23:23):
     -Fixed a few more bugs
+
+Version R08 (12-10-2026, 23:54):
+    -Fixed a bug related to secondary fire upgrades
+    -Added some normal enemy types
+    -Made a proper wave system 
