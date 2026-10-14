@@ -42,3 +42,6 @@ Version R09 (13-10-2026, 8:38):
 Version R10 (13-10-2026, 22:21):
     -Added some Bosses
     -A few balance changes
+
+Version R10-1 (13-10-2026, 22:36):
+    -Fixed debug binds
