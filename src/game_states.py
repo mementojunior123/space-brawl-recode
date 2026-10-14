@@ -101,7 +101,7 @@ WAVES : dict[int, WaveDataDict] = {
         'spawn_cooldown' : 2.1,
         'enemy_cooldown_penalty' : 0.8,
         'enemies' : {'basic' : 4, 'elite' : 2, 'gunner' : 2, 'runner' : 2},
-        'bosses' : []
+        'bosses' : ['basic_boss']
     },
 
     6 : {
@@ -136,7 +136,7 @@ WAVES : dict[int, WaveDataDict] = {
         'spawn_cooldown' : 1.6,
         'enemy_cooldown_penalty' : 0.6,
         'enemies' : {'basic' : 5, 'elite' : 6, 'gunner' : 6, 'runner' : 4},
-        'bosses' : []
+        'bosses' : ['elite_boss']
     },
 
 
@@ -266,6 +266,8 @@ class WaveControlScript(CoroutineScript[float, str|None]):
         base_cooldown : float = wave_data['spawn_cooldown']
         base_enemy_penalty : float = wave_data['enemy_cooldown_penalty']
         enemies_left : dict[EnemyType|BossType, int] = wave_data['enemies'].copy()
+        boss_count : int = len(wave_data['bosses'])
+        bosses : list[BossType] = wave_data['bosses']
         initial_avg_weight : float = WaveControlScript.calculate_average_weight(enemies_left)
         spawn_timer : Timer = Timer(base_cooldown, time_source)
         spawn_timer.start_time -= base_cooldown
@@ -273,8 +275,11 @@ class WaveControlScript(CoroutineScript[float, str|None]):
         
         while any(val > 0 for val in enemies_left.values()):
             pressed = pygame.key.get_pressed() # debug
-            if pressed[pygame.K_CAPSLOCK] and pressed[pygame.K_o]:
+            if pressed[pygame.K_0]:
                 enemies_left.clear()
+
+            if pressed[pygame.K_9]:
+                bosses.clear()  
 
             if spawn_timer.isover():
                 chosen_enemy_type : EnemyType|BossType|None = WaveControlScript.select_enemy_to_spawn(enemies_left, initial_avg_weight)
@@ -289,10 +294,28 @@ class WaveControlScript(CoroutineScript[float, str|None]):
         while len(BaseEnemy.active_elements) > 0:
             delta = yield
 
-        if state.curr_wave % 5 == 0:
+        if boss_count:
+            core_object.game.alert_player("Boss incoming!", 0.5)
             spawn_timer.set_duration(2.0)
             while not spawn_timer.isover():
+                if pygame.key.get_pressed()[pygame.K_9]:
+                    bosses.clear()  
                 delta = yield
+            for i, boss in enumerate(bosses, start=1):
+                spawned : BaseBossEnemy = WaveControlScript.summon_boss(boss)
+                while spawned.active:
+                    delta = yield
+                if i < boss_count:
+                    spawn_timer.set_duration(1.0)
+                    while not spawn_timer.isover():
+                        delta = yield
+                    core_object.game.alert_player("Another one is coming your way!")
+                else:
+                    pass # breaks beacause we are at the end of the loop
+
+            spawn_timer.set_duration(2.0)
+            while not spawn_timer.isover():
+                delta = yield           
             state.player.heal_to_max()
         return 'Done'
 
@@ -353,8 +376,22 @@ class WaveControlScript(CoroutineScript[float, str|None]):
                 return GunnerEnemy.spawn('midbottom', pygame.Vector2(random.randint(0 + 50, 960 - 50), -20))
             case 'runner':
                 return RunnerEnemy.spawn('midbottom', pygame.Vector2(random.randint(0 + 50, 960 - 50), -20))
+            case 'basic_boss':
+                return BasicBoss.spawn(max_health=35, summoned_as_boss=False)
+            case 'elite_boss':
+                return EliteBoss.spawn(max_health=80, summoned_as_boss=False)
             case _:
                 raise ValueError(f"Cannot spawn enemy type {enemy_type}")
+
+    @staticmethod
+    def summon_boss(boss_type : 'BossType') -> 'BaseBossEnemy':
+        match boss_type:
+            case 'basic_boss':
+                return BasicBoss.spawn()
+            case 'elite_boss':
+                return EliteBoss.spawn()
+            case _:
+                raise ValueError(f"Cannot spawn boss type {boss_type}")
 
 class UpgradeCard(UiFrame):
     CARD_SIZE : tuple[int, int] = (180, 250)
@@ -471,7 +508,7 @@ class ShopGameState(NormalGameState):
         self.test_timer : Timer = Timer(10, core_object.game_tsource)
 
         upgrade_count : int = 3
-        target_tier : int = 1
+        target_tier : int = (self.prev_state.curr_wave - 1) // 5 + 1
         rarity_bonus_tier : int = 0
 
         self.candidates : list[Upgrade] = []
@@ -912,15 +949,19 @@ def runtime_imports():
     import src.sprites.projectiles
     src.sprites.projectiles.runtime_imports()
 
-    global EnemyType, BossType, ENEMY_WEIGHT_DICT, BaseEnemy, BaseNormalEnemy
-    from src.sprites.base_enemy import EnemyType, BossType, ENEMY_WEIGHT_DICT, BaseEnemy, BaseNormalEnemy
+    global EnemyType, BossType, ENEMY_WEIGHT_DICT, BaseEnemy, BaseNormalEnemy, BaseBossEnemy
+    from src.sprites.base_enemy import EnemyType, BossType, ENEMY_WEIGHT_DICT, BaseEnemy, BaseNormalEnemy, BaseBossEnemy
     import src.sprites.base_enemy
 
     global BasicEnemy, EliteEnemy, GunnerEnemy, RunnerEnemy
     from src.sprites.enemy import BasicEnemy, EliteEnemy, GunnerEnemy, RunnerEnemy
     import src.sprites.enemy
-    
-    src.sprites.enemy.runtime_imports()
+
+    global BasicBoss, EliteBoss
+    from src.sprites.bosses import BasicBoss, EliteBoss
+    import src.sprites.bosses
+
+    src.sprites.bosses.runtime_imports()
 
     global Player
     from src.sprites.player import Player

@@ -1,13 +1,14 @@
 ---Now---
--Some bosses
 -Some more enemies
 -Reroll
 -Some more upgrades
+-More sound management
+-Ability transfer?
 ---Soon---
 -Upgrade preview feature
 -More visuals to distinguish upgrade types
--Some sounds?
 -Full normal enemy implementation
+-Some more bosses
 ---Later---
 -Complete upgrade selection
 -Tutorial
