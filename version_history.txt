@@ -38,3 +38,7 @@ Version R08 (12-10-2026, 23:54):
 Version R09 (13-10-2026, 8:38):
     -Sections are 5 waves long instead of 10 waves long
     -Made a few balance chages
+
+Version R10 (13-10-2026, 22:21):
+    -Added some Bosses
+    -A few balance changes
