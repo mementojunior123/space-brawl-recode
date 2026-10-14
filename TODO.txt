@@ -4,6 +4,7 @@
 -Some more upgrades
 -More sound management
 -Ability transfer?
+-Fix rarity tier with with ability/perk selection?
 ---Soon---
 -Upgrade preview feature
 -More visuals to distinguish upgrade types

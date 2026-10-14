@@ -275,10 +275,10 @@ class WaveControlScript(CoroutineScript[float, str|None]):
         
         while any(val > 0 for val in enemies_left.values()):
             pressed = pygame.key.get_pressed() # debug
-            if pressed[pygame.K_0]:
+            if pressed[pygame.K_LSHIFT] and pressed[pygame.K_l]:
                 enemies_left.clear()
 
-            if pressed[pygame.K_9]:
+            if pressed[pygame.K_LSHIFT] and pressed[pygame.K_k]:
                 bosses.clear()  
 
             if spawn_timer.isover():
@@ -298,7 +298,8 @@ class WaveControlScript(CoroutineScript[float, str|None]):
             core_object.game.alert_player("Boss incoming!", 0.5)
             spawn_timer.set_duration(2.0)
             while not spawn_timer.isover():
-                if pygame.key.get_pressed()[pygame.K_9]:
+                pressed = pygame.key.get_pressed()
+                if pressed[pygame.K_LSHIFT] and pressed[pygame.K_k]:
                     bosses.clear()  
                 delta = yield
             for i, boss in enumerate(bosses, start=1):
