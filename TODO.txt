@@ -5,11 +5,11 @@
 -More sound management
 -Ability transfer?
 -Fix rarity tier with with ability/perk selection?
+-Some more bosses
 ---Soon---
 -Upgrade preview feature
 -More visuals to distinguish upgrade types
 -Full normal enemy implementation
--Some more bosses
 ---Later---
 -Complete upgrade selection
 -Tutorial

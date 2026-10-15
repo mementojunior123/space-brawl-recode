@@ -6,7 +6,6 @@
 
 ---General---
 -Add a hard mode where every upgrade has an upside
--Make sections 10 short waves instead of 5 long waves?? make waves shorter?
 -Make DDA account for enemy type? Make DDA affect enemy type weight?
     Calculate the ratio of (average onscreen/dead enemy weight) / (average enemy left weight)
     if the ratio > 1, spawn easier enemies, and if the ratio < 1, spawn harder enemies
@@ -38,10 +37,15 @@
         Can randomly double-back when it goes to the middle of the screen
 
 -Bosses:
-    -Basic [jam]
-    -Elite [jam]
+    -Basic [done]
+    -Elite [done]
     -Spaceship [jam]
     -Elite spaceship [jam]
+    -Mothership
+        Has phases and more complex pre-determined attack patterns
+        Summons the previous bosses
+    -Elite mothership
+        -Motheship but harder
 
 ---Upgrades---
 -Different upgrade types:
@@ -68,14 +72,11 @@
 -Specilization carryover [done]:
     -When getting a new weapon, you will automatically get specilization of equivalent tier minus 1 level.
 
-Wave 1~2 : Mostly minor upgrades (like 2/3)
-Wave 3 : At least 1 perk/ability/major
-Wave 4 : Mostly minor upgrades (like 2/3)
-Wave 5 : At least 2 perk/ability/major
-Wave 6~7 : Mostly minor upgrades (like 1/2), but a bit stronger
-Wave 8 : At least 1 perk/ability/major
-Wave 9 : Mostly minor upgrades (like 1/2), but a bit stronger
-Wave 10 : 2 specilizations, 1 perk/ability/major that's above the current tier
+Wave 1 : Only minor upgrades
+Wave 2 : Mostly minor upgrade (like 2 / 3)
+Wave 3 : At least 2 perk/ability/major
+Wave 4 : Atleast 1 ability
+Wave 5 : 2 specilizations, 1 perk/ability/major that's above the current tier
 
 -Upgrade catalog:
     -Minor/Major:
