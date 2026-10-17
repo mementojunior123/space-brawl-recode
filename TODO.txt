@@ -1,6 +1,5 @@
 ---Now---
 -Some more enemies
--Reroll
 -Some more upgrades
 -Ability transfer?
 -Position secondary fire transfer properly
