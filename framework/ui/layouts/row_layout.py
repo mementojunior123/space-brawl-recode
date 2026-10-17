@@ -14,8 +14,8 @@ from dataclasses import dataclass
 class RowLayout(BaseLayout):
     def __init__(self, base_drawable_info: BaseDrawableInfo, elements: list[UiDrawable], ui_frame_info: BaseUiFrameInfo,
                  spacing : float = 0):
-        super().__init__(base_drawable_info, elements, ui_frame_info)
         self._spacing : float = spacing
+        super().__init__(base_drawable_info, elements, ui_frame_info)
 
     @property
     def spacing(self) -> float:
