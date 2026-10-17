@@ -12,7 +12,7 @@ import framework.utils.interpolation as interpolation
 from framework.utils.my_timer import Timer, TimeSource
 from framework.game.sprite import Sprite
 from framework.utils.helpers import average, random_float, AnchorStr, AnchorNameList
-from framework.ui import BrightnessOverlay
+from framework.ui import BrightnessOverlay, BaseUiElements, RowLayout, BaseLayout
 from framework.utils.base_particle_effects import ParticleEffect, Particle
 
 class GameState:
@@ -297,15 +297,39 @@ class WaveControlScript(CoroutineScript[float, str|None]):
         if boss_count:
             core_object.game.alert_player("Boss incoming!", 0.5)
             spawn_timer.set_duration(2.0)
+            curr_music_channels = core_object.bg_manager.get_all_type('Music')
+            start_volume : float = curr_music_channels[0].get_volume() if curr_music_channels else 1
             while not spawn_timer.isover():
                 pressed = pygame.key.get_pressed()
                 if pressed[pygame.K_LSHIFT] and pressed[pygame.K_k]:
-                    bosses.clear()  
+                    bosses.clear()
+
+                new_vol : float = pygame.math.lerp(start_volume, 0, spawn_timer.get_time() / spawn_timer.duration)
+                for channel in curr_music_channels:
+                    if new_vol != 0:
+                        channel.set_volume(new_vol)
+                if new_vol <= 0 and curr_music_channels:
+                    for channel in curr_music_channels:
+                        core_object.bg_manager.stop_channel(channel)
+                    curr_music_channels.clear()
+
                 delta = yield
+
+            core_object.bg_manager.stop_all_music()
+            boss_theme_channel : pygame.mixer.Channel = cast(pygame.mixer.Channel, core_object.bg_manager.play('boss_theme', 0.1))
+
+            spawn_timer.restart()
             for i, boss in enumerate(bosses, start=1):
                 spawned : BaseBossEnemy = WaveControlScript.summon_boss(boss)
                 while spawned.active:
                     delta = yield
+                    new_vol : float
+                    if spawn_timer.get_time() <= 0.3:
+                        new_vol = 0.1
+                    else:
+                        new_vol = pygame.math.lerp(0.1, 1, -0.3 + spawn_timer.get_time() / 2.5)
+                    if new_vol != boss_theme_channel.get_volume():
+                        boss_theme_channel.set_volume(new_vol)
                 if i < boss_count:
                     spawn_timer.set_duration(1.0)
                     while not spawn_timer.isover():
@@ -316,8 +340,16 @@ class WaveControlScript(CoroutineScript[float, str|None]):
 
             spawn_timer.set_duration(2.0)
             while not spawn_timer.isover():
+                stopped_vol : bool = False
+                new_vol : float = pygame.math.lerp(1, 0, spawn_timer.get_time() / 1.99)
+                if not stopped_vol and new_vol != boss_theme_channel.get_volume():
+                    boss_theme_channel.set_volume(new_vol)
+                if new_vol == 0:
+                    core_object.bg_manager.stop_all_music()
+                    stopped_vol = True
                 delta = yield           
             state.player.heal_to_max()
+            core_object.bg_manager.stop_all_music()
         return 'Done'
 
     @staticmethod
@@ -499,6 +531,79 @@ class UpgradeCard(UiFrame):
                 self.transition_state = None
                 self.transition_timer.set_duration(-1)
         super().update(delta)
+
+class RerollButton(UiSprite):
+    _base_surf_changeable = False
+    def __init__(self, info : BaseDrawableInfo):
+        super().__init__(info, BaseUiElements.new_button('BlueButton', 'Reroll', 0, 'center', pygame.Vector2(480, 370),
+                                                    scale=(0.3, 1), text_settings=(Game.font_40, 'White', False)).base_surf)
+
+        self.transition_state : tuple[Literal['in', 'out'], float]|None = None
+        self.transition_timer : Timer = Timer(-1, core_object.game_tsource)
+        self.done_transitioned_in : bool = False
+        self.done_transitioned_out : bool = False
+
+    def transition_in(self):
+        if self.transition_state and self.transition_state[0] in ('in', 'out'):
+            return
+        self.transition_state = ('in', self.position.x)
+        self.transition_timer.set_duration(1.5)
+        self.done_transitioned_in = False
+        self.done_transitioned_out = False
+
+    def transition_out(self):
+        if self.transition_state and self.transition_state[0] == 'out':
+            return
+        self.transition_state = ('out', self.position.x)
+        self.transition_timer.set_duration(1.5)
+        self.done_transitioned_out = False
+
+    def update(self, delta : float):
+        if self.transition_state:
+            target : float = 960 - 200 if self.transition_state[0] == 'in' else 1020 + self.size.x
+            alpha : float = pygame.math.clamp(self.transition_timer.get_time() / self.transition_timer.duration, 0, 1)
+            smooth_func = interpolation.quad_ease_in if self.transition_state[0] == 'out' else interpolation.quad_ease_out
+            self.position.x = pygame.math.lerp(self.transition_state[1], target, smooth_func(alpha))
+            if self.transition_timer.isover():
+                match self.transition_state[0]:
+                    case 'in':
+                        self.done_transitioned_in = True
+                    case 'out':
+                        self.done_transitioned_out = True
+                self.transition_state = None
+
+class RerollCostSprite(RowLayout):
+    SPACING : int = 10
+    def __init__(self, base_drawable_info: BaseDrawableInfo, cost : int):
+        self.text_sprite : TextSprite = TextSprite(BaseDrawableInfo(UiPosition((0, 0), 'topleft'), name='reroll_cost_text'), 
+                                                   TextSpriteInfo(f"Cost : {cost}", TextStyle(Game.font_40, 'White', False, 2, 2)))
+        self.heart_sprite : UiSprite = UiSprite(BaseDrawableInfo(UiPosition((0, 0), 'topleft')), Player.full_heart)
+
+        elements = [self.text_sprite, self.heart_sprite]
+
+        self._cost : int = cost
+        real_width : int = self.text_sprite.base_surf.get_width() + self.SPACING + self.heart_sprite.base_surf.get_width()
+        real_height : int = max(self.text_sprite.base_surf.get_height(), self.heart_sprite.base_surf.get_height())
+
+        print(123)
+        super().__init__(base_drawable_info, elements, BaseUiFrameInfo((real_width, real_height), True), self.SPACING)
+        print(self._spacing)
+
+    @property
+    def cost(self) -> int:
+        return self._cost
+
+    @cost.setter
+    def cost(self, value : int):
+        if self._cost != value:
+            self._cost = value
+            self.text_sprite.text = f"Cost : {value}"
+            self.update_size()
+
+    def update_size(self):
+        real_width : int = self.text_sprite.base_surf.get_width() + self.SPACING + self.heart_sprite.base_surf.get_width()
+        real_height : int = max(self.text_sprite.base_surf.get_height(), self.heart_sprite.base_surf.get_height())
+        self.size = pygame.Vector2(real_width, real_height)
     
 class ShopGameState(NormalGameState):
     def __init__(self, game_object : 'Game', prev : 'ActiveWaveGameState'):
@@ -508,22 +613,28 @@ class ShopGameState(NormalGameState):
 
         self.test_timer : Timer = Timer(10, core_object.game_tsource)
 
-        upgrade_count : int = 3
-        target_tier : int = (self.prev_state.curr_wave - 1) // 5 + 1
-        rarity_bonus_tier : int = 0
+        self.upgrade_count : int = 3
+        self.target_tier : int = (self.prev_state.curr_wave - 1) // 5 + 1
+        self.rarity_bonus_tier : int = 0
+
+        self.curr_reroll_cost : float = 1
+        self.reroll_increment : float = 1
 
         self.candidates : list[Upgrade] = []
 
-        for name, rank in self.select_upgrades(upgrade_count, target_tier, rarity_bonus_tier):
-            result : Upgrade|None = Upgrade.from_name_and_rank(name, rank)
-            if result is not None:
-                self.candidates.append(result)
-
-        self.upgrade_cards : list[UpgradeCard] = self.generate_card_list(self.candidates)
+        self.upgrade_cards : list[UpgradeCard] = []
+        self.reroll_button : RerollButton = RerollButton(BaseDrawableInfo(UiPosition(pygame.Vector2(1020, 390), 'bottomleft'), name='reroll_button'))
+        self.reroll_button.change_anchor('midright')
+        self.reroll_cost_sprite : RerollCostSprite = RerollCostSprite(BaseDrawableInfo(UiPosition(pygame.Vector2(1020, 390), 'midtop'), name='reroll_cost'),
+                                                                      int(self.curr_reroll_cost))
+        print(self.reroll_cost_sprite._spacing, 123)
+        core_object.main_ui.add(self.reroll_button)
+        core_object.main_ui.add(self.reroll_cost_sprite)
 
         self.selected_upgrade : Upgrade|None = None
 
         core_object.main_ui.add_multiple(self.upgrade_cards)
+        self.make_selections(self.upgrade_count, self.target_tier, self.rarity_bonus_tier)
 
         self.control_script : ShopControlScript = ShopControlScript()
         self.control_script.initialize(self)
@@ -548,9 +659,23 @@ class ShopGameState(NormalGameState):
 
         return upgrade_cards
 
+    def make_selections(self, upgrade_count : int, target_tier : int, rarity_bonus_tier : int):
+        self.candidates.clear()
+        for name, rank in self.select_upgrades(upgrade_count, target_tier, rarity_bonus_tier):
+            result : Upgrade|None = Upgrade.from_name_and_rank(name, rank)
+            if result is not None:
+                self.candidates.append(result)
+
+        self.upgrade_cards = self.generate_card_list(self.candidates)
+
+        self.selected_upgrade = None
+
+        core_object.main_ui.add_multiple(self.upgrade_cards)
+
     def main_logic(self, delta : float):
         super().main_logic(delta)
         result : str|None = self.control_script.process_frame(delta)
+        self.reroll_cost_sprite.position.x = self.reroll_button.get_world_draw_rect().centerx
         if result == 'Done':
             self.transition_to_wave()
 
@@ -559,7 +684,7 @@ class ShopGameState(NormalGameState):
             if card.transition_state is not None:
                 continue
             if any(proj.team == Teams.ALLIED and proj.rect.colliderect(card.get_world_draw_rect()) 
-                   for proj in BaseProjectile.active_elements):
+                   for proj in NormalProjectile.active_elements):
                 return card
         return None
 
@@ -801,53 +926,92 @@ class ShopControlScript(CoroutineScript[float, Literal['Done']|None]):
     def corou(state : ShopGameState):
         delta : float = core_object.dt
         did_reroll : bool = False
+        music_timer : Timer = Timer(-1, core_object.game_tsource)
         yield
+        curr_music_channels = core_object.bg_manager.get_all_type('Music')
         while True:
             state.transition_cards_in()
+            state.reroll_button.transition_in()
             while True:
-                if state.selected_upgrade is not None and all(card.transition_done for card in state.upgrade_cards):
-                    did_reroll = False
+                new_vol : float = pygame.math.lerp(1, 0.25, music_timer.get_time() / 1.5)
+                for channel in curr_music_channels:
+                    channel.set_volume(new_vol)
+
+                if (NormalProjectile.active_elements and 
+                    state.reroll_button.get_world_draw_rect().collidelist([proj.rect for proj in NormalProjectile.active_elements]) != -1):
+                    state.transition_cards_out()
+                    did_reroll = True
                     break
+
                 hit_card : UpgradeCard|None = state.check_collisions()
                 if hit_card:
                     state.selected_upgrade = state.candidates[hit_card.upgrade_index]
                     hit_card.transition_selected()
                     state.transition_cards_out()
+                    state.reroll_button.transition_out()
+                    did_reroll = False
+                    break
+
                 delta = yield
 
-            state.clear_cards()
-            if not did_reroll:
-                tranfser_rank : int|None = None
-                if state.selected_upgrade.upgrade_type == UpgradeType.SECONDARY_FIRE:
-                    tranfser_rank = state.player.upgrades.get_rank_transfer(cast(SecondaryFireName, state.selected_upgrade.name))
-
-                if tranfser_rank is not None and tranfser_rank != 0:
-                    upgrade_list : list[Upgrade] = []
-                    for i in range(1, tranfser_rank + 1):
-                        new_upgrade : Upgrade|None = Upgrade.from_name_and_rank(state.selected_upgrade.name, i)
-                        if new_upgrade is not None:
-                            upgrade_list.append(new_upgrade)
-                    state.upgrade_cards = state.generate_card_list(upgrade_list)
-                    core_object.main_ui.add_multiple(state.upgrade_cards)
-                    state.transition_cards_in()
-                    state.game.alert_player("And here are a few bonuses...")
-                    card_show_timer : Timer = Timer(5, core_object.game_tsource)
-                    while not card_show_timer.isover():
-                        delta = yield
-                    state.transition_cards_out()
-                    while any(not card.transition_done for card in state.upgrade_cards):
-                        delta = yield
-            else:
+            if did_reroll or state.selected_upgrade is None:
+                while any(not card.transition_done for card in state.upgrade_cards):
+                    delta = yield
+                state.clear_cards()
                 wait_reroll_timer : Timer = Timer(0.5, core_object.game_tsource)
                 while not wait_reroll_timer.isover():
                     delta = yield
-                # Reroll logic goes here
+                state.make_selections(state.upgrade_count, state.target_tier, state.rarity_bonus_tier)
                 continue
 
+            tranfser_rank : int|None = None
+            if state.selected_upgrade.upgrade_type == UpgradeType.SECONDARY_FIRE:
+                tranfser_rank = state.player.upgrades.get_rank_transfer(cast(SecondaryFireName, state.selected_upgrade.name))
+
+            if tranfser_rank is not None and tranfser_rank != 0:
+                while any(not card.transition_done for card in state.upgrade_cards):
+                    delta = yield
+                state.clear_cards()
+                upgrade_list : list[Upgrade] = []
+                for i in range(1, tranfser_rank + 1):
+                    new_upgrade : Upgrade|None = Upgrade.from_name_and_rank(state.selected_upgrade.name, i)
+                    if new_upgrade is not None:
+                        upgrade_list.append(new_upgrade)
+                state.upgrade_cards = state.generate_card_list(upgrade_list)
+                core_object.main_ui.add_multiple(state.upgrade_cards)
+                state.transition_cards_in()
+                state.game.alert_player("And here are a few bonuses...")
+                card_show_timer : Timer = Timer(5, core_object.game_tsource)
+                while not card_show_timer.isover():
+                    delta = yield
+                state.transition_cards_out()
+
+            if not curr_music_channels:
+                curr_music_channels.append(cast(pygame.mixer.Channel, core_object.bg_manager.play('main_theme', 0.25)))
+            start_volume : float = curr_music_channels[0].get_volume()
+            time : float = 1 if start_volume == 1 else 2 * (1 - start_volume)
+            music_timer.set_duration(1.5)
+            while any(not card.transition_done for card in state.upgrade_cards):
+                alpha : float = interpolation.quad_ease_out(pygame.math.clamp(music_timer.get_time() / time, 0, 1))
+                new_vol : float = pygame.math.lerp(start_volume, 1, alpha)
+                for channel in curr_music_channels:
+                    channel.set_volume(new_vol)
+                    print(channel.get_volume())
+                delta = yield
+            state.clear_cards()
+            
             delay_timer : Timer = Timer(0.5, core_object.game_tsource)
             while not delay_timer.isover():
+                alpha : float = interpolation.quad_ease_out(pygame.math.clamp(music_timer.get_time() / time, 0, 1))
+                new_vol : float = pygame.math.lerp(start_volume, 1, alpha)
+                for channel in curr_music_channels:
+                    channel.set_volume(new_vol)
+                    print(channel.get_volume())
                 delta = yield
             break
+        for channel in curr_music_channels:
+            channel.set_volume(1)
+        core_object.main_ui.remove(state.reroll_button)
         return 'Done'
     
 class GameOverGameState(GameState):
@@ -945,8 +1109,8 @@ def runtime_imports():
     from src.sprites.background import Background
     import src.sprites.background
 
-    global BaseProjectile, Teams
-    from src.sprites.projectiles import BaseProjectile, Teams
+    global BaseProjectile, Teams, NormalProjectile
+    from src.sprites.projectiles import BaseProjectile, Teams, NormalProjectile
     import src.sprites.projectiles
     src.sprites.projectiles.runtime_imports()
 

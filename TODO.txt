@@ -2,10 +2,11 @@
 -Some more enemies
 -Reroll
 -Some more upgrades
--More sound management
 -Ability transfer?
+-Position secondary fire transfer properly
 -Fix rarity tier with with ability/perk selection?
 -Some more bosses
+-Fully implement reroll and fix a few issues
 ---Soon---
 -Upgrade preview feature
 -More visuals to distinguish upgrade types
