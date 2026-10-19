@@ -1,11 +1,15 @@
 ---Now---
+--Content--
 -Some more enemies
 -Some more upgrades
+-Some more bosses
+--Systems--
 -Ability transfer?
+-Fully implement reroll and fix a few issues
+--Fixes/Improvements--
 -Position secondary fire transfer properly
 -Fix rarity tier with with ability/perk selection?
--Some more bosses
--Fully implement reroll and fix a few issues
+-Fix scatter projectiles being able to trigger upgrades
 ---Soon---
 -Upgrade preview feature
 -More visuals to distinguish upgrade types
